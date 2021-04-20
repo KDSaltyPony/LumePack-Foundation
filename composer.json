@@ -1,0 +1,25 @@
+{
+    "name": "lume-pack/foundation",
+    "description": "Some fundamental lumen classes for a cool REST API",
+    "authors": [
+        {
+            "name": "KDSaltyPony",
+            "email": "kallofdragon@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.2.19",
+        "laravel/lumen-framework": "^7.0.5",
+        "illuminate/database": "^7.30.4",
+        "illuminate/http": "^7.30.4",
+        "illuminate/pagination": "^7.30.4",
+        "illuminate/support": "^7.30.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "LumePack\\Foundation\\": "src"
+        }
+    }
+}
