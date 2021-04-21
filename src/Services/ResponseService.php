@@ -110,22 +110,22 @@ class ResponseService
             'message' => self::STATUS_CODES[$this->status]
         ];
 
-        if (is_object($body) && get_class($body) === Collection::class && config('custom.paginator.limit') !== 0) {
+        if (is_object($body) && get_class($body) === Collection::class && config('paginator.limit') !== 0) {
             $this->body = $body->forPage(
-                config('custom.paginator.page'),
-                config('custom.paginator.limit')
+                config('paginator.page'),
+                config('paginator.limit')
             );
 
             $this->paginator = new Paginator(
                 $this->body,
                 $body->count(),
-                config('custom.paginator.limit'),
-                config('custom.paginator.page'),
+                config('paginator.limit'),
+                config('paginator.page'),
                 [
                     'query' => [
-                        'sort'  => config('custom.query.sort'),
-                        'limit' => config('custom.paginator.limit'),
-                        'filters' => config('custom.query.filters')
+                        'sort'  => config('query.sort'),
+                        'limit' => config('paginator.limit'),
+                        'filters' => config('query.filters')
                     ]
                 ]
             );

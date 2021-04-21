@@ -245,18 +245,18 @@ abstract class CRUD
     {
         $this->query = $this->model_class::whereRaw('1=1');
 
-        if (config('custom.query.conditions')) {
+        if (config('query.conditions')) {
             $this->query->where(
                 function ($q) {
                     $this->_setQueryConditions(
-                        $q, config('custom.query.conditions')
+                        $q, config('query.conditions')
                     );
                 }
             );
         }
 
-        if (config('custom.query.order_by')) {
-            foreach (config('custom.query.order_by') as $order) {
+        if (config('query.order_by')) {
+            foreach (config('query.order_by') as $order) {
                 $this->query->orderBy($order['attribute'], $order['order']);
             }
         }
