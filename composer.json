@@ -21,5 +21,12 @@
         "psr-4": {
             "LumePack\\Foundation\\": "src"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LumePack\\Foundation\\Providers\\LumenServiceProvider"
+            ]
+        }
     }
 }
