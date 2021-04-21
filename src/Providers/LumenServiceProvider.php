@@ -42,5 +42,13 @@ class LumenServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->app->configure('paginator');
+        $this->app->configure('query');
+
+        $path = realpath(__DIR__.'/../../config/paginator.php');
+        $this->mergeConfigFrom($path, 'paginator');
+
+        $path = realpath(__DIR__.'/../../config/query.php');
+        $this->mergeConfigFrom($path, 'query');
     }
 }
