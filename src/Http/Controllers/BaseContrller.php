@@ -5,15 +5,15 @@
  * PHP Version 7.2.19
  * 
  * @category Controller
- * @package  Foundation\Http\Controllers
+ * @package  LumePack\Foundation\Http\Controllers
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace Foundation\Http\Controllers;
+namespace LumePack\Foundation\Http\Controllers;
 
-use Foundation\Services\ResponseService;
-use Foundation\Data\Repositories\CRUD;
+use LumePack\Foundation\Services\ResponseService;
+use LumePack\Foundation\Data\Repositories\CRUD;
 use Laravel\Lumen\Routing\Controller as LaravelController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +22,7 @@ use Illuminate\Http\JsonResponse;
  * BaseController
  * 
  * @category Controller
- * @package  Foundation\Http\Controllers
+ * @package  LumePack\Foundation\Http\Controllers
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none

@@ -5,12 +5,12 @@
  * PHP Version 7.2.19
  * 
  * @category Service
- * @package  Foundation\Services
+ * @package  LumePack\Foundation\Services
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace Foundation\Services;
+namespace LumePack\Foundation\Services;
 
 // use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Request;
  * ResponseService
  * 
  * @category Service
- * @package  Foundation\Services
+ * @package  LumePack\Foundation\Services
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none

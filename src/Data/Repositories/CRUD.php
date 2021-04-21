@@ -5,12 +5,12 @@
  * PHP Version 7.2.0
  * 
  * @category Repositorie
- * @package  Foundation\Data\Repositories
+ * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace Foundation\Data\Repositories;
+namespace LumePack\Foundation\Data\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Schema;
  * CRUD
  * 
  * @category Repositorie
- * @package  Foundation\Data\Repositories
+ * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
