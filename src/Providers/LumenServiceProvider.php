@@ -12,6 +12,8 @@
  */
 namespace LumePack\Foundation\Providers;
 
+use LumePack\Foundation\Http\Middleware\DataCheck;
+use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -32,7 +34,9 @@ class LumenServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $kernel = $this->app->make(Kernel::class);
+        $kernel->pushMiddleware(DataCheck::class);
+        $kernel->pushMiddleware(QueryStringToConfig::class);
     }
 
     /**

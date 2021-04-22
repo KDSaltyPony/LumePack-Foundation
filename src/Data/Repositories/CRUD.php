@@ -30,6 +30,24 @@ use Illuminate\Support\Facades\Schema;
 abstract class CRUD
 {
     /**
+     * Association set relation => query method prefix
+     * 
+     * @var array
+     */
+    // $bitwise = [ 'n' => 'AND', 'u' => 'OR'/*, '\\' => 'XOR'*/ ];
+    private const PREFIXES = [ 'n' => 'where', 'u' => 'orWhere' ];
+
+    /**
+     * Association consise operator => comparator
+     * 
+     * @var array
+     */
+    private const OPERATORS = [
+        'eq' => '=', 'neq' => '<>', 'gt' => '>', 'lt' => '<',
+        'gte' => '>=', 'lte' => '<=', 'lk' => 'LIKE', 'nlk' => 'NOT LIKE'
+    ];
+
+    /**
      * The namespace of the Model to use
      * 
      * @var string
@@ -62,7 +80,7 @@ abstract class CRUD
      * 
      * @var array
      */
-    protected $filters = [ 'n' => 'name' ]; // TODO => [ 'n' => [ 'row' => 'name', 'forbiden' => [ 'eq', 'lk' ], 'join', 'control' => 'is mail, is string, is int...' ] ]
+    protected $filters = []; // 'n' => 'name' TODO => [ 'n' => [ 'row' => 'name', 'forbiden' => [ 'eq', 'lk' ], 'join', 'control' => 'is mail, is string, is int...' ] ]
 
     /**
      * The orders available in the query
@@ -275,19 +293,12 @@ abstract class CRUD
      */
     protected function _setQueryConditions(Builder &$query, array $conditions): void
     {
-        // $bitwise = [ 'n' => 'AND', 'u' => 'OR'/*, '\\' => 'XOR'*/ ];
-        $prefixes = [ 'n' => 'where', 'u' => 'orWhere' ];
-        $operators = [
-            'eq' => '=', 'neq' => '<>', 'gt' => '>', 'lt' => '<',
-            'gte' => '>=', 'lte' => '<=', 'lk' => 'LIKE', 'nlk' => 'NOT LIKE'
-        ];
-
         foreach ($conditions as $cond) {
-            if (!array_key_exists($cond['bitwise'], $prefixes)) {
+            if (!array_key_exists($cond['bitwise'], self::PREFIXES)) {
                 # TODO => uknown code ! => throw error
             }
 
-            $method = $prefixes[$cond['bitwise']];
+            $method = self::PREFIXES[$cond['bitwise']];
             $params = [];
 
             if (array_key_exists('conditions', $cond)) {
@@ -297,10 +308,10 @@ abstract class CRUD
                     }
                 );
             } else {
-                // $params[0] = $this->_getFilter(
-                //     $cond['target'], $cond['operator']
-                // );
-                $params[0] = $cond['target'];
+                $params[0] = $this->_getFilter(
+                    $cond['target'], $cond['operator']
+                );
+                // $params[0] = $cond['target'];
 
                 switch ($cond['operator']) {
                     case 'nbtw': case 'nin': case 'nn':
@@ -312,10 +323,10 @@ abstract class CRUD
                     case 'clt': case 'cgte': case 'clte':
                         $method .= 'Column';
                         $cond['operator'] = substr($cond['operator'], 1);
-                        // $cond['value'] = $this->_getFilter(
-                        //     $cond['value'], $cond['operator']
-                        // );
-                        $cond['value'] = $cond['value'];
+                        $cond['value'] = $this->_getFilter(
+                            $cond['value'], $cond['operator']
+                        );
+                        // $cond['value'] = $cond['value'];
                         break;
                 }
 
@@ -343,11 +354,11 @@ abstract class CRUD
                         break;
 
                     default:
-                        if (!array_key_exists($cond['operator'], $operators)) {
+                        if (!array_key_exists($cond['operator'], self::OPERATORS)) {
                             # TODO => uknown code ! => throw error
                         }
 
-                        $params[1] = $operators[$cond['operator']];
+                        $params[1] = self::OPERATORS[$cond['operator']];
                         $params[2] = $cond['value']; // TODO => Value controls ?
                         break;
                 }

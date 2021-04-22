@@ -73,6 +73,13 @@ class ResponseService
     protected $status = 200;
 
     /**
+     * The HTTP headers.
+     * 
+     * @var int
+     */
+    protected $headers = [];
+
+    /**
      * The response body.
      * 
      * @var mixed
@@ -105,12 +112,17 @@ class ResponseService
     {
         $this->status = $status;
         $this->metadata = [
-            'success' => ($this->status >= 200 && $this->status < 300),
-            'status'  => $this->status,
-            'message' => self::STATUS_CODES[$this->status]
+            'success'   => ($this->status >= 200 && $this->status < 300),
+            'status'    => $this->status,
+            'message'   => self::STATUS_CODES[$this->status]
         ];
+        $this->body = $body;
 
-        if (is_object($body) && get_class($body) === Collection::class && config('paginator.limit') !== 0) {
+        if (
+            is_object($body) &&
+            get_class($body) === Collection::class &&
+            config('paginator.limit') !== 0
+        ) {
             $this->body = $body->forPage(
                 config('paginator.page'),
                 config('paginator.limit')
@@ -123,16 +135,14 @@ class ResponseService
                 config('paginator.page'),
                 [
                     'query' => [
-                        'sort'  => config('query.sort'),
-                        'limit' => config('paginator.limit'),
+                        'sort'    => config('query.sort'),
+                        'limit'   => config('paginator.limit'),
                         'filters' => config('query.filters')
                     ]
                 ]
             );
 
             $this->_paginatorMetadata();
-        } else {
-            $this->body = $body;
         }
     }
 
@@ -150,6 +160,19 @@ class ResponseService
     }
 
     /**
+     * Add or edit metadata info.
+     * 
+     * @param int    $key   The name of the header
+     * @param string $value The value of the header
+     * 
+     * @return void
+     */
+    public function setHeader(string $key, string $value): void
+    {
+        $this->headers[$key] = $value;
+    }
+
+    /**
      * Serealize and return a response in regard of the Accept header.
      * 
      * @param array $headers Optional response headers.
@@ -163,13 +186,11 @@ class ResponseService
             new ResponseService('Accept header required', 400)
         )->_JSON();
 
-        if ($this->status === 401) {
-            $headers['WWW-Authenticate'] = 'Bearer realm="Access to the API"';
-        }
+        $this->headers = array_merge($this->headers, $headers);
 
         switch ($accept) {
             case 'application/json':
-                $response = $this->_JSON($headers);
+                $response = $this->_JSON($this->headers);
                 break;
 
             // case 'application/xml':
