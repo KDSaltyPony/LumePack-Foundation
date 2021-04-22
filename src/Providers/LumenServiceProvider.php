@@ -13,8 +13,8 @@
 namespace LumePack\Foundation\Providers;
 
 use LumePack\Foundation\Http\Middleware\DataCheck;
+use LumePack\Foundation\Http\Middleware\DataValidate;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
-use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -28,18 +28,6 @@ use Illuminate\Support\ServiceProvider;
  */
 class LumenServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $kernel = $this->app->make(Kernel::class);
-        $kernel->pushMiddleware(DataCheck::class);
-        $kernel->pushMiddleware(QueryStringToConfig::class);
-    }
-
     /**
      * Boot the authentication services for the application.
      *
@@ -55,5 +43,21 @@ class LumenServiceProvider extends ServiceProvider
 
         $path = realpath(__DIR__.'/../../config/query.php');
         $this->mergeConfigFrom($path, 'query');
+
+        $this->app->middleware([ QueryStringToConfig::class ]);
+
+        $this->app->routeMiddleware([
+            'dataValidation' => DataValidate::class
+        ]);
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
     }
 }
