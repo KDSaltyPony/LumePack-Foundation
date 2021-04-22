@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Providers;
 
 use LumePack\Foundation\Http\Middleware\DataCheck;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 
 /**
