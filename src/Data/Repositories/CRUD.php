@@ -405,21 +405,21 @@ abstract class CRUD
     private function _setQueryLimiter(?array &$fields = null): void
     {
         $model = $this->model_class;
+        $ufk = config('crud.user_fk');
  
         if (
-            Schema::hasColumn((new $model())->getTable(), 'user_id') &&
+            Schema::hasColumn((new $model())->getTable(), $ufk) &&
             !is_null(Auth::user())
         ) {
             if (is_null($fields)) {
                 $this->query->where(
                     function ($q) {
-                        $q->where('user_id', Auth::user()->id)
-                            ->orWhereNull('user_id');
+                        $q->where($ufk, Auth::user()->id)->orWhereNull($ufk);
                     }
                 );
             } else {
-                if (!array_key_exists('user_id', $fields)) {
-                    $fields['user_id'] = Auth::user()->id;
+                if (!array_key_exists($ufk, $fields)) {
+                    $fields[$ufk] = Auth::user()->id;
                 }
             }
         }

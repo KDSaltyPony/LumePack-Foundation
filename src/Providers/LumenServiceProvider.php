@@ -38,11 +38,12 @@ class LumenServiceProvider extends ServiceProvider
         $this->app->configure('paginator');
         $this->app->configure('query');
 
-        $path = realpath(__DIR__.'/../../config/paginator.php');
-        $this->mergeConfigFrom($path, 'paginator');
-
-        $path = realpath(__DIR__.'/../../config/query.php');
-        $this->mergeConfigFrom($path, 'query');
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/paginator.php'), 'paginator'
+        );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/query.php'), 'query'
+        );
 
         $this->app->middleware([ QueryStringToConfig::class ]);
 
