@@ -110,7 +110,7 @@ abstract class CRUD
     public function all(bool $limited = true): Collection
     {
         if ($limited) {
-            $this->_setQueryLimiter();
+            $this->setQueryLimiter();
         }
 
         return $this->collection = $this->query->get();
@@ -127,7 +127,7 @@ abstract class CRUD
     public function read(int $uid, bool $limited = true): ?Model
     {
         if ($limited) {
-            $this->_setQueryLimiter();
+            $this->setQueryLimiter();
         }
 
         return $this->model = $this->model_class::find($uid);
@@ -146,7 +146,7 @@ abstract class CRUD
         $this->model = new $this->model_class();
 
         if ($limited) {
-            $this->_setQueryLimiter($fields);
+            $this->setQueryLimiter($fields);
         }
 
         return $this->register($fields);
@@ -186,7 +186,7 @@ abstract class CRUD
         $this->model = $this->model_class::find($uid);
 
         if ($limited) {
-            $this->_setQueryLimiter($fields);
+            $this->setQueryLimiter($fields);
         }
 
         return $this->register($fields);
@@ -204,7 +204,7 @@ abstract class CRUD
         $this->model = $this->model_class::find($uid);
 
         if ($limited) {
-            $this->_setQueryLimiter();
+            $this->setQueryLimiter();
         }
 
         return $this->model_class::destroy($uid) === 1;
@@ -291,7 +291,9 @@ abstract class CRUD
      * 
      * @return void
      */
-    protected function _setQueryConditions(Builder &$query, array $conditions): void
+    protected function _setQueryConditions(
+        Builder &$query, array $conditions
+    ): void
     {
         foreach ($conditions as $cond) {
             if (!array_key_exists($cond['bitwise'], self::PREFIXES)) {
@@ -402,7 +404,7 @@ abstract class CRUD
      * 
      * @return void
      */
-    private function _setQueryLimiter(?array &$fields = null): void
+    protected function setQueryLimiter(?array &$fields = null): void
     {
         $model = $this->model_class;
         $ufk = config('crud.user_fk');
