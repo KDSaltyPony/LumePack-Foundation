@@ -415,7 +415,7 @@ abstract class CRUD
         ) {
             if (is_null($fields)) {
                 $this->query->where(
-                    function ($q) {
+                    function ($q) use ($ufk) {
                         $q->where($ufk, Auth::user()->id)->orWhereNull($ufk);
                     }
                 );
