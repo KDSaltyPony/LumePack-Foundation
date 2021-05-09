@@ -65,9 +65,11 @@ abstract class BaseController extends LaravelController
     /**
      * Method called by the /{root} URL in GET.
      * 
+     * @param Request $request The injected Request
+     * 
      * @return JsonResponse
      */
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
         $this->setResponse($this->repo->all($this->isLimited()));
 
@@ -77,11 +79,12 @@ abstract class BaseController extends LaravelController
     /**
      * Method called by the /{root}/{id} URL in GET.
      * 
-     * @param int $uid The unique id of the desired Model
+     * @param int     $uid     The unique id of the desired Model
+     * @param Request $request The injected Request
      * 
      * @return JsonResponse
      */
-    public function show(int $uid): JsonResponse
+    public function show(int $uid, Request $request): JsonResponse
     {
         $this->setResponse($this->repo->read($uid, $this->isLimited()));
 
@@ -107,12 +110,12 @@ abstract class BaseController extends LaravelController
     /**
      * Method called by the /{root}/{id} URL in PUT
      * 
-     * @param Request $request The injected Request
      * @param int     $uid     The unique id of the Model we want to edit
+     * @param Request $request The injected Request
      * 
      * @return JsonResponse
      */
-    public function edit(Request $request, int $uid): JsonResponse
+    public function edit(int $uid, Request $request): JsonResponse
     {
         $this->setResponse(
             $this->repo->update($request->all(), $uid, $this->isLimited())
@@ -124,11 +127,12 @@ abstract class BaseController extends LaravelController
     /**
      * Method called by the /{root}/{id} URL in DELETE.
      * 
-     * @param int $uid The unique id of the poor Model we are going to delete T.T
+     * @param int     $uid     The unique id of the poor Model we are going to delete T.T
+     * @param Request $request The injected Request
      * 
      * @return JsonResponse
      */
-    public function remove(int $uid)
+    public function remove(int $uid, Request $request)
     {
         $this->setResponse($this->repo->delete($uid, $this->isLimited()));
 
