@@ -152,6 +152,14 @@ class ResponseService
             new ResponseService('Accept header required', 400)
         )->_JSON();
 
+        if (app()->environment('local')) {
+            $this->headers['Access-Control-Allow-Origin'] = '*';
+        } else {
+            $this->headers['Access-Control-Allow-Origin'] = env(
+                'ACCESS_CONTROL_ALLOW_ORIGIN', '*'
+            );
+        }
+
         $this->headers = array_merge($this->headers, $headers);
 
         switch ($accept) {
