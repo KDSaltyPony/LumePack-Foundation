@@ -84,29 +84,14 @@ class ResponseService
         ];
         $this->body = $body;
 
-        if (
-            is_object($body) &&
-            get_class($body) === Collection::class &&
-            config('paginator.limit') !== 0
-        ) {
-            $this->body = $body->forPage(
-                config('paginator.page'),
-                config('paginator.limit')
+        if (is_object($body) && get_class($body) === Paginator::class) {
+            $this->body = $body->items();
+            $this->body = (
+                $this->body instanceof Collection?
+                    $this->body: Collection::make($this->body)
             );
 
-            $this->paginator = new Paginator(
-                $this->body,
-                $body->count(),
-                config('paginator.limit'),
-                config('paginator.page'),
-                [
-                    'query' => [
-                        'sort'    => config('query.sort'),
-                        'limit'   => config('paginator.limit'),
-                        'filters' => config('query.filters')
-                    ]
-                ]
-            );
+            $this->paginator = $body;
 
             $this->_paginatorMetadata();
         }
@@ -118,11 +103,13 @@ class ResponseService
      * @param int   $key   The key of the metadata
      * @param mixed $value The value of the metadata
      * 
-     * @return void
+     * @return ResponseService
      */
-    public function setMetaData(string $key, $value): void
+    public function setMetaData(string $key, $value): ResponseService
     {
         $this->metadata[$key] = $value;
+
+        return $this;
     }
 
     /**
@@ -131,11 +118,13 @@ class ResponseService
      * @param int    $key   The name of the header
      * @param string $value The value of the header
      * 
-     * @return void
+     * @return ResponseService
      */
-    public function setHeader(string $key, string $value): void
+    public function setHeader(string $key, string $value): ResponseService
     {
         $this->headers[$key] = $value;
+
+        return $this;
     }
 
     /**
@@ -159,6 +148,18 @@ class ResponseService
                 'ACCESS_CONTROL_ALLOW_ORIGIN', '*'
             );
         }
+
+        $this->headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-CSRF-TOKEN, Origin, Content-Type, Accept, Authorization';
+        $this->headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS';
+        $this->headers['Vary'] = 'Origin';
+        // TODO : Vary header, Origin, etc. https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+        // $this->headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS';
+        // $this->headers['Access-Control-Allow-Headers'] = 'Accept, Content-Type, Authorization';
+        // Access-Control-Allow-Methods: POST, GET, OPTIONS
+        // Access-Control-Allow-Headers: Content-Type
+        // res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        // res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
 
         $this->headers = array_merge($this->headers, $headers);
 

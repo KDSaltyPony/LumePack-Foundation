@@ -12,6 +12,7 @@
  */
 namespace LumePack\Foundation\Data\Repositories;
 
+use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -69,6 +70,13 @@ abstract class CRUD
     protected $collection = null;
 
     /**
+     * The Paginator retrived by "all" method if limit <> 0
+     *
+     * @var Paginator
+     */
+    protected $pcollection = null;
+
+    /**
      * The query used by "all" method
      * 
      * @var Builder
@@ -102,15 +110,28 @@ abstract class CRUD
 
     /**
      * Retrive all items.
-     * 
+     *
      * @param bool $limited Limit to the authenticateded user (user_id field)
-     * 
-     * @return Collection|Model[]
+     *
+     * @return Collection|Model[]|Paginator
      */
-    public function all(bool $limited = true): Collection
+    public function all(bool $limited = true)
     {
         if ($limited) {
             $this->setQueryLimiter();
+        }
+
+        if (config('paginator.limit') !== 0) {
+            $this->pcollection = $this->query->paginate(
+                config('paginator.limit'), '*', 'page', config('paginator.page')
+            );
+            $this->collection = $this->pcollection->items();
+            $this->collection = (
+                $this->collection instanceof Collection?
+                    $this->collection: Collection::make($this->collection)
+            );
+
+            return $this->pcollection;
         }
 
         return $this->collection = $this->query->get();

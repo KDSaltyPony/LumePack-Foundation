@@ -132,7 +132,7 @@ abstract class BaseController extends LaravelController
      * 
      * @return JsonResponse
      */
-    public function remove(int $uid, Request $request)
+    public function remove(int $uid, Request $request): JsonResponse
     {
         $this->setResponse($this->repo->delete($uid, $this->isLimited()));
 
