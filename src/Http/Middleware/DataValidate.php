@@ -97,7 +97,7 @@ class DataValidate
 
         $this->_validator = new $validator(
             $request->all(),
-            intval($request->route('id'))
+            intval($request->route('uid'))
         );
     }
 }

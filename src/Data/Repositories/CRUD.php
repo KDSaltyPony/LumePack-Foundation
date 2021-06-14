@@ -74,7 +74,7 @@ abstract class CRUD
      *
      * @var Paginator
      */
-    protected $pcollection = null;
+    protected $paginator = null;
 
     /**
      * The query used by "all" method
@@ -122,16 +122,16 @@ abstract class CRUD
         }
 
         if (config('paginator.limit') !== 0) {
-            $this->pcollection = $this->query->paginate(
+            $this->paginator = $this->query->paginate(
                 config('paginator.limit'), '*', 'page', config('paginator.page')
             );
-            $this->collection = $this->pcollection->items();
+            $this->collection = $this->paginator->items();
             $this->collection = (
                 $this->collection instanceof Collection?
                     $this->collection: Collection::make($this->collection)
             );
 
-            return $this->pcollection;
+            return $this->paginator;
         }
 
         return $this->collection = $this->query->get();
@@ -273,6 +273,16 @@ abstract class CRUD
     public function getCollection(): ?Collection
     {
         return $this->collection;
+    }
+
+    /**
+     * The Paginator.
+     * 
+     * @return Paginator|null
+     */
+    public function getPaginator(): ?Paginator
+    {
+        return $this->paginator;
     }
 
     /**

@@ -77,7 +77,7 @@ abstract class BaseController extends LaravelController
     }
 
     /**
-     * Method called by the /{root}/{id} URL in GET.
+     * Method called by the /{root}/{uid} URL in GET.
      * 
      * @param int     $uid     The unique id of the desired Model
      * @param Request $request The injected Request
@@ -108,7 +108,7 @@ abstract class BaseController extends LaravelController
     }
 
     /**
-     * Method called by the /{root}/{id} URL in PUT
+     * Method called by the /{root}/{uid} URL in PUT
      * 
      * @param int     $uid     The unique id of the Model we want to edit
      * @param Request $request The injected Request
@@ -125,7 +125,7 @@ abstract class BaseController extends LaravelController
     }
 
     /**
-     * Method called by the /{root}/{id} URL in DELETE.
+     * Method called by the /{root}/{uid} URL in DELETE.
      * 
      * @param int     $uid     The unique id of the poor Model we are going to delete T.T
      * @param Request $request The injected Request
