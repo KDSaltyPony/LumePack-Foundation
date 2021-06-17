@@ -438,6 +438,8 @@ abstract class CRUD
     protected function setQueryLimiter(?array &$fields = null): void
     {
         $model = $this->model_class;
+        $uentity = config('crud.user_entity');
+        $urelation = config('crud.user_relation');
         $ufk = config('crud.user_fk');
  
         if (
@@ -453,6 +455,10 @@ abstract class CRUD
             } else {
                 if (!array_key_exists($ufk, $fields)) {
                     $fields[$ufk] = Auth::user()->id;
+                }
+
+                if (!is_null($this->model)) {
+                    $this->model->$urelation()->associate(Auth::user());
                 }
             }
         }
