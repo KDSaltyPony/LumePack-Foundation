@@ -1,9 +1,9 @@
 <?php
 /**
  * ResponseService class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Service
  * @package  LumePack\Foundation\Services
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -16,13 +16,17 @@ namespace LumePack\Foundation\Services;
 use Illuminate\Http\JsonResponse;
 // use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\File as HttpFile;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 // use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * ResponseService
- * 
+ *
  * @category Service
  * @package  LumePack\Foundation\Services
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -33,45 +37,45 @@ class ResponseService
 {
     /**
      * The HTTP code.
-     * 
+     *
      * @var int
      */
     protected $status = 200;
 
     /**
      * The HTTP headers.
-     * 
+     *
      * @var int
      */
     protected $headers = [];
 
     /**
      * The response body.
-     * 
+     *
      * @var mixed
      */
     protected $body = null;
 
     /**
      * The paginator.
-     * 
+     *
      * @var Paginator
      */
     protected $paginator = null;
 
     /**
      * The response metadata.
-     * 
+     *
      * @var array
      */
     protected $metadata = [];
 
     /**
      * Set the response object.
-     * 
+     *
      * @param mixed $body   The data the response should return
      * @param int   $status The HTTP code of the response
-     * 
+     *
      * @return void
      */
     public function __construct($body, int $status = 200)
@@ -99,10 +103,10 @@ class ResponseService
 
     /**
      * Add or edit metadata info.
-     * 
+     *
      * @param int   $key   The key of the metadata
      * @param mixed $value The value of the metadata
-     * 
+     *
      * @return ResponseService
      */
     public function setMetaData(string $key, $value): ResponseService
@@ -114,10 +118,10 @@ class ResponseService
 
     /**
      * Add or edit metadata info.
-     * 
+     *
      * @param int    $key   The name of the header
      * @param string $value The value of the header
-     * 
+     *
      * @return ResponseService
      */
     public function setHeader(string $key, string $value): ResponseService
@@ -129,9 +133,9 @@ class ResponseService
 
     /**
      * Serealize and return a response in regard of the Accept header.
-     * 
+     *
      * @param array $headers Optional response headers.
-     * 
+     *
      * @return mixed
      */
     public function format(array $headers = [])
@@ -172,9 +176,10 @@ class ResponseService
             //     # code...
             //     break;
 
-            // case 'application/octet-stream':
-            //     Content-Disposition: attachment; filename="MyFileName.ext"...
-            //     break;
+            case 'application/octet-stream':
+                $response = $this->_file($this->headers);
+                // TODO upload Content-Disposition: attachment; filename="MyFileName.ext"...
+                break;
         }
 
         return $response;
@@ -182,9 +187,9 @@ class ResponseService
 
     /**
      * Serealize (auto in Lumen ^^, override?) and return a JSON response.
-     * 
+     *
      * @param array $headers Optional response headers.
-     * 
+     *
      * @return JsonResponse
      */
     private function _JSON(array $headers = []): JsonResponse
@@ -198,12 +203,32 @@ class ResponseService
         );
     }
 
+    /**
+     * Serealize (auto in Lumen ^^, override?) and return a JSON response.
+     *
+     * @param array $headers Optional response headers.
+     *
+     * @return BinaryFileResponse
+     */
+    private function _file(array $headers = []): BinaryFileResponse
+    {
+        // return response()->file($this->body,
+        //     $this->status,
+        //     array_merge($headers, [
+        //         'Content-Type' => File::mimeType($this->body)
+        //     ])
+        // );
+        return (new BinaryFileResponse($this->body, $this->status, [
+            'Content-Type' => File::mimeType($this->body)
+        ]));
+    }
+
     // /**
     //  * Serealize and return a XML response.
     //  *
     //  * @param array $headers Optional response headers.
-    //  * 
-    //  * @return 
+    //  *
+    //  * @return
     //  */
     // private function _XML(array $headers = []): XmlResponse???
     // {
@@ -211,7 +236,7 @@ class ResponseService
 
     /**
      * Set paginator metadata.
-     * 
+     *
      * @return void
      */
     private function _paginatorMetadata(): void
