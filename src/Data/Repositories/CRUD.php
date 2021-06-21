@@ -443,8 +443,7 @@ abstract class CRUD
         $ufk = config('crud.user_fk');
  
         if (
-            Schema::hasColumn((new $model())->getTable(), $ufk) &&
-            !is_null(Auth::user())
+            Schema::hasColumn((new $model())->getTable(), $ufk) && Auth::check()
         ) {
             if (is_null($fields)) {
                 $this->query->where(

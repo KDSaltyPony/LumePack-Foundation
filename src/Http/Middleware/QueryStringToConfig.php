@@ -103,11 +103,11 @@ class QueryStringToConfig
     private function _formatFilters(string $filters): void
     {
         config(
-            [ 'custom.query.conditions' => $this->_filtersParser($filters, []) ]
+            [ 'query.conditions' => $this->_filtersParser($filters, []) ]
         );
 
-        if (count(config('custom.query.conditions')) > 0) {
-            config([ 'custom.query.sort' => $filters ]);
+        if (count(config('query.conditions')) > 0) {
+            config([ 'query.sort' => $filters ]);
         }
     }
 
