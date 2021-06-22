@@ -1,9 +1,9 @@
 <?php
 /**
  * QueryStringToConfig class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Middleware
  * @package  LumePack\Foundation\Http\Middleware
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 
 /**
  * QueryStringToConfig
- * 
+ *
  * @category Middleware
  * @package  LumePack\Foundation\Http\Middleware
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -32,7 +32,7 @@ class QueryStringToConfig
      *
      * @param Request  $request The request to validate
      * @param \Closure $next    The controller method passed in routes
-     * 
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -62,9 +62,9 @@ class QueryStringToConfig
 
     /**
      * Extract the order by raw string and add it to global config
-     * 
+     *
      * @param string $sort The sort query param
-     * 
+     *
      * @return void
      */
     private function _formatOrderBy(string $sort): void
@@ -76,13 +76,13 @@ class QueryStringToConfig
                 $order = explode('.', $order);
 
                 config(
-                    [ 
+                    [
                         "query.order_by.{$key}" => [
                             'attribute' => strtolower($order[0]),
                             'order'     => (array_key_exists(
                                 1, $order
                             )? strtoupper($order[1]): 'ASC')
-                        ] 
+                        ]
                     ]
                 );
             }
@@ -95,9 +95,9 @@ class QueryStringToConfig
 
     /**
      * Extract the filters raw string and add it to global config
-     * 
+     *
      * @param string $filters The filters query param
-     * 
+     *
      * @return void
      */
     private function _formatFilters(string $filters): void
@@ -113,13 +113,14 @@ class QueryStringToConfig
 
     /**
      * Change a filters string into nested arrays of conditions
-     * 
+     *
      * @param string $filters The filters query to parse
-     * 
+     *
      * @return void
      */
     private function _filtersParser(string $filters): array
     {
+        // TODO : refactoring this shit
         $conditions = [];
         $brakets = $this->_getBraketsPositions($filters);
 
@@ -130,46 +131,33 @@ class QueryStringToConfig
         }
 
         foreach ($brakets as $key => $br) {
-            if ($key === 0) {
-                $conditions = array_merge(
-                    $conditions,
-                    ($br['opening'] === 0)? [
-                        'bitwise'    => null,
-                        'conditions' => []
-                    ] : $this->_conditionsParser(
-                        substr($filters, 0, $br['opening'])
-                    )
-                );
-            }
+            $start = ($key === 0)? 0: $brakets[$key - 1]['closing'] + 1;
+            $close = $br['opening'] - 3;
 
-            if ($key > 0) {
-                $start = (
-                    array_key_exists($key - 1, $brakets)
-                )? $brakets[$key - 1]['closing']: 0;
-
+            if ($close - $start > 0) {
                 $conditions = array_merge(
                     $conditions,
                     $this->_conditionsParser(
-                        substr(
-                            $filters, $start + 1, $br['opening'] - $start - 1
-                        )
+                        substr($filters, $start, $close)
                     )
                 );
             }
 
-            $conditions[
-                count($conditions) - 1
-            ]['conditions'] = $this->_filtersParser(
-                substr(
-                    $filters,
-                    $br['opening'] + 1,
-                    $br['closing'] - $br['opening'] - 1
+            $start = $br['opening'] + 1;
+            $close = $br['closing'] - $br['opening'] - 1;
+
+            $conditions[count($conditions)] = [
+                'bitwise'    => (
+                    $br['opening'] === 0
+                )? 'n': $filters[$br['opening'] - 2],
+                'conditions' => $this->_filtersParser(
+                    substr($filters, $start, $close)
                 )
-            );
+            ];
 
             if (
                 $key === count($brakets) - 1 &&
-                $br['closing'] !== strlen($filters) - 1
+                $br['closing'] + 1 !== strlen($filters)
             ) {
                 $conditions = array_merge(
                     $conditions,
@@ -185,10 +173,10 @@ class QueryStringToConfig
 
     /**
      * Retrive the opening and corresponding closing brakets in a string
-     * without considering nested ones. 
-     * 
+     * without considering nested ones.
+     *
      * @param string $str The string to analyze
-     * 
+     *
      * @return array
      */
     private function _getBraketsPositions(string $str): array
@@ -219,9 +207,9 @@ class QueryStringToConfig
 
     /**
      * Change a filters string into an array of conditions
-     * 
+     *
      * @param string $filters The filters query to parse
-     * 
+     *
      * @return array
      */
     private function _conditionsParser(string $filters): array
@@ -229,8 +217,7 @@ class QueryStringToConfig
         $filters = explode(
             ' ', preg_replace('/\|(u|n|\\\)\|/', ' $1:', $filters)
         );
-        
-        
+
         if ($filters[0] === '') {
             array_shift($filters);
         }
@@ -238,24 +225,17 @@ class QueryStringToConfig
         foreach ($filters as $key => $filter) {
             $filters[$key] = explode(':', $filter);
 
-            if (count($filters[$key]) === 2 && $filters[$key][1] === '') {
-                $filters[$key] = [
-                    'bitwise'    => $filters[$key][0],
-                    'conditions' => []
-                ];
-            } else {
-                $k = (count($filters[$key]) < 3)? 1: 0;
-                $filters[$key][2 - $k] = explode(
-                    '(', $filters[$key][2 - $k], 2
-                );
+            $k = (count($filters[$key]) < 3)? 1: 0;
+            $filters[$key][2 - $k] = explode(
+                '(', $filters[$key][2 - $k], 2
+            );
 
-                $filters[$key] = [
-                    'bitwise'  => ($k === 0)? $filters[$key][0]: 'n',
-                    'target'   => $filters[$key][1 - $k],
-                    'operator' => $filters[$key][2 - $k][0],
-                    'value'    => substr($filters[$key][2 - $k][1], 0, -1)
-                ];
-            }
+            $filters[$key] = [
+                'bitwise'  => ($k === 0)? $filters[$key][0]: 'n',
+                'target'   => $filters[$key][1 - $k],
+                'operator' => $filters[$key][2 - $k][0],
+                'value'    => substr($filters[$key][2 - $k][1], 0, -1)
+            ];
         }
 
         return $filters;

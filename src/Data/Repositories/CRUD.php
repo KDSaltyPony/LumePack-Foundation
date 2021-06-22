@@ -1,9 +1,9 @@
 <?php
 /**
  * CRUD class file
- * 
+ *
  * PHP Version 7.2.0
- * 
+ *
  * @category Repositorie
  * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * CRUD
- * 
+ *
  * @category Repositorie
  * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -32,7 +32,7 @@ abstract class CRUD
 {
     /**
      * Association set relation => query method prefix
-     * 
+     *
      * @var array
      */
     // $bitwise = [ 'n' => 'AND', 'u' => 'OR'/*, '\\' => 'XOR'*/ ];
@@ -40,7 +40,7 @@ abstract class CRUD
 
     /**
      * Association consise operator => comparator
-     * 
+     *
      * @var array
      */
     private const OPERATORS = [
@@ -50,21 +50,21 @@ abstract class CRUD
 
     /**
      * The namespace of the Model to use
-     * 
+     *
      * @var string
      */
     protected $model_class = '';
 
     /**
      * The Model retrived by "CRU" methods
-     * 
+     *
      * @var Model
      */
     protected $model = null;
 
     /**
      * The Collection retrived by "all" method
-     * 
+     *
      * @var Collection
      */
     protected $collection = null;
@@ -78,34 +78,41 @@ abstract class CRUD
 
     /**
      * The query used by "all" method
-     * 
+     *
      * @var Builder
      */
     protected $query = null;
 
     /**
      * The rows available as filters in the query
-     * 
+     *
      * @var array
      */
     protected $filters = []; // 'n' => 'name' TODO => [ 'n' => [ 'row' => 'name', 'forbiden' => [ 'eq', 'lk' ], 'join', 'control' => 'is mail, is string, is int...' ] ]
 
     /**
+     * The joins already done
+     *
+     * @var array
+     */
+    protected $joins = [];
+
+    /**
      * The orders available in the query
-     * 
+     *
      * @var array
      */
     protected $orders = [];
 
     /**
      * Set the Model we need for CRUD methods.
-     * 
+     *
      * @param string $model_class The Model full namespace
      */
     public function __construct(string $model_class)
     {
         $this->model_class = $model_class;
-        $this->_setQuery();
+        $this->query = $this->model_class::whereRaw('1=1');
     }
 
     /**
@@ -117,6 +124,8 @@ abstract class CRUD
      */
     public function all(bool $limited = true)
     {
+        $this->setQuery();
+
         if ($limited) {
             $this->setQueryLimiter();
         }
@@ -139,10 +148,10 @@ abstract class CRUD
 
     /**
      * Retrive one item by id.
-     * 
+     *
      * @param int  $uid     The unique id of the model to retrieve
      * @param bool $limited Limit to the authenticateded user (user_id field)
-     * 
+     *
      * @return Model|null
      */
     public function read(int $uid, bool $limited = true): ?Model
@@ -156,10 +165,10 @@ abstract class CRUD
 
     /**
      * Register a new database item.
-     * 
+     *
      * @param array $fields  The fields to register
      * @param bool  $limited Limit to the authenticateded user (user_id field)
-     * 
+     *
      * @return bool
      */
     public function create(array $fields, bool $limited = true): bool
@@ -175,10 +184,10 @@ abstract class CRUD
 
     /**
      * Register new database items.
-     * 
+     *
      * @param array $items   A matrix of the fields to register
      * @param bool  $limited Limit to the authenticateded user (user_id field)
-     * 
+     *
      * @return Collection|Model[]
      */
     public function massCreate(array $items, bool $limited = true): ?Collection
@@ -195,11 +204,11 @@ abstract class CRUD
 
     /**
      * Modify an existing database item.
-     * 
+     *
      * @param array $fields  The fields to register
      * @param int   $uid     The unique id of the model to modify
      * @param bool  $limited Limit to the authenticateded user (user_id field)
-     * 
+     *
      * @return bool
      */
     public function update(array $fields, int $uid, bool $limited = true): bool
@@ -215,9 +224,9 @@ abstract class CRUD
 
     /**
      * Delete a database item.
-     * 
+     *
      * @param int $uid The unique id of the model to retrieve
-     * 
+     *
      * @return bool
      */
     public function delete(int $uid, bool $limited = true): bool
@@ -233,20 +242,20 @@ abstract class CRUD
 
     /**
      * The Model class string.
-     * 
+     *
      * @return string
      */
-    public function getModelClass(): string
+    public function getModelClass(): ?string
     {
         return ($this->model_class === '')? null: $this->model_class;
     }
 
     /**
      * The Model class string.
-     * 
+     *
      * @return string
      */
-    public function getModelClassName(): string
+    public function getModelClassName(): ?string
     {
         return ($this->model_class === '')? null: explode(
             '\\', $this->model_class
@@ -256,8 +265,18 @@ abstract class CRUD
     }
 
     /**
+     * The Table.
+     *
+     * @return string
+     */
+    public function getTable(): string
+    {
+        return (new $this->model_class())->getTable();
+    }
+
+    /**
      * The Model.
-     * 
+     *
      * @return Model|null
      */
     public function getModel(): ?Model
@@ -267,7 +286,7 @@ abstract class CRUD
 
     /**
      * The Collection.
-     * 
+     *
      * @return Collection|null
      */
     public function getCollection(): ?Collection
@@ -277,7 +296,7 @@ abstract class CRUD
 
     /**
      * The Paginator.
-     * 
+     *
      * @return Paginator|null
      */
     public function getPaginator(): ?Paginator
@@ -286,14 +305,22 @@ abstract class CRUD
     }
 
     /**
+     * The Filters.
+     *
+     * @return array
+     */
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    /**
      * Format Query.
-     * 
+     *
      * @return Builder
      */
-    private function _setQuery(): Builder
+    protected function setQuery(): Builder
     {
-        $this->query = $this->model_class::whereRaw('1=1');
-
         if (config('query.conditions')) {
             $this->query->where(
                 function ($q) {
@@ -316,13 +343,13 @@ abstract class CRUD
 
     /**
      * Format Query conditions recursively.
-     * 
-     * @param Builder &$query     The quer to edit (by reference)
+     *
+     * @param Builder &$query     The query to edit (by reference)
      * @param array   $conditions An nested array of conditions
-     * 
+     *
      * @return void
      */
-    protected function _setQueryConditions(
+    private function _setQueryConditions(
         Builder &$query, array $conditions
     ): void
     {
@@ -332,7 +359,6 @@ abstract class CRUD
             }
 
             $method = self::PREFIXES[$cond['bitwise']];
-            $params = [];
 
             if (array_key_exists('conditions', $cond)) {
                 $query->$method(
@@ -341,98 +367,155 @@ abstract class CRUD
                     }
                 );
             } else {
-                $params[0] = $this->_getFilter(
-                    $cond['target'], $cond['operator']
+                $this->_setQueryCondition(
+                    $query,
+                    $cond['bitwise'],
+                    $cond['target'],
+                    $cond['operator'],
+                    $cond['value']
                 );
-                // $params[0] = $cond['target'];
-
-                switch ($cond['operator']) {
-                    case 'nbtw': case 'nin': case 'nn':
-                        $method .= 'Not';
-                        $cond['operator'] = substr($cond['operator'], 1);
-                        break;
-
-                    case 'ceq': case 'cneq': case 'cgt':
-                    case 'clt': case 'cgte': case 'clte':
-                        $method .= 'Column';
-                        $cond['operator'] = substr($cond['operator'], 1);
-                        $cond['value'] = $this->_getFilter(
-                            $cond['value'], $cond['operator']
-                        );
-                        // $cond['value'] = $cond['value'];
-                        break;
-                }
-
-                switch ($cond['operator']) {
-                    case 'btw':
-                        $method .= 'Between';
-                        $params[1] = explode(',', $cond['value']);
-
-                        if (count($params[1]) !== 2) {
-                            // TODO => throw error
-                        }
-                        break;
-
-                    case 'in':
-                        $method .= 'In';
-                        $params[1] = explode(',', $cond['value']);
-
-                        if (count($params[1]) < 2) {
-                            // TODO => throw error
-                        }
-                        break;
-
-                    case 'n':
-                        $method .= 'Null';
-                        break;
-
-                    default:
-                        if (!array_key_exists($cond['operator'], self::OPERATORS)) {
-                            # TODO => uknown code ! => throw error
-                        }
-
-                        $params[1] = self::OPERATORS[$cond['operator']];
-                        $params[2] = $cond['value']; // TODO => Value controls ?
-                        break;
-                }
-
-                call_user_func_array([ $query, $method ], $params);
             }
         }
     }
 
     /**
+     * Format Query condition.
+     *
+     * @param Builder &$query   The query to edit (by reference)
+     * @param string  $bitwise  The bitwise operator
+     * @param string  $target   The targeted field
+     * @param string  $operator The condition operator
+     * @param string  $value    The value to compare
+     * @param CRUD    $repo     The repo (default this)
+     *
+     * @return void
+     */
+    private function _setQueryCondition(
+        Builder &$query,
+        string $bitwise,
+        string $target,
+        string $operator,
+        string $value,
+        CRUD  $repo = null
+    ): void
+    {
+        $repo = (is_null($repo))? $this: $repo;
+        $table = $repo->getTable();
+        $target = explode('.', $target);
+        $method = self::PREFIXES[$bitwise];
+        $params = [
+            $this->_getFilterRaw($target[0], $operator, $repo->getFilters())
+        ];
+
+        if (is_array($params[0])) {
+            $join = $params[0];
+            $repo = new $join['repo']();
+            $t = $repo->getTable();
+            array_shift($target);
+
+            if (!in_array($join['repo'], $this->joins)) {
+                $this->joins[] = $join['repo'];
+                $this->query->join(
+                    $t,
+                    "{$t}.{$join['pk']}",
+                    "{$table}.{$join['fk']}"
+                );
+            }
+
+            $this->_setQueryCondition(
+                $query, $bitwise, join('.', $target),
+                $operator, $value, $repo
+            );
+        } else {
+            $params[0] = "{$table}.{$params[0]}";
+
+            switch ($operator) {
+                case 'nbtw': case 'nin': case 'nn':
+                    $method .= 'Not';
+                    $operator = substr($operator, 1);
+                    break;
+
+                // case 'ceq': case 'cneq': case 'cgt':
+                // case 'clt': case 'cgte': case 'clte':
+                //     $method .= 'Column';
+                //     $operator = substr($operator, 1);
+                //     $value = $this->_getFilterRaw($value, $operator, $repo->getFilters());
+                //     // $cond['value'] = $cond['value'];
+                //     break;
+            }
+
+            switch ($operator) {
+                case 'btw':
+                    $method .= 'Between';
+                    $params[1] = explode(',', $value);
+
+                    if (count($params[1]) !== 2) {
+                        // TODO => throw error
+                    }
+                    break;
+
+                case 'in':
+                    $method .= 'In';
+                    $params[1] = explode(',', $value);
+
+                    if (count($params[1]) < 2) {
+                        // TODO => throw error
+                    }
+                    break;
+
+                case 'n':
+                    $method .= 'Null';
+                    break;
+
+                default:
+                    if (!array_key_exists($operator, self::OPERATORS)) {
+                        # TODO => uknown code ! => throw error
+                    }
+
+                    $params[1] = self::OPERATORS[$operator];
+                    $params[2] = $value; // TODO => Value controls ?
+                    break;
+            }
+
+            call_user_func_array([ $query, $method ], $params);
+        }
+    }
+
+    /**
      * Check a filter validity. Return the corresponding column.
-     * 
+     *
      * @param string $key      The filter key in filters array
      * @param string $operator The operator
-     * 
-     * @return string
+     * @param array  $filters  The filters
+     *
+     * @return mixed
      */
-    private function _getFilter(string $key, string $operator): string
-    {
-        if (!array_key_exists($key, $this->filters)) {
+    private function _getFilterRaw(
+        string $key, string $operator, array $filters = null
+    ) {
+        $filters = is_null($filters)? $this->filters: $filters;
+
+        if (!array_key_exists($key, $filters)) {
             # TODO throw error
         }
 
         if (
-            is_array($this->filters[$key]) &&
-            in_array($operator, $this->filters[$key]['forbiden'])
+            is_array($filters[$key]) &&
+            array_key_exists('forbiden', $this->filters[$key]) &&
+            in_array($operator, $filters[$key]['forbiden'])
         ) {
             # TODO throw error
         }
 
-        return is_array(
-            $this->filters[$key]
-        )? $this->filters[$key]['row']: $this->filters[$key];
+        return is_array($filters[$key])? $filters[$key]['row']: $filters[$key];
     }
 
     /**
      * Format Query filter by user to limit resource access.
      * Only work if the resource is link to the user via a user_id row.
-     * 
+     *
      * @param array $fields Add user_id = Auth::id to the included fields
-     * 
+     *
      * @return void
      */
     protected function setQueryLimiter(?array &$fields = null): void
@@ -441,7 +524,7 @@ abstract class CRUD
         $uentity = config('crud.user_entity');
         $urelation = config('crud.user_relation');
         $ufk = config('crud.user_fk');
- 
+
         if (
             Schema::hasColumn((new $model())->getTable(), $ufk) && Auth::check()
         ) {
@@ -467,7 +550,7 @@ abstract class CRUD
      * Register the fields in database and edit the model.
      *
      * @param array $fields The fields to save
-     * 
+     *
      * @return bool TRUE if success or FALSE if failed
      */
     abstract protected function register(array $fields): bool;
