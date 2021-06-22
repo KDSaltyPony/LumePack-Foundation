@@ -430,7 +430,7 @@ abstract class CRUD
     /**
      * Format Query join.
      *
-     * @param array  $join  The join details (repo, pk, fk)
+     * @param array  $join  The join details (repo, pk, fk, pivot)
      * @param string $table The table table join
      *
      * @return CRUD
@@ -439,6 +439,16 @@ abstract class CRUD
     {
         $repo = new $join['repo']();
         $target = $repo->getTable();
+
+        if (array_key_exists('pivot', $join)) {
+            $this->query->join(
+                $join['pivot']['table'],
+                "{$table}.{$join['pivot']['fk']}",
+                "{$join['pivot']['table']}.{$join['pivot']['pk']}"
+            );
+
+            $table = $join['pivot']['table'];
+        }
 
         if (!in_array($join['repo'], $this->joins)) {
             $this->joins[] = $join['repo'];
