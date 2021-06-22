@@ -112,7 +112,7 @@ abstract class CRUD
     public function __construct(string $model_class)
     {
         $this->model_class = $model_class;
-        $this->query = $this->model_class::whereRaw('1=1');
+        $this->query = $this->model_class::distinct()->whereRaw('1=1');
     }
 
     /**
@@ -402,25 +402,14 @@ abstract class CRUD
         $repo = (is_null($repo))? $this: $repo;
         $table = $repo->getTable();
         $target = explode('.', $target);
-        $method = self::PREFIXES[$bitwise];
         $params = [
             $this->_getFilterRaw($target[0], $operator, $repo->getFilters())
         ];
 
         if (is_array($params[0])) {
-            $join = $params[0];
-            $repo = new $join['repo']();
-            $t = $repo->getTable();
             array_shift($target);
 
-            if (!in_array($join['repo'], $this->joins)) {
-                $this->joins[] = $join['repo'];
-                $this->query->join(
-                    $t,
-                    "{$t}.{$join['pk']}",
-                    "{$table}.{$join['fk']}"
-                );
-            }
+            $repo = $this->_setQueryJoin($params[0], $table);
 
             $this->_setQueryCondition(
                 $query, $bitwise, join('.', $target),
@@ -429,56 +418,129 @@ abstract class CRUD
         } else {
             $params[0] = "{$table}.{$params[0]}";
 
-            switch ($operator) {
-                case 'nbtw': case 'nin': case 'nn':
-                    $method .= 'Not';
-                    $operator = substr($operator, 1);
-                    break;
-
-                // case 'ceq': case 'cneq': case 'cgt':
-                // case 'clt': case 'cgte': case 'clte':
-                //     $method .= 'Column';
-                //     $operator = substr($operator, 1);
-                //     $value = $this->_getFilterRaw($value, $operator, $repo->getFilters());
-                //     // $cond['value'] = $cond['value'];
-                //     break;
-            }
-
-            switch ($operator) {
-                case 'btw':
-                    $method .= 'Between';
-                    $params[1] = explode(',', $value);
-
-                    if (count($params[1]) !== 2) {
-                        // TODO => throw error
-                    }
-                    break;
-
-                case 'in':
-                    $method .= 'In';
-                    $params[1] = explode(',', $value);
-
-                    if (count($params[1]) < 2) {
-                        // TODO => throw error
-                    }
-                    break;
-
-                case 'n':
-                    $method .= 'Null';
-                    break;
-
-                default:
-                    if (!array_key_exists($operator, self::OPERATORS)) {
-                        # TODO => uknown code ! => throw error
-                    }
-
-                    $params[1] = self::OPERATORS[$operator];
-                    $params[2] = $value; // TODO => Value controls ?
-                    break;
-            }
-
-            call_user_func_array([ $query, $method ], $params);
+            call_user_func_array(
+                [
+                    $query,
+                    $this->_getMethod($bitwise, $operator, $value, $params)
+                ], $params
+            );
         }
+    }
+
+    /**
+     * Format Query join.
+     *
+     * @param array  $join  The join details (repo, pk, fk)
+     * @param string $table The table table join
+     *
+     * @return CRUD
+     */
+    private function _setQueryJoin(array $join, string $table): CRUD
+    {
+        $repo = new $join['repo']();
+        $target = $repo->getTable();
+
+        if (!in_array($join['repo'], $this->joins)) {
+            $this->joins[] = $join['repo'];
+            $this->query->join(
+                $target, "{$target}.{$join['pk']}", "{$table}.{$join['fk']}"
+            );
+        }
+
+        return $repo;
+    }
+
+    /**
+     * Transform an operator into a query method.
+     *
+     * @param string $bitwise The join details (repo, pk, fk)
+     *
+     * @return string
+     */
+    private function _getMethod(
+        string $bitwise, string $operator, string $value, array &$params
+    ): string
+    {
+        $method = self::PREFIXES[$bitwise];
+        $method .= $this->_methodNegate($operator);
+        // case 'ceq': case 'cneq': case 'cgt':
+        // case 'clt': case 'cgte': case 'clte':
+        //     $method .= 'Column';
+        //     $operator = substr($operator, 1);
+        //     $value = $this->_getFilterRaw($value, $operator, $repo->getFilters());
+        //     // $cond['value'] = $cond['value'];
+        //     break;
+        $method .= $this->_methodSuffix($operator, $value, $params);
+
+        return $method;
+    }
+
+    /**
+     * Transform an operator and extract a suffix if negate (whereNot).
+     *
+     * @param string $operator The join details (repo, pk, fk)
+     *
+     * @return string
+     */
+    private function _methodNegate(string &$operator): string
+    {
+        $suffix = '';
+
+        if (in_array($operator, [ 'nbtw', 'nin', 'nn' ])) {
+            $suffix .= 'Not';
+            $operator = substr($operator, 1);
+        }
+
+        return $suffix;
+    }
+
+    /**
+     * Transform an operator into a query method suffix.
+     *
+     * @param string $operator The join details (repo, pk, fk)
+     *
+     * @return string
+     */
+    private function _methodSuffix(
+        string $operator, string $value, array &$params
+    ): string
+    {
+        $suffix = '';
+
+        switch ($operator) {
+            case 'btw':
+                $suffix .= 'Between';
+                $params[1] = explode(',', $value);
+
+                if (count($params[1]) !== 2) {
+                    // TODO => throw error
+                }
+                break;
+
+            case 'in':
+                $suffix .= 'In';
+                $params[1] = explode(',', $value);
+
+                if (count($params[1]) < 1) {
+                    // TODO => throw error
+                }
+                break;
+
+            case 'n':
+                $suffix .= 'Null';
+                break;
+
+            default:
+                if (!array_key_exists($operator, self::OPERATORS)) {
+                    // TODO => uknown code ! => throw error
+                }
+
+                $params[1] = self::OPERATORS[$operator];
+                $params[2] = $value; // TODO => Value controls ?
+                break;
+        }
+
+        return $suffix;
     }
 
     /**
