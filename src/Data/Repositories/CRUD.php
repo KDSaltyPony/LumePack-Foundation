@@ -120,7 +120,7 @@ abstract class CRUD
     {
         $this->model_class = $model_class;
         $this->model = new $model_class();
-        $this->talbe = $this->model->getTable();
+        $this->table = $this->model->getTable();
         $this->query = $this->model_class::selectRaw(
             "{$this->table}.*"
         )->distinct()->whereRaw('1=1');
@@ -342,8 +342,7 @@ abstract class CRUD
         if (config('query.order_by')) {
             foreach (config('query.order_by') as $order) {
                 $this->query->orderBy(
-                    "{$this->table}.{$order['attribute']}",
-                    $order['order']
+                    "{$this->table}.{$order['attribute']}", $order['order']
                 );
             }
         }
