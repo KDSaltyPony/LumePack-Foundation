@@ -167,6 +167,13 @@ class ResponseService
 
         $this->headers = array_merge($this->headers, $headers);
 
+        $this->metadata = array_merge($this->metadata, [
+            'date'     => (
+                new \DateTime('NOW', new \DateTimeZone('UTC'))
+            )->format('Y-m-d H:i:s.u'),
+            'duration' => microtime(true) - $_SERVER['REQUEST_TIME']
+        ]);
+
         switch ($accept) {
             case 'application/json':
                 $response = $this->_JSON($this->headers);

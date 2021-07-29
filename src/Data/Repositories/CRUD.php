@@ -63,6 +63,13 @@ abstract class CRUD
     protected $model = null;
 
     /**
+     * The Table associated to the model
+     *
+     * @var string
+     */
+    protected $talbe = null;
+
+    /**
      * The Collection retrived by "all" method
      *
      * @var Collection
@@ -112,7 +119,11 @@ abstract class CRUD
     public function __construct(string $model_class)
     {
         $this->model_class = $model_class;
-        $this->query = $this->model_class::distinct()->whereRaw('1=1');
+        $this->model = new $model_class();
+        $this->talbe = $this->model->getTable();
+        $this->query = $this->model_class::selectRaw(
+            "{$this->table}.*"
+        )->distinct()->whereRaw('1=1');
     }
 
     /**
@@ -173,8 +184,6 @@ abstract class CRUD
      */
     public function create(array $fields, bool $limited = true): bool
     {
-        $this->model = new $this->model_class();
-
         if ($limited) {
             $this->setQueryLimiter($fields);
         }
@@ -193,7 +202,6 @@ abstract class CRUD
     public function massCreate(array $items, bool $limited = true): ?Collection
     {
         $this->collection = new Collection();
-        $this->model = null;
 
         foreach ($items as $fields) {
             $this->collection->add($this->create($fields, $limited));
@@ -271,15 +279,15 @@ abstract class CRUD
      */
     public function getTable(): string
     {
-        return (new $this->model_class())->getTable();
+        return $this->table;
     }
 
     /**
      * The Model.
      *
-     * @return Model|null
+     * @return Model
      */
-    public function getModel(): ?Model
+    public function getModel(): Model
     {
         return $this->model;
     }
@@ -333,7 +341,10 @@ abstract class CRUD
 
         if (config('query.order_by')) {
             foreach (config('query.order_by') as $order) {
-                $this->query->orderBy($order['attribute'], $order['order']);
+                $this->query->orderBy(
+                    "{$this->table}.{$order['attribute']}",
+                    $order['order']
+                );
             }
         }
         // $this->query->dd();
@@ -540,6 +551,12 @@ abstract class CRUD
                 $suffix .= 'Null';
                 break;
 
+            case 'ist':
+            case 'isf':
+                $params[1] = '=';
+                $params[2] = ($operator === 'ist');
+                break;
+
             default:
                 if (!array_key_exists($operator, self::OPERATORS)) {
                     // TODO => uknown code ! => throw error
@@ -592,13 +609,12 @@ abstract class CRUD
      */
     protected function setQueryLimiter(?array &$fields = null): void
     {
-        $model = $this->model_class;
         $uentity = config('crud.user_entity');
         $urelation = config('crud.user_relation');
         $ufk = config('crud.user_fk');
 
         if (
-            Schema::hasColumn((new $model())->getTable(), $ufk) && Auth::check()
+            Schema::hasColumn($this->getTable(), $ufk) && Auth::check()
         ) {
             if (is_null($fields)) {
                 $this->query->where(
