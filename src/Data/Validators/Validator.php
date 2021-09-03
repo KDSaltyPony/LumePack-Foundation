@@ -51,12 +51,16 @@ class Validator extends ValidatorService
         ?int $uid = null,
         bool $is_mass = false
     ) {
+        $uid = $uid ?: 'NULL';
+
         if (!is_null($uid) && !empty($this->edit_rules)) {
             $this->rules = $this->edit_rules;
         }
 
         foreach ($this->rules as $key => $rule) {
-            $this->rules[$key] = str_replace(':ID:', $uid, $rule);
+            $this->rules[$key] = preg_replace(
+                ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
+            );
         }
 
         parent::__construct($fields, $is_mass);

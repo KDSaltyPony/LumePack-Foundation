@@ -589,7 +589,7 @@ abstract class CRUD
 
         if (
             is_array($filters[$key]) &&
-            array_key_exists('forbiden', $this->filters[$key]) &&
+            array_key_exists('forbiden', $filters[$key]) &&
             in_array($operator, $filters[$key]['forbiden'])
         ) {
             # TODO throw error
