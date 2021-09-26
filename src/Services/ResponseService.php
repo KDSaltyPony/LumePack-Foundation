@@ -80,13 +80,21 @@ class ResponseService
      */
     public function __construct($body, int $status = 200)
     {
+        $is_success = ($this->status >= 200 && $this->status < 300);
         $this->status = $status;
         $this->metadata = [
-            'success'   => ($this->status >= 200 && $this->status < 300),
-            'status'    => $this->status,
-            'message'   => trans("status.{$status}")
+            'success' => $is_success,
+            'status'  => $this->status,
+            'message' => trans("status.{$status}")
         ];
         $this->body = $body;
+
+        if (!$is_success) {
+            $this->body = [
+                'message' => (is_string($body)? $body: ''),
+                'fields'  => (is_array($body)? []: $body)
+            ];
+        }
 
         if (is_object($body) && get_class($body) === Paginator::class) {
             $this->body = $body->items();
