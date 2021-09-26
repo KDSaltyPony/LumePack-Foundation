@@ -80,8 +80,8 @@ class ResponseService
      */
     public function __construct($body, int $status = 200)
     {
-        $is_success = ($this->status >= 200 && $this->status < 300);
         $this->status = $status;
+        $is_success = ($this->status >= 200 && $this->status < 300);
         $this->metadata = [
             'success' => $is_success,
             'status'  => $this->status,
@@ -91,8 +91,8 @@ class ResponseService
 
         if (!$is_success) {
             $this->body = [
-                'message' => (is_string($body)? $body: ''),
-                'fields'  => (is_array($body)? []: $body)
+                'error'  => (is_string($body)? $body: ''),
+                'fields' => (is_array($body)? $body: [])
             ];
         }
 
