@@ -4,7 +4,7 @@
  *
  * PHP Version 7.2.0
  *
- * @category Repositorie
+ * @category Repository
  * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
@@ -18,11 +18,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 /**
  * CRUD
  *
- * @category Repositorie
+ * @category Repository
  * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
@@ -63,6 +64,13 @@ abstract class CRUD
     protected $model = null;
 
     /**
+     * The status of the Model on register
+     *
+     * @var boolean
+     */
+    protected $is_saved = false;
+
+    /**
      * The Table associated to the model
      *
      * @var string
@@ -89,6 +97,20 @@ abstract class CRUD
      * @var Builder
      */
     protected $query = null;
+
+    /**
+     * The many to many relations with there key
+     *
+     * @var array
+     */
+    protected $nn_relations = [];
+
+    /**
+     * The relations to reload after the register
+     *
+     * @var array
+     */
+    protected $reloads = [];
 
     /**
      * The rows available as filters in the query
@@ -313,11 +335,31 @@ abstract class CRUD
     }
 
     /**
+     * The Many To Many relations ans the keys used in register.
+     *
+     * @return array
+     */
+    public function addNNRelation($relation, $register_key): array
+    {
+        return $this->nn_relations[$relation] = $register_key;
+    }
+
+    /**
+     * The Many To Many relations ans the keys used in register.
+     *
+     * @return array
+     */
+    public function getNNRelations(): array
+    {
+        return $this->nn_relations;
+    }
+
+    /**
      * The Filters.
      *
      * @return array
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters;
     }
@@ -641,4 +683,94 @@ abstract class CRUD
      * @return bool TRUE if success or FALSE if failed
      */
     abstract protected function register(array $fields): bool;
+
+    /**
+     * Register the fields in database and edit the model.
+     *
+     * @param array $fields The fields to save
+     *
+     * @return bool TRUE if success or FALSE if failed
+     */
+    protected function defaultRegister(array $fields)
+    {
+        // $nn_relations = [ 'sous_thematiques' => 'uid', 'cultures' => 'uid' ];
+        $this->reloads = [];
+
+        foreach ($fields as $field => $value) {
+            if (preg_match('/^(?:.*?)_u?id$/', $field)) {
+                $association = explode('_', $field);
+                $key = array_pop($association);
+
+                array_push(
+                    $this->reloads,
+                    $association = Str::camel(implode('_', $association))
+                );
+
+                if (is_null($value)) {
+                    $this->model->$association()->dissociate();
+                } else {
+                    $target = get_class(
+                        $this->model->$association()->getQuery()->getModel()
+                    );
+
+                    $this->model->$association()->associate(
+                        $target::firstWhere($key, $value)
+                    );
+                }
+            } elseif (!in_array($field, array_keys($this->nn_relations))) {
+                if (
+                    is_null($this->model->parent) ||
+                    (
+                        !is_null($this->model->parent) &&
+                        $value !== $this->model->parent->$field
+                    )
+                ) {
+                    //DateTimes ?
+                    $this->model->$field = $value;
+                }
+            }
+        }
+        // if put and not patch => foreach attributes that are not in $fields = null ???
+
+        $this->is_saved = $this->model->save();
+
+        $this->_sync($fields);
+
+        $this->model->load($this->reloads);
+
+        return $this->is_saved;
+    }
+
+    /**
+     * Register Many to Many fields associated with the model in database.
+     *
+     * @param array $fields The fields to save
+     *
+     * @return bool TRUE if success or FALSE if failed
+     */
+    private function _sync(array $fields)
+    {
+        foreach ($this->nn_relations as $nnr => $field) {
+            if (array_key_exists($nnr, $fields)) {
+                array_push($this->reloads, $association = Str::camel($nnr));
+                $target = get_class(
+                    $this->model->$association()->getQuery()->getModel()
+                );
+                $values = [];
+
+                foreach ($fields[$nnr] as $realtion) {
+                    array_push(
+                        $values,
+                        ($target::firstWhere($field, $realtion[$field]))->id
+                    );
+                }
+
+                //pivot fields
+                // TODO : patch syncWithoutDetaching
+                $this->model->$association()->sync($values);
+            }
+        }
+
+        $this->model->load($this->reloads);
+    }
 }

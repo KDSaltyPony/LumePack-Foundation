@@ -16,6 +16,7 @@ use LumePack\Foundation\Http\Middleware\DataCheck;
 use LumePack\Foundation\Http\Middleware\DataValidate;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\DB;
 
 /**
  * LumenServiceProvider
@@ -35,6 +36,8 @@ class LumenServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        DB::enableQueryLog();
+
         $this->app->configure('crud');
         $this->app->configure('paginator');
         $this->app->configure('query');

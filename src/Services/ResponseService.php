@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 // use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
@@ -152,6 +153,8 @@ class ResponseService
         $response = (
             new ResponseService('Accept header required', 400)
         )->_JSON();
+        $queries = DB::getQueryLog();
+        $queries_duration = 0;
 
         if (app()->environment('local')) {
             $this->headers['Access-Control-Allow-Origin'] = '*';
@@ -172,6 +175,14 @@ class ResponseService
         // Access-Control-Allow-Headers: Content-Type
         // res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
         // res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+        // $total = 0;
+        // dump($total);
+        // dump($total / 1000);
+        // dd(\Illuminate\Support\Facades\DB::getQueryLog());
+
+        foreach ($queries as $query) {
+            $queries_duration += $query['time'];
+        }
 
         $this->headers = array_merge($this->headers, $headers);
 
@@ -179,7 +190,8 @@ class ResponseService
             'date'     => (
                 new \DateTime('NOW', new \DateTimeZone('UTC'))
             )->format('Y-m-d H:i:s.u'),
-            'duration' => microtime(true) - $_SERVER['REQUEST_TIME']
+            'duration' => microtime(true) - $_SERVER['REQUEST_TIME'],
+            'sql_duration' => $queries_duration / 1000
         ]);
 
         switch ($accept) {
