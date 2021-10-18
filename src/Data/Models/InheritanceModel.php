@@ -185,7 +185,7 @@ trait InheritanceModel
                         array_key_exists('ignored', $settings) &&
                         !in_array($attribute, $settings['ignored']) &&
                         $attribute !== 'id' &&
-                        $attribute !== "{$this->getTable()}_id"
+                        $attribute !== "{$model->getTable()}_id"
                     ) {
                         // if attribute in locked array, can't overwrite so store null
                         // if attribute not in unlocked array, can't overwrite so store null
