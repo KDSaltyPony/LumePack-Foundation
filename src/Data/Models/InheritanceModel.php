@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * InheritanceModel
@@ -182,7 +183,9 @@ trait InheritanceModel
                     // if attribute in ignored array, can't force null
                     if (
                         array_key_exists('ignored', $settings) &&
-                        !in_array($attribute, $settings['ignored'])
+                        !in_array($attribute, $settings['ignored']) &&
+                        $attribute !== 'id' &&
+                        $attribute !== "{$this->getTable()}_id"
                     ) {
                         // if attribute in locked array, can't overwrite so store null
                         // if attribute not in unlocked array, can't overwrite so store null
@@ -196,7 +199,9 @@ trait InheritanceModel
                                 !in_array($attribute, $settings['unlocked'])
                             ) || $value === $parent->$attribute
                         ) {
-                            $model->$attribute = null;
+                            $attribute = ucfirst(Str::camel($attribute));
+                            $method = "set{$attribute}";
+                            $model->$method(null);
                         }
                     }
                 }
