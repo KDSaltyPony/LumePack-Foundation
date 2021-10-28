@@ -14,7 +14,6 @@ namespace LumePack\Foundation\Data\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 /**
  * InheritanceModel
@@ -199,9 +198,7 @@ trait InheritanceModel
                                 !in_array($attribute, $settings['unlocked'])
                             ) || $value === $parent->$attribute
                         ) {
-                            $attribute = ucfirst(Str::camel($attribute));
-                            $method = "set{$attribute}Attribute";
-                            $model->$method(null);
+                            $model->$attribute = null;
                         }
                     }
                 }
