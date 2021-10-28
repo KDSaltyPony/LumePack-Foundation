@@ -200,7 +200,7 @@ trait InheritanceModel
                             ) || $value === $parent->$attribute
                         ) {
                             $attribute = ucfirst(Str::camel($attribute));
-                            $method = "set{$attribute}";
+                            $method = "set{$attribute}Attribute";
                             $model->$method(null);
                         }
                     }
