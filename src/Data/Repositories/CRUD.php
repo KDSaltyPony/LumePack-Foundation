@@ -719,11 +719,8 @@ abstract class CRUD
                 }
             } elseif (!in_array($field, array_keys($this->nn_relations))) {
                 if (
-                    is_null($this->model->parent) ||
-                    (
-                        !is_null($this->model->parent) &&
-                        $value !== $this->model->parent->$field
-                    )
+                    Schema::hasColumn($this->getTable(), $field) &&
+                    $value !== $this->model->$field
                 ) {
                     //DateTimes ?
                     $this->model->$field = $value;
