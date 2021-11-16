@@ -339,9 +339,9 @@ abstract class CRUD
      *
      * @return array
      */
-    public function addNNRelation($relation, $register_key): array
+    public function addNNRelation($relation, $register_key): void
     {
-        return $this->nn_relations[$relation] = $register_key;
+        $this->nn_relations[$relation] = $register_key;
     }
 
     /**
