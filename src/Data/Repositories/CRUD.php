@@ -718,10 +718,7 @@ abstract class CRUD
                     );
                 }
             } elseif (!in_array($field, array_keys($this->nn_relations))) {
-                if (
-                    Schema::hasColumn($this->getTable(), $field) &&
-                    $value !== $this->model->$field
-                ) {
+                if (Schema::hasColumn($this->getTable(), $field)) {
                     //DateTimes ?
                     $this->model->$field = $value;
                 }
