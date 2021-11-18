@@ -663,14 +663,8 @@ abstract class CRUD
                         $q->where($ufk, Auth::user()->id)->orWhereNull($ufk);
                     }
                 );
-            } else {
-                if (!array_key_exists($ufk, $fields)) {
-                    $fields[$ufk] = Auth::user()->id;
-                }
-
-                if (!is_null($this->model)) {
-                    $this->model->$urelation()->associate(Auth::user());
-                }
+            } elseif (!is_null($this->model)) {
+                $this->model->$urelation()->associate(Auth::user());
             }
         }
     }
