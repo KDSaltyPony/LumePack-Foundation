@@ -700,16 +700,18 @@ abstract class CRUD
                     $association = Str::camel(implode('_', $association))
                 );
 
-                if (is_null($value)) {
-                    $this->model->$association()->dissociate();
-                } else {
-                    $target = get_class(
-                        $this->model->$association()->getQuery()->getModel()
-                    );
+                if (method_exists($this->model_class, $association)) {
+                    if (is_null($value)) {
+                        $this->model->$association()->dissociate();
+                    } else {
+                        $target = get_class(
+                            $this->model->$association()->getQuery()->getModel()
+                        );
 
-                    $this->model->$association()->associate(
-                        $target::firstWhere($key, $value)
-                    );
+                        $this->model->$association()->associate(
+                            $target::firstWhere($key, $value)
+                        );
+                    }
                 }
             } elseif (!in_array($field, array_keys($this->nn_relations))) {
                 if (Schema::hasColumn($this->getTable(), $field)) {
