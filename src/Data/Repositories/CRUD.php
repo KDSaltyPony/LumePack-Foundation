@@ -694,7 +694,7 @@ abstract class CRUD
             if (preg_match('/^(?:.*?)_u?id$/', $field)) {
                 $association = explode('_', $field);
                 $key = array_pop($association);
-                $association = Str::camel(implode('_', $association))
+                $association = Str::camel(implode('_', $association));
 
                 if (method_exists($this->model_class, $association)) {
                     array_push($this->reloads, $association);
