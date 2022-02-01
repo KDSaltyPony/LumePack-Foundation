@@ -143,11 +143,9 @@ abstract class CRUD
         if (is_null($model_class)) {
             $model_class = get_class($this);
             $model_class = str_replace(
-                'App\\Data\\Repositories\\',
-                'App\\Data\\Models\\',
-                $model_class
+                'App\\Data\\Repositories\\', 'App\\Data\\Models\\', $model_class
             );
-            $model_class = str_replace('Repository', '', $model_class);
+            $model_class = preg_replace('/Repository$/', '', $model_class);
         }
 
         $this->model_class = $model_class;

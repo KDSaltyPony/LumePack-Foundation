@@ -59,6 +59,14 @@ abstract class BaseController extends LaravelController
      */
     public function __construct(CRUD $repo)
     {
+        if (is_null($repo)) {
+            $repo = get_class($this);
+            $repo = str_replace(
+                'App\\Http\\Controllers\\', 'App\\Data\\Repositories\\', $repo
+            );
+            $repo = preg_replace('/Controller$/', 'Repository', $repo);
+        }
+
         $this->repo = $repo;
     }
 
