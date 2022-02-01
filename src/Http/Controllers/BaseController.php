@@ -65,6 +65,7 @@ abstract class BaseController extends LaravelController
                 'App\\Http\\Controllers\\', 'App\\Data\\Repositories\\', $repo
             );
             $repo = preg_replace('/Controller$/', 'Repository', $repo);
+            $repo = new $repo();
         }
 
         $this->repo = $repo;
