@@ -206,6 +206,10 @@ abstract class CRUD
      */
     public function create(array $fields, bool $limited = true): bool
     {
+        $this->model = (
+            new \ReflectionClass($this->model_class)
+        )->newInstanceArgs();
+
         if ($limited) {
             $this->setQueryLimiter($fields);
         }
@@ -226,11 +230,9 @@ abstract class CRUD
         $this->collection = new Collection();
 
         foreach ($items as $fields) {
-            if (!is_null($this->model->id)) {
-                $this->model = $this->model->replicate();
-            }
+            $this->create($fields, $limited);
 
-            $this->collection->add($this->create($fields, $limited));
+            $this->collection->add($this->model);
         }
 
         return $this->collection;
