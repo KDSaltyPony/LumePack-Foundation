@@ -13,6 +13,7 @@
 namespace LumePack\Foundation\Services;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation;
 
 /**
  * ValidatorService
@@ -143,7 +144,7 @@ abstract class ValidatorService
      *
      * @return array
      */
-    protected function make(array $fields): Validator
+    protected function make(array $fields): Validation
     {
         return Validator::make($fields, $this->rules);
     }
