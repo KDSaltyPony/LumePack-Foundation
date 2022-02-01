@@ -40,27 +40,49 @@ class Validator extends ValidatorService
     protected $edit_rules = [];
 
     /**
-     * Build a validation and store the results in attributes.
+     * Build a validation.
      *
-     * @param array $fields  The fields to validate
-     * @param int   $uid     The unique ID of the model (is PUT/PATCH)
+     * @param array  $fields The fields to validate
+     * @param int    $uid    The unique ID of the model (is PUT/PATCH)
      */
     public function __construct(
-        array $fields,
-        ?int $uid = null
+        array $fields, ?int $uid = null
     ) {
-        $uid = $uid?: 'NULL';
+        $this->_setRules($uid);
+        $this->_processValues($uid);
 
+        parent::__construct($fields);
+    }
+
+    /**
+     * Set the rules array.
+     *
+     * @param int $uid The unique ID of the model (is PUT/PATCH)
+     *
+     * @return void
+     */
+    private function _setRules(?int $uid = null): void
+    {
         if (!is_null($uid) && !empty($this->edit_rules)) {
             $this->rules = $this->edit_rules;
         }
+    }
+
+    /**
+     * Set variable values in rules array.
+     *
+     * @param int $uid The unique ID of the model (is PUT/PATCH)
+     *
+     * @return void
+     */
+    private function _processValues(?int $uid = null): void
+    {
+        $uid = $uid?: 'NULL';
 
         foreach ($this->rules as $key => $rule) {
             $this->rules[$key] = preg_replace(
                 ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
             );
         }
-
-        parent::__construct($fields);
     }
 }

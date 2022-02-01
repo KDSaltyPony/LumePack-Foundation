@@ -1,9 +1,9 @@
 <?php
 /**
  * DataValidate class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Middleware
  * @package  LumePack\Foundation\Http\Middleware
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 
 /**
  * DataValidate
- * 
+ *
  * @category Middleware
  * @package  LumePack\Foundation\Http\Middleware
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -32,15 +32,15 @@ class DataValidate
     /**
      * The methods that should be tested
      * (allow the middleware to be set on named routes)
-     * 
+     *
      * @var array $_methods
      */
-    private $_methods = ['POST', 'PUT', 'PATCH'];
+    private $_methods = [ 'POST', 'PUT', 'PATCH' ];
 
     /**
      * An instance of a child of ValidatorService that contains
      * the validation rules
-     * 
+     *
      * @var ValidatorService $_validator
      */
     private $_validator = null;
@@ -51,7 +51,7 @@ class DataValidate
      * @param Request $request   The request to validate
      * @param Closure $next      The controller method passed in routes
      * @param string  $validator The validator name
-     * 
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next, string $validator)
@@ -74,7 +74,7 @@ class DataValidate
      *
      * @param Request $request   The request to validate
      * @param string  $validator The validator name
-     * 
+     *
      * @return void
      */
     private function _setValidator(Request $request, string $validator): void

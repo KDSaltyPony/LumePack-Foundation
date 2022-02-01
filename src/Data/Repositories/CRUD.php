@@ -138,8 +138,18 @@ abstract class CRUD
      *
      * @param string $model_class The Model full namespace
      */
-    public function __construct(string $model_class)
+    public function __construct(?string $model_class = null)
     {
+        if (is_null($model_class)) {
+            $model_class = get_class($this);
+            $model_class = str_replace(
+                'App\\Data\\Repositories\\',
+                'App\\Data\\Models\\',
+                $model_class
+            );
+            $model_class = str_replace('Repository', '', $model_class);
+        }
+
         $this->model_class = $model_class;
         $this->model = new $model_class();
         $this->table = $this->model->getTable();
@@ -231,7 +241,6 @@ abstract class CRUD
 
         foreach ($items as $fields) {
             $this->create($fields, $limited);
-
             $this->collection->add($this->model);
         }
 
@@ -259,13 +268,38 @@ abstract class CRUD
     }
 
     /**
-     * Delete a database item.
+     * Modify existing database items.
      *
-     * @param int $uid The unique id of the model to retrieve
+     * @param array $items   A matrix of the fields to register
+     * @param bool  $limited Limit to the authenticateded user (user_id field)
      *
      * @return bool
      */
-    public function delete(int $uid, bool $limited = true): bool
+    public function massUpdate(array $items, bool $limited = true): bool
+    {
+        $this->collection = new Collection();
+
+        foreach ($items as $fields) {
+            $uid = $fields['id'];
+
+            unset($fields['id']);
+            $this->update($fields, $uid, $limited);
+            $this->collection->add($this->model);
+        }
+
+        return $this->collection;
+    }
+
+    /**
+     * Delete a database item.
+     *
+     * @param array $fields  The fields to register
+     * @param int   $uid     The unique id of the model to retrieve
+     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     *
+     * @return bool
+     */
+    public function delete(array $fields, int $uid, bool $limited = true): bool
     {
         $this->model = $this->model_class::find($uid);
 
@@ -275,6 +309,45 @@ abstract class CRUD
 
         return $this->model_class::destroy($uid) === 1;
     }
+
+    /**
+     * Delete database items.
+     *
+     * @param array $items   A matrix of the fields to register
+     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     *
+     * @return bool
+     */
+    public function massDelete(array $items = null, bool $limited = true): bool
+    {
+        if (is_null($items) || empty($items)) {
+            $this->read($limited);
+
+            foreach ($this->collection as $item) {
+                $items[] = [ 'id' => $item->id ];
+            }
+        }
+
+        $this->collection = new Collection();
+
+        foreach ($items as $fields) {
+            $uid = $fields['id'];
+
+            unset($fields['id']);
+            $this->delete($fields, $uid, $limited);
+            $this->collection->add($this->model);
+        }
+
+        return $this->collection;
+    }
+
+    // TODO: trigger to call setQueryLimiter, $limited based on crud
+    // public function __call($name, $arguments)
+    // {
+    //     // Note: value of $name is case sensitive.
+    //     dd("Calling object method '$name' "
+    //          . implode(', ', $arguments). "\n");
+    // }
 
     /**
      * The Model class string.

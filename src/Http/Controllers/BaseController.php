@@ -141,6 +141,22 @@ abstract class BaseController extends LaravelController
     }
 
     /**
+     * Method called by the /{root} URL in PUT
+     *
+     * @param Request $request The injected Request
+     *
+     * @return JsonResponse
+     */
+    public function massEdit(Request $request): JsonResponse
+    {
+        $this->setResponse(
+            $this->repo->massUpdate($request->all(), $this->isLimited())
+        );
+
+        return $this->response->format();
+    }
+
+    /**
      * Method called by the /{root}/{uid} URL in DELETE.
      *
      * @param int     $uid     The unique id of the poor Model we are going to delete T.T
@@ -150,10 +166,29 @@ abstract class BaseController extends LaravelController
      */
     public function remove(int $uid, Request $request): JsonResponse
     {
-        $this->setResponse($this->repo->delete($uid, $this->isLimited()));
+        $this->setResponse($this->repo->delete(
+            $request->all(), $uid, $this->isLimited())
+        );
 
         return $this->response->format();
     }
+
+    /**
+     * Method called by the /{root} URL in DELETE.
+     *
+     * @param Request $request The injected Request
+     *
+     * @return JsonResponse
+     */
+    public function massRemove(Request $request): JsonResponse
+    {
+        $this->setResponse(
+            $this->repo->massDelete($request->all(), $this->isLimited())
+        );
+
+        return $this->response->format();
+    }
+
 
     /**
      * Set the response.
