@@ -226,6 +226,10 @@ abstract class CRUD
         $this->collection = new Collection();
 
         foreach ($items as $fields) {
+            if (!is_null($this->model->id)) {
+                $this->model = $this->model->replicate();
+            }
+
             $this->collection->add($this->create($fields, $limited));
         }
 

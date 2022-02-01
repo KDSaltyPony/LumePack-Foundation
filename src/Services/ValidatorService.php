@@ -1,9 +1,9 @@
 <?php
 /**
  * ValidatorService class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Service
  * @package  LumePack\Foundation\Services
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * ValidatorService
- * 
+ *
  * @category Service
  * @package  LumePack\Foundation\Services
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -27,7 +27,7 @@ abstract class ValidatorService
 {
     /**
      * The state of mass assignment.
-     * 
+     *
      * @var bool
      */
     protected $is_mass = false;
@@ -41,31 +41,32 @@ abstract class ValidatorService
 
     /**
      * The final Validator validation state when created
-     * 
+     *
      * @var bool
      */
     protected $is_validated = true;
 
     /**
      * The final Validator errors when created
-     * 
+     *
      * @var array
      */
     protected $errors = null;
 
     /**
      * Build a validation and store the results in attributes.
-     * 
+     *
      * @param array $fields  The fields to validate
      * @param bool  $is_mass Is this a mass validation ?
      */
-    public function __construct(array $fields, bool $is_mass = false)
+    public function __construct(array $fields)
     {
-        $this->is_mass = $is_mass;
-        $fields = ($this->is_mass)? $fields: [$fields];
+        $this->is_mass = !is_assoc_array($fields);
+        $fields = $this->is_mass? $fields: [$fields];
 
         foreach ($fields as $key => $subfields) {
-            $validator = Validator::make($subfields, $this->rules);
+            // $validator = Validator::make($subfields, $this->rules);
+            $validator = $this->make($subfields);
 
             if ($validator->fails()) {
                 if ($this->is_validated) {
@@ -86,7 +87,7 @@ abstract class ValidatorService
 
     /**
      * Get the Validator rules.
-     * 
+     *
      * @return array
      */
     public function getRules(): array
@@ -96,10 +97,10 @@ abstract class ValidatorService
 
     /**
      * Get a specific Validator rule.
-     * 
+     *
      * @param string $name  the targeted rule.
      * @param array  $unset the rules to ignore
-     * 
+     *
      * @return array
      */
     public function getRule(string $name, array $unset = []): array
@@ -117,7 +118,7 @@ abstract class ValidatorService
 
     /**
      * Get the Validator validation state.
-     * 
+     *
      * @return bool|null
      */
     public function isValidated(): ?bool
@@ -127,7 +128,7 @@ abstract class ValidatorService
 
     /**
      * Get the Validator errors.
-     * 
+     *
      * @return array|null
      */
     public function getErrors(): ?array
@@ -136,11 +137,23 @@ abstract class ValidatorService
     }
 
     /**
+     * Validate the fields.
+     *
+     * @param array $fields An array of the fields to validate.
+     *
+     * @return array
+     */
+    protected function make(array $fields): Validator
+    {
+        return Validator::make($fields, $this->rules);
+    }
+
+    /**
      * Beautify the errors.
-     * 
+     *
      * @param array $errors An array of the errors to process.
      * @param int   $key    The current assignement key.
-     * 
+     *
      * @return array
      */
     private function _beautifyErrors(array $errors, int $key): array

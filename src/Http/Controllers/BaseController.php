@@ -1,9 +1,9 @@
 <?php
 /**
  * BaseController class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Controller
  * @package  LumePack\Foundation\Http\Controllers
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -20,7 +20,7 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * BaseController
- * 
+ *
  * @category Controller
  * @package  LumePack\Foundation\Http\Controllers
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -31,30 +31,30 @@ abstract class BaseController extends LaravelController
 {
     /**
      * The Controller response service.
-     * 
+     *
      * @var ResponseService $response
      */
     protected $response;
 
     /**
      * The Repository.
-     * 
+     *
      * @var CRUD $repo
      */
     protected $repo = null;
 
     /**
      * List the methods that are not limited.
-     * 
+     *
      * @var array $unlimited
      */
     protected $unlimited = [];
 
     /**
      * Set the repository based on the child.
-     * 
+     *
      * @param CRUD $repo The CRUD child
-     * 
+     *
      * @return void
      */
     public function __construct(CRUD $repo)
@@ -64,9 +64,9 @@ abstract class BaseController extends LaravelController
 
     /**
      * Method called by the /{root} URL in GET.
-     * 
+     *
      * @param Request $request The injected Request
-     * 
+     *
      * @return JsonResponse
      */
     public function list(Request $request): JsonResponse
@@ -78,10 +78,10 @@ abstract class BaseController extends LaravelController
 
     /**
      * Method called by the /{root}/{uid} URL in GET.
-     * 
+     *
      * @param int     $uid     The unique id of the desired Model
      * @param Request $request The injected Request
-     * 
+     *
      * @return JsonResponse
      */
     public function show(int $uid, Request $request): JsonResponse
@@ -93,9 +93,9 @@ abstract class BaseController extends LaravelController
 
     /**
      * Method called by the /{root} URL in POST.
-     * 
+     *
      * @param Request $request The injected Request
-     * 
+     *
      * @return JsonResponse
      */
     public function add(Request $request): JsonResponse
@@ -108,11 +108,27 @@ abstract class BaseController extends LaravelController
     }
 
     /**
+     * Method called by the /{root} URL in POST.
+     *
+     * @param Request $request The injected Request
+     *
+     * @return JsonResponse
+     */
+    public function massAdd(Request $request): JsonResponse
+    {
+        $this->setResponse(
+            $this->repo->massCreate($request->all(), $this->isLimited()), 201
+        );
+
+        return $this->response->format();
+    }
+
+    /**
      * Method called by the /{root}/{uid} URL in PUT
-     * 
+     *
      * @param int     $uid     The unique id of the Model we want to edit
      * @param Request $request The injected Request
-     * 
+     *
      * @return JsonResponse
      */
     public function edit(int $uid, Request $request): JsonResponse
@@ -126,10 +142,10 @@ abstract class BaseController extends LaravelController
 
     /**
      * Method called by the /{root}/{uid} URL in DELETE.
-     * 
+     *
      * @param int     $uid     The unique id of the poor Model we are going to delete T.T
      * @param Request $request The injected Request
-     * 
+     *
      * @return JsonResponse
      */
     public function remove(int $uid, Request $request): JsonResponse
@@ -141,10 +157,10 @@ abstract class BaseController extends LaravelController
 
     /**
      * Set the response.
-     * 
+     *
      * @param mixed $body   The data the response should return
      * @param int   $status The HTTP code of the response
-     * 
+     *
      * @return void
      */
     protected function setResponse($body, int $status = 200)
@@ -176,7 +192,7 @@ abstract class BaseController extends LaravelController
 
     /**
      * Get the data type
-     * 
+     *
      * @return string
      */
     protected function getModelName(): string
@@ -190,7 +206,7 @@ abstract class BaseController extends LaravelController
     /**
      * Check if the calling method limit the access to the resource
      * to the Authenticated user only.
-     * 
+     *
      * @return string
      */
     protected function isLimited(): bool

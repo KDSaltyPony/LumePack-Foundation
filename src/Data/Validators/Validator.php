@@ -1,9 +1,9 @@
 <?php
 /**
  * Validator class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Validator
  * @package  LumePack\Foundation\Data\Validators
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -16,7 +16,7 @@ use LumePack\Foundation\Services\ValidatorService;
 
 /**
  * Validator
- * 
+ *
  * @category Validator
  * @package  LumePack\Foundation\Data\Validators
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -41,17 +41,15 @@ class Validator extends ValidatorService
 
     /**
      * Build a validation and store the results in attributes.
-     * 
+     *
      * @param array $fields  The fields to validate
      * @param int   $uid     The unique ID of the model (is PUT/PATCH)
-     * @param bool  $is_mass Is this a mass validation ?
      */
     public function __construct(
         array $fields,
-        ?int $uid = null,
-        bool $is_mass = false
+        ?int $uid = null
     ) {
-        $uid = $uid ?: 'NULL';
+        $uid = $uid?: 'NULL';
 
         if (!is_null($uid) && !empty($this->edit_rules)) {
             $this->rules = $this->edit_rules;
@@ -63,6 +61,6 @@ class Validator extends ValidatorService
             );
         }
 
-        parent::__construct($fields, $is_mass);
+        parent::__construct($fields);
     }
 }
