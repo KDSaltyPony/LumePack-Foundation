@@ -13,7 +13,6 @@
 namespace LumePack\Foundation\Services;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation;
 
 /**
  * ValidatorService
@@ -66,8 +65,8 @@ abstract class ValidatorService
         $fields = $this->is_mass? $fields: [$fields];
 
         foreach ($fields as $key => $subfields) {
-            // $validator = Validator::make($subfields, $this->rules);
-            $validator = $this->make($subfields);
+            $validator = Validator::make($subfields, $this->rules);
+            // $validator = $this->make($subfields);
 
             if ($validator->fails()) {
                 if ($this->is_validated) {
@@ -137,17 +136,17 @@ abstract class ValidatorService
         return $this->errors;
     }
 
-    /**
-     * Validate the fields.
-     *
-     * @param array $fields An array of the fields to validate.
-     *
-     * @return array
-     */
-    protected function make(array $fields): Validation
-    {
-        return Validator::make($fields, $this->rules);
-    }
+    // /**
+    //  * Validate the fields.
+    //  *
+    //  * @param array $fields An array of the fields to validate.
+    //  *
+    //  * @return array
+    //  */
+    // protected function make(array $fields): Validation\Validator
+    // {
+    //     return Validator::make($fields, $this->rules);
+    // }
 
     /**
      * Beautify the errors.
