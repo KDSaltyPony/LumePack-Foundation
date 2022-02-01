@@ -275,7 +275,7 @@ abstract class CRUD
      *
      * @return bool
      */
-    public function massUpdate(array $items, bool $limited = true): bool
+    public function massUpdate(array $items, bool $limited = true): Collection
     {
         $this->collection = new Collection();
 
@@ -318,7 +318,9 @@ abstract class CRUD
      *
      * @return bool
      */
-    public function massDelete(array $items = null, bool $limited = true): bool
+    public function massDelete(
+        array $items = null, bool $limited = true
+    ): Collection
     {
         if (is_null($items) || empty($items)) {
             $this->read($limited);
