@@ -321,7 +321,7 @@ abstract class CRUD
     ): Collection
     {
         if (is_null($items) || empty($items)) {
-            $this->read($limited);
+            $this->all($limited);
 
             foreach ($this->collection as $item) {
                 $items[] = [ 'id' => $item->id ];
