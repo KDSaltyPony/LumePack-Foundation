@@ -323,9 +323,7 @@ abstract class CRUD
         if (is_null($items) || empty($items)) {
             $this->all($limited);
 
-            foreach ($this->collection as $item) {
-                $items[] = [ 'id' => $item->id ];
-            }
+            $items = $this->collection->map->only('id')->toArray();
         }
 
         $this->collection = new Collection();

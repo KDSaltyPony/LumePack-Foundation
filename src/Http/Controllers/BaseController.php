@@ -110,7 +110,7 @@ abstract class BaseController extends LaravelController
     public function add(Request $request): JsonResponse
     {
         $this->setResponse(
-            $this->repo->create($request->all(), $this->isLimited()), 201
+            $this->repo->create($request->post(), $this->isLimited()), 201
         );
 
         return $this->response->format();
@@ -126,7 +126,7 @@ abstract class BaseController extends LaravelController
     public function massAdd(Request $request): JsonResponse
     {
         $this->setResponse(
-            $this->repo->massCreate($request->all(), $this->isLimited()), 201
+            $this->repo->massCreate($request->post(), $this->isLimited()), 201
         );
 
         return $this->response->format();
@@ -143,7 +143,7 @@ abstract class BaseController extends LaravelController
     public function edit(int $uid, Request $request): JsonResponse
     {
         $this->setResponse(
-            $this->repo->update($request->all(), $uid, $this->isLimited())
+            $this->repo->update($request->post(), $uid, $this->isLimited())
         );
 
         return $this->response->format();
@@ -159,7 +159,7 @@ abstract class BaseController extends LaravelController
     public function massEdit(Request $request): JsonResponse
     {
         $this->setResponse(
-            $this->repo->massUpdate($request->all(), $this->isLimited())
+            $this->repo->massUpdate($request->post(), $this->isLimited())
         );
 
         return $this->response->format();
@@ -175,8 +175,8 @@ abstract class BaseController extends LaravelController
      */
     public function remove(int $uid, Request $request): JsonResponse
     {
-        $this->setResponse($this->repo->delete(
-            $request->all(), $uid, $this->isLimited())
+        $this->setResponse(
+            $this->repo->delete($request->post(), $uid, $this->isLimited())
         );
 
         return $this->response->format();
@@ -192,7 +192,7 @@ abstract class BaseController extends LaravelController
     public function massRemove(Request $request): JsonResponse
     {
         $this->setResponse(
-            $this->repo->massDelete($request->all(), $this->isLimited())
+            $this->repo->massDelete($request->post(), $this->isLimited())
         );
 
         return $this->response->format();
