@@ -460,9 +460,11 @@ abstract class CRUD
 
         if (config('query.order_by')) {
             foreach (config('query.order_by') as $order) {
-                $this->query->orderBy(
-                    "{$this->table}.{$order['attribute']}", $order['order']
-                );
+                $order = (
+                    Schema::hasColumn($this->getTable(), $order['attribute'])
+                )? "{$this->table}.{$order['attribute']}": $order['attribute'];
+
+                $this->query->orderBy("{$order}", $order['order']);
             }
         }
         // $this->query->dd();
