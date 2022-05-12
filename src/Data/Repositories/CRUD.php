@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -46,7 +47,8 @@ abstract class CRUD
      */
     private const OPERATORS = [
         'eq' => '=', 'neq' => '<>', 'gt' => '>', 'lt' => '<',
-        'gte' => '>=', 'lte' => '<=', 'lk' => 'LIKE', 'nlk' => 'NOT LIKE'
+        'gte' => '>=', 'lte' => '<=', 'lk' => 'LIKE', 'nlk' => 'NOT LIKE',
+        'ilk' => 'LIKE', 'nilk' => 'NOT LIKE'
     ];
 
     /**
@@ -153,7 +155,7 @@ abstract class CRUD
         $this->table = $this->model->getTable();
         $this->query = $this->model_class::selectRaw(
             "{$this->table}.*"
-        )->distinct()->whereRaw('1=1');
+        )->whereRaw('1=1');
     }
 
     /**
@@ -684,6 +686,12 @@ abstract class CRUD
 
                 $params[1] = self::OPERATORS[$operator];
                 $params[2] = $value; // TODO => Value controls ?
+
+                if ($operator === 'ilk') {
+                    // ILIKE ???
+                    $params[0] = DB::raw("LOWER({$params[0]})");
+                    $params[2] = strtolower($params[2]);
+                }
                 break;
         }
 
