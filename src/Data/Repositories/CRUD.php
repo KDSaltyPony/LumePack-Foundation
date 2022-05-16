@@ -12,6 +12,7 @@
  */
 namespace LumePack\Foundation\Data\Repositories;
 
+use Exception;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
@@ -136,6 +137,13 @@ abstract class CRUD
     protected $orders = [];
 
     /**
+     * The reflection of the model
+     *
+     * @var \ReflectionClass
+     */
+    protected $reflect = null;
+
+    /**
      * Set the Model we need for CRUD methods.
      *
      * @param string $model_class The Model full namespace
@@ -156,6 +164,7 @@ abstract class CRUD
         $this->query = $this->model_class::selectRaw(
             "{$this->table}.*"
         )->whereRaw('1=1');
+        $this->reflect = new \ReflectionClass($this->model_class);
     }
 
     /**
@@ -216,9 +225,7 @@ abstract class CRUD
      */
     public function create(array $fields, bool $limited = true): bool
     {
-        $this->model = (
-            new \ReflectionClass($this->model_class)
-        )->newInstanceArgs();
+        $this->model = $this->reflect->newInstanceArgs();
 
         if ($limited) {
             $this->setQueryLimiter($fields);
@@ -461,13 +468,9 @@ abstract class CRUD
         }
 
         if (config('query.order_by')) {
-            foreach (config('query.order_by') as $order) {
-                $field = (
-                    Schema::hasColumn($this->getTable(), $order['attribute'])
-                )? "{$this->table}.{$order['attribute']}": $order['attribute'];
-
-                $this->query->orderBy("{$field}", $order['order']);
-            }
+            $this->_setQueryOrders(
+                $this->query, config('query.order_by')
+            );
         }
         // $this->query->dd();
 
@@ -535,21 +538,22 @@ abstract class CRUD
         $repo = (is_null($repo))? $this: $repo;
         $table = $repo->getTable();
         $target = explode('.', $target);
-        $params = [
-            $this->_getFilterRaw($target[0], $operator, $repo->getFilters())
-        ];
+        $params = $this->_getFilterRaw(
+            $target[0], $operator, $repo->getFilters()
+        );
 
-        if (is_array($params[0])) {
+        if (is_array($params)) {
             array_shift($target);
 
-            $repo = $this->_setQueryJoin($params[0], $table);
+            $repo = $this->_setQueryJoin($params, $table);
 
             $this->_setQueryCondition(
                 $query, $bitwise, join('.', $target),
                 $operator, $value, $repo
             );
         } else {
-            $params[0] = "{$table}.{$params[0]}";
+            $params = "{$table}.{$params}";
+            $params = [ $params ];
 
             call_user_func_array(
                 [
@@ -557,6 +561,59 @@ abstract class CRUD
                     $this->_getMethod($bitwise, $operator, $value, $params)
                 ], $params
             );
+        }
+    }
+
+    /**
+     * Format Query Orders.
+     *
+     * @param Builder &$query The query to edit (by reference)
+     * @param array   $orders An array of orders
+     *
+     * @return void
+     */
+    private function _setQueryOrders(
+        Builder &$query, array $orders
+    ): void
+    {
+        foreach ($orders as $order) {
+            $this->_setQueryOrder(
+                $query, $order['attribute'], $order['order']
+            );
+        }
+        // $this->query->dd();
+    }
+
+    /**
+     * Format Query Order.
+     *
+     * @param Builder &$query The query to edit (by reference)
+     * @param array   $target The targeted field
+     * @param string  $order  The order (asc|desc)
+     * @param CRUD    $repo   The repo (default this)
+     *
+     * @return void
+     */
+    private function _setQueryOrder(
+        Builder &$query,
+        array $target,
+        string $order,
+        CRUD  $repo = null
+    ): void
+    {
+        $repo = (is_null($repo))? $this: $repo;
+        $table = $repo->getTable();
+
+        if (count($target) > 1) {
+            $repo = $this->_setQueryJoin($this->_getRelation(
+                Str::camel(array_shift($target))
+            ), $table);
+
+            $this->_setQueryOrder($query, $target, $order, $repo);
+        } else {
+            if (Schema::hasColumn($table, $target[0])) {
+                $query->orderBy("{$table}.{$target[0]}", $order);
+            }
         }
     }
 
@@ -573,20 +630,21 @@ abstract class CRUD
         $repo = new $join['repo']();
         $target = $repo->getTable();
 
-        if (array_key_exists('pivot', $join)) {
-            $this->query->join(
-                $join['pivot']['table'],
-                "{$table}.{$join['pivot']['fk']}",
-                "{$join['pivot']['table']}.{$join['pivot']['pk']}"
-            );
-
-            $table = $join['pivot']['table'];
-        }
-
         if (!in_array($join['repo'], $this->joins)) {
+            if (array_key_exists('pivot', $join) && !is_null($join['pivot'])) {
+                $this->query->join(
+                    $join['pivot']['table'],
+                    "{$table}.{$join['pivot']['target_key']}",
+                    "{$join['pivot']['table']}.{$join['pivot']['owner_key']}"
+                );
+
+                $table = $join['pivot']['table'];
+            }
+
             $this->joins[] = $join['repo'];
             $this->query->join(
-                $target, "{$target}.{$join['pk']}", "{$table}.{$join['fk']}"
+                $target, "{$target}.{$join['owner_key']}",
+                "{$table}.{$join['target_key']}"
             );
         }
 
@@ -596,7 +654,7 @@ abstract class CRUD
     /**
      * Transform an operator into a query method.
      *
-     * @param string $bitwise The join details (repo, pk, fk)
+     * @param string $bitwise The join details (repo, owner_key, target_key)
      *
      * @return string
      */
@@ -606,13 +664,6 @@ abstract class CRUD
     {
         $method = self::PREFIXES[$bitwise];
         $method .= $this->_methodNegate($operator);
-        // case 'ceq': case 'cneq': case 'cgt':
-        // case 'clt': case 'cgte': case 'clte':
-        //     $method .= 'Column';
-        //     $operator = substr($operator, 1);
-        //     $value = $this->_getFilterRaw($value, $operator, $repo->getFilters());
-        //     // $cond['value'] = $cond['value'];
-        //     break;
         $method .= $this->_methodSuffix($operator, $value, $params);
 
         return $method;
@@ -711,6 +762,7 @@ abstract class CRUD
         string $key, string $operator, array $filters = null
     ) {
         $filters = is_null($filters)? $this->filters: $filters;
+        $filter = null;
 
         if (!array_key_exists($key, $filters)) {
             # TODO throw error
@@ -724,7 +776,82 @@ abstract class CRUD
             # TODO throw error
         }
 
-        return is_array($filters[$key])? $filters[$key]['row']: $filters[$key];
+        if (is_array($filters[$key])) {
+            $filter = $filters[$key]['row'];
+        } else {
+            $filter = $filters[$key];
+
+            if (explode('.', $filters[$key])[0] === 'relation') {
+                $filter = $this->_getRelation(Str::camel(
+                    explode('.', $filters[$key])[1]
+                ));
+            }
+        }
+
+        return $filter;
+    }
+
+    /**
+     * Format an attribute to get relation informations.
+     *
+     * @param string $attribute An attribute that is a relation
+     *
+     * @return array
+     */
+    private function _getRelation(string $attribute): array
+    {
+        $relation = [];
+
+        if ($this->reflect->hasMethod($attribute)) {
+            $method = $this->reflect->getMethod($attribute);
+            $method_name = $method->getName();
+            $type = explode('\\', $method->getReturnType()->getName());
+            $type = $type[count($type) - 1];
+            $relation = [];
+            $method_r = (
+                $this->reflect->newInstance()
+            )->$method_name();
+            $repo = get_class($method_r->getRelated());
+            $repo = str_replace('Models', 'Repositories', $repo);
+            $repo .= 'Repository';
+
+            if (!class_exists($repo)) {
+                throw new Exception("{$repo} not found!");
+            }
+
+            switch (Str::lower($type)) {
+                case 'belongsto':
+                    $relation = [
+                        'repo'       => $repo,
+                        'owner_key'  => $method_r->getOwnerKeyName(),
+                        'target_key' => $method_r->getForeignKeyName()
+                    ];
+                    break;
+
+                case 'hasmany':
+                    $relation = [
+                        'repo'       => $repo,
+                        'owner_key'  => $method_r->getForeignKeyName(),
+                        'target_key' => $method_r->getLocalKeyName()
+                    ];
+                    break;
+
+                case 'belongstomany':
+                    $relation = [
+                        'pivot'      => [
+                            'table'      => $method_r->getTable(),
+                            'owner_key'  => $method_r->getForeignPivotKeyName(),
+                            'target_key' => $method_r->getParentKeyName()
+                        ],
+                        'repo'       => $repo,
+                        'owner_key'  => $method_r->getRelatedKeyName(),
+                        'target_key' => $method_r->getRelatedPivotKeyName()
+                    ];
+                    break;
+            }
+        }
+
+        return $relation;
     }
 
     /**

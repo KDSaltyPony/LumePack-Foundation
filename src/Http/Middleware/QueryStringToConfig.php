@@ -73,15 +73,18 @@ class QueryStringToConfig
 
         foreach ($orders as $key => $order) {
             if ($order !== '') {
-                $order = explode('.', $order);
+                $order = explode('.', strtolower($order));
+                $suffix = 'asc';
+
+                if (in_array($order[count($order) - 1], [ 'asc', 'desc' ])) {
+                    $suffix = $order[count($order) - 1];
+                    unset($order[count($order) - 1]);
+                }
 
                 config(
                     [
                         "query.order_by.{$key}" => [
-                            'attribute' => strtolower($order[0]),
-                            'order'     => (array_key_exists(
-                                1, $order
-                            )? strtoupper($order[1]): 'ASC')
+                            'attribute' => $order, 'order' => $suffix
                         ]
                     ]
                 );
