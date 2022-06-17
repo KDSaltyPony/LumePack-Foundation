@@ -961,10 +961,14 @@ abstract class CRUD
                 $values = [];
 
                 foreach ($fields[$nnr] as $realtion) {
-                    array_push(
-                        $values,
-                        ($target::firstWhere($field, $realtion[$field]))->id
-                    );
+                    $id = ($target::firstWhere($field, $realtion[$field]))->id;
+                    unset($realtion[$field]);
+
+                    if (empty($realtion)) {
+                        array_push($values, $id);
+                    } else {
+                        $values[$id] = $realtion;
+                    }
                 }
 
                 //pivot fields
