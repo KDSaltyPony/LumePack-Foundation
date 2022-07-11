@@ -538,7 +538,7 @@ abstract class CRUD
         $repo = (is_null($repo))? $this: $repo;
         $table = $repo->getTable();
         $target = explode('.', $target);
-        $params = $this->_getFilterRaw(
+        $params = $repo->_getFilterRaw(
             $target[0], $operator, $repo->getFilters()
         );
 
