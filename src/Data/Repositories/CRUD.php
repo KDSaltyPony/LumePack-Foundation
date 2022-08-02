@@ -611,9 +611,10 @@ abstract class CRUD
 
             $this->_setQueryOrder($query, $target, $order, $repo);
         } else {
-            if (Schema::hasColumn($table, $target[0])) {
-                $query->orderBy("{$table}.{$target[0]}", $order);
-            }
+            $query->orderBy((
+                Schema::hasColumn($table, $target[0])?
+                "{$table}.{$target[0]}": $target[0]
+            ), $order);
         }
     }
 
