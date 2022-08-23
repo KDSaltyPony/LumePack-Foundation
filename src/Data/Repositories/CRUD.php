@@ -212,7 +212,7 @@ abstract class CRUD
             $this->setQueryLimiter();
         }
 
-        return $this->model = $this->model_class::find($uid);
+        return $this->model = $this->query->find($uid);
     }
 
     /**
@@ -265,11 +265,11 @@ abstract class CRUD
      */
     public function update(array $fields, int $uid, bool $limited = true): bool
     {
-        $this->model = $this->model_class::find($uid);
-
         if ($limited) {
             $this->setQueryLimiter($fields);
         }
+
+        $this->model = $this->query->find($uid);
 
         return $this->register($fields);
     }
@@ -308,13 +308,13 @@ abstract class CRUD
      */
     public function delete(array $fields, int $uid, bool $limited = true): bool
     {
-        $this->model = $this->model_class::find($uid);
-
         if ($limited) {
             $this->setQueryLimiter();
         }
 
-        return $this->model_class::destroy($uid) === 1;
+        $this->model = $this->query->find($uid);
+
+        return $this->query->destroy($uid) === 1;
     }
 
     /**
