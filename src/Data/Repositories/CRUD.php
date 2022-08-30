@@ -314,7 +314,7 @@ abstract class CRUD
 
         $this->model = $this->query->find($uid);
 
-        return $this->model->delete() === 1;
+        return $this->model->delete() === true;
     }
 
     /**
@@ -395,7 +395,7 @@ abstract class CRUD
      *
      * @return Model
      */
-    public function getModel(): Model
+    public function getModel(): ?Model
     {
         return $this->model;
     }
