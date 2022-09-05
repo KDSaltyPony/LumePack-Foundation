@@ -195,7 +195,7 @@ abstract class CRUD
             return $this->paginator;
         }
 
-        return $this->collection = $this->query->get();
+        return $this->collection = (clone $this->query)->get();
     }
 
     /**
@@ -212,7 +212,7 @@ abstract class CRUD
             $this->setQueryLimiter();
         }
 
-        return $this->model = $this->query->find($uid);
+        return $this->model = (clone $this->query)->find($uid);
     }
 
     /**
@@ -269,7 +269,7 @@ abstract class CRUD
             $this->setQueryLimiter($fields);
         }
 
-        $this->model = $this->query->find($uid);
+        $this->model = (clone $this->query)->find($uid);
 
         return $this->register($fields);
     }
@@ -312,7 +312,7 @@ abstract class CRUD
             $this->setQueryLimiter();
         }
 
-        $this->model = $this->query->find($uid);
+        $this->model = (clone $this->query)->find($uid);
 
         return $this->model->delete() === true;
     }
@@ -330,6 +330,7 @@ abstract class CRUD
     ): Collection
     {
         if (is_null($items) || empty($items)) {
+            config( [ 'paginator.limit', 0 ] );
             $this->all($limited);
 
             $items = $this->collection->map->only('id')->toArray();
