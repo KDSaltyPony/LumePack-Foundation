@@ -214,6 +214,43 @@ trait InheritanceModel
 
             return $model;
         });
+
+        static::saved(function(Model $model) {
+            $settings = $model->inheritanceModel();
+            $pkey = array_key_exists(
+                'parent_relation', $settings
+            )? $settings['parent_relation']: 'parent';
+            $ckey = array_key_exists(
+                'children_relation', $settings
+            )? $settings['children_relation']: 'children';
+            $parent = $model->$pkey;
+            $children = $model->$ckey;
+
+            if (!is_null($parent)) {
+                foreach ($model->attributes as $attribute => $value) {
+                    if (
+                        array_key_exists('ignored', $settings) &&
+                        !in_array($attribute, $settings['ignored']) &&
+                        $attribute !== 'id' &&
+                        $attribute !== "{$model->getTable()}_id"
+                    ) {
+                        if (
+                            (
+                                array_key_exists('locked', $settings) &&
+                                in_array($attribute, $settings['locked'])
+                            ) || (
+                                array_key_exists('unlocked', $settings) &&
+                                !in_array($attribute, $settings['unlocked'])
+                            ) || is_null($value)
+                        ) {
+                            $model->$attribute = $parent->$attribute;
+                        }
+                    }
+                }
+            }
+
+            return $model;
+        });
     }
 
     /**
