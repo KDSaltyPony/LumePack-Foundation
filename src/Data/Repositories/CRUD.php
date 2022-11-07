@@ -330,7 +330,7 @@ abstract class CRUD
     ): Collection
     {
         if (is_null($items) || empty($items)) {
-            config( [ 'paginator.limit', 0 ] );
+            config( [ 'paginator.limit' => 0 ] );
             $this->all($limited);
 
             $items = $this->collection->map->only('id')->toArray();
