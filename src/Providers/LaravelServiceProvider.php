@@ -48,10 +48,8 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../config/query.php'), 'query'
         );
 
-        $this->app->middleware([ QueryStringToConfig::class ]);
+        app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
 
-        $this->app->routeMiddleware([
-            'dataValidation' => DataValidate::class
-        ]);
+        app('router')->aliasMiddleware('dataValidation', DataValidate::class);
     }
 }
