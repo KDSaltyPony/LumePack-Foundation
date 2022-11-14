@@ -1,9 +1,9 @@
 <?php
 /**
  * LaravelServiceProvider class file
- * 
+ *
  * PHP Version 7.2.19
- * 
+ *
  * @category Controller
  * @package  LumePack\Foundation\Providers
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -17,10 +17,12 @@ use LumePack\Foundation\Http\Middleware\DataValidate;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\Sanctum;
+use LumePack\Foundation\Data\Models\Auth\AccessToken;
 
 /**
  * LaravelServiceProvider
- * 
+ *
  * @category Service
  * @package  LumePack\Foundation\Providers
  * @author   KDSaltyPony <kallofdragon@gmail.com>
@@ -49,7 +51,11 @@ class LaravelServiceProvider extends ServiceProvider
         );
 
         app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
-
         app('router')->aliasMiddleware('dataValidation', DataValidate::class);
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        Sanctum::ignoreMigrations();
+        Sanctum::usePersonalAccessTokenModel(AccessToken::class);
     }
 }
