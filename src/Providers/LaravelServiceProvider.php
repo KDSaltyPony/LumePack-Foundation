@@ -53,7 +53,9 @@ class LaravelServiceProvider extends ServiceProvider
         app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
         app('router')->aliasMiddleware('dataValidation', DataValidate::class);
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(
+            realpath(__DIR__.'/../../database/migrations')
+        );
 
         Sanctum::ignoreMigrations();
         Sanctum::usePersonalAccessTokenModel(AccessToken::class);
