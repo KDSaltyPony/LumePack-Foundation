@@ -38,10 +38,6 @@ class LaravelServiceProvider extends ServiceProvider
     {
         DB::enableQueryLog();
 
-        $this->app->configure('crud');
-        $this->app->configure('paginator');
-        $this->app->configure('query');
-
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/crud.php'), 'crud'
         );
@@ -57,15 +53,5 @@ class LaravelServiceProvider extends ServiceProvider
         $this->app->routeMiddleware([
             'dataValidation' => DataValidate::class
         ]);
-    }
-
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
     }
 }
