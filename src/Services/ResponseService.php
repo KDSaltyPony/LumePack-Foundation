@@ -12,16 +12,11 @@
  */
 namespace LumePack\Foundation\Services;
 
-// use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-// use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\File as HttpFile;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
-// use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 

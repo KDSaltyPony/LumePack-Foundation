@@ -17,6 +17,7 @@ use LumePack\Foundation\Http\Middleware\DataValidate;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
 
@@ -49,12 +50,22 @@ class LaravelServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/query.php'), 'query'
         );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
+        );
 
         app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
         app('router')->aliasMiddleware('dataValidation', DataValidate::class);
 
         $this->loadMigrationsFrom(
             realpath(__DIR__.'/../../database/migrations')
+        );
+
+        // $this->loadRoutesFrom(
+        //     realpath(__DIR__.'/../../routes/api.php')
+        // );
+        Route::middleware('api')->prefix('api')->group(
+            realpath(__DIR__.'/../../routes/api.php')
         );
 
         Sanctum::ignoreMigrations();

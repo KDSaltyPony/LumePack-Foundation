@@ -475,6 +475,12 @@ abstract class CRUD
         }
         // $this->query->dd();
 
+        if (
+            Schema::hasColumn($this->getTable(), 'deleted_at') && Auth::check()
+        ) {
+            $this->query->whereNull('deleted_at');
+        }
+
         return $this->query;
     }
 

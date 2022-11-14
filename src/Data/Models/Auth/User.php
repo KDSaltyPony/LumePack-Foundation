@@ -12,19 +12,12 @@
  */
 namespace LumePack\Foundation\Data\Models\Auth;
 
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use Laravel\Lumen\Auth\Authorizable;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Request;
 use Laravel\Sanctum\HasApiTokens;
+use LumePack\Foundation\Database\Factories\UserFactory;
 
 /**
  * User
@@ -35,9 +28,6 @@ use Laravel\Sanctum\HasApiTokens;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-// class Utilisateur extends LoggedModel implements AuthenticatableContract, AuthorizableContract, JWTSubject
-// {
-//     use Authenticatable, Authorizable, HasFactory;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -48,17 +38,6 @@ class User extends Authenticatable
      * @var string
      */
     protected $uid = 'User';
-    // "id" Serial,
-    // "created_at" Timestamp with time zone NOT NULL,
-    // "updated_at" Timestamp with time zone,
-    // "deleted_at" Timestamp with time zone,
-    // "is_active" Boolean DEFAULT TRUE NOT NULL,
-    // "login" Character varying NOT NULL,
-    // "password" Character varying NOT NULL,
-    // "email" Character varying NOT NULL
-    // $table->timestamp('email_verified_at')->nullable();
-    // $table->rememberToken();
-    // remember_token 100 chars nullable
 
     /**
      * The relationships that should always be loaded.
@@ -72,17 +51,24 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $appends = [ /*'nom_complet', 'couleur', 'nombre_essai'*/ ];
+    protected $appends = [ /*'nom_complet'*/ ];
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = [
-        /*'motdepasse', 'supprime', 'dat_entite_id', 'dat_media_id', 'pivot',
-        'mdp_jeton', 'mdp_jeton_date'*/
-    ];
+    protected $hidden = [ 'password', 'remember_token', 'deleted_at' ];
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return UserFactory::new();
+    }
 
     /**
      * -------------------------------------------------------------------------
@@ -95,4 +81,28 @@ class User extends Authenticatable
      * Mutators
      * -------------------------------------------------------------------------
      */
+
+    /**
+     * Set the user's email.
+     *
+     * @param string $value The email value
+     *
+     * @return void
+     */
+    public function setEmailAttribute(string $value): void
+    {
+        $this->attributes['email'] = strtolower($value);
+    }
+
+    /**
+     * Set the user's password.
+     *
+     * @param string $value The password value
+     *
+     * @return void
+     */
+    public function setPasswordAttribute(string $value): void
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
 }
