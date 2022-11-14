@@ -1,6 +1,6 @@
 <?php
 /**
- * LumenServiceProvider class file
+ * LaravelServiceProvider class file
  * 
  * PHP Version 7.2.19
  * 
@@ -19,7 +19,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 
 /**
- * LumenServiceProvider
+ * LaravelServiceProvider
  * 
  * @category Service
  * @package  LumePack\Foundation\Providers
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\DB;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class LumenServiceProvider extends ServiceProvider
+class LaravelServiceProvider extends ServiceProvider
 {
     /**
      * Boot the authentication services for the application.
