@@ -13,7 +13,6 @@
 namespace LumePack\Foundation\Http\Middleware;
 
 use Closure;
-use LumePack\Foundation\Services\ResponseService;
 use Illuminate\Http\Request;
 
 /**

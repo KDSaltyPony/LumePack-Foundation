@@ -17,6 +17,7 @@ use Exception;
 use LumePack\Foundation\Services\ValidatorService;
 use LumePack\Foundation\Services\ResponseService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * DataValidate
@@ -51,13 +52,19 @@ class DataValidate
      * @param Request $request   The request to validate
      * @param Closure $next      The controller method passed in routes
      * @param string  $validator The validator name
+     * @param string  $namespace The validator namespace (default App)
      *
-     * @return mixed
+     * @return Response
      */
-    public function handle(Request $request, Closure $next, string $validator)
+    public function handle(
+        Request $request,
+        Closure $next,
+        string $validator,
+        string $namespace = 'app'
+    ): Response
     {
         if (in_array($request->getMethod(), $this->_methods)) {
-            $this->_setValidator($request, $validator);
+            $this->_setValidator($request, nsval($validator), nsval($namespace));
 
             if (!$this->_validator->isValidated()) {
                 return (new ResponseService(
@@ -74,22 +81,15 @@ class DataValidate
      *
      * @param Request $request   The request to validate
      * @param string  $validator The validator name
+     * @param string  $namespace The validator namespace
      *
      * @return void
      */
-    private function _setValidator(Request $request, string $validator): void
+    private function _setValidator(
+        Request $request, string $validator, string $namespace
+    ): void
     {
-        $validator = preg_replace_callback(
-            '/(?:(?:^|\_|\.)[a-z])/',
-            function ($match) {
-                $match[0] = str_replace('_', '', $match[0]);
-                $match[0] = str_replace('.', '\\', $match[0]);
-                return strtoupper($match[0]);
-            },
-            $validator
-        );
-
-        $validator = "App\\Data\\Validators\\{$validator}Validator";
+        $validator = "{$namespace}\\Data\\Validators{$validator}Validator";
 
         if (!class_exists($validator)) {
             throw new Exception("{$validator} not found");

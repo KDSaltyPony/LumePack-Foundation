@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use LumePack\Foundation\Http\Controllers\Auth\LoginController;
+use Illuminate\Routing\RouteParameterBinder;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Route;;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +15,25 @@ use LumePack\Foundation\Http\Controllers\Auth\LoginController;
 |
 */
 
-Route::prefix('auth')->controller(LoginController::class)->group(function () {
-    Route::post('login', 'login');
-});
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::namespace(
+    'LumePack\\Foundation\\Http\\Controllers'
+)->group(function () {
+    Route::prefix('auth')->namespace('Auth')->middleware(
+        'auth:sanctum'
+    )->group(function () {
+        Route::controller('AuthController')->middleware(
+            'dataValidation:auth.auth,lume_pack.foundation'
+        )->group(function () {
+            Route::withoutMiddleware('auth:sanctum')->post('login', 'login');
+            Route::get('refresh', 'refresh');
+            Route::get('logout', 'logout');
+        });
+
+        Route::prefix('dashboard')->controller('UserController')->middleware(
+            'dataValidation:auth.user,lume_pack.foundation'
+        )->group(function () {
+            // Route::get('/', 'show')->defaults('uid', Request::user()->id);
+            Route::get('/', 'show');
+        });
+    });
 });

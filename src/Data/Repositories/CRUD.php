@@ -151,11 +151,7 @@ abstract class CRUD
     public function __construct(?string $model_class = null)
     {
         if (is_null($model_class)) {
-            $model_class = get_class($this);
-            $model_class = str_replace(
-                'App\\Data\\Repositories\\', 'App\\Data\\Models\\', $model_class
-            );
-            $model_class = preg_replace('/Repository$/', '', $model_class);
+            $model_class = ns_search(get_class($this), 'model');
         }
 
         $this->model_class = $model_class;

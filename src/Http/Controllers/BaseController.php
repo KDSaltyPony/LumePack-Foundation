@@ -15,6 +15,7 @@ namespace LumePack\Foundation\Http\Controllers;
 use LumePack\Foundation\Services\ResponseService;
 use LumePack\Foundation\Data\Repositories\CRUD;
 use Laravel\Lumen\Routing\Controller as LaravelController;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -60,12 +61,10 @@ abstract class BaseController extends LaravelController
     public function __construct(?CRUD $repo = null)
     {
         if (is_null($repo)) {
-            $repo = get_class($this);
-            $repo = str_replace(
-                'App\\Http\\Controllers\\', 'App\\Data\\Repositories\\', $repo
-            );
-            $repo = preg_replace('/Controller$/', 'Repository', $repo);
-            $repo = class_exists($repo)? new $repo(): null;
+            $repo = ns_search(get_class($this), 'repository', [
+                'Http' => 'Data'
+            ]);
+            $repo = is_null($repo)? null: new $repo();
         }
 
         $this->repo = $repo;
