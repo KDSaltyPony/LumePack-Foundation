@@ -32,8 +32,9 @@ Route::namespace(
         Route::prefix('dashboard')->controller('UserController')->middleware(
             'dataValidation:auth.user,lume_pack.foundation'
         )->group(function () {
+            // Route::get('/', 'show');
+            Route::get('/', 'show')->defaults('uid', '1');
             // Route::get('/', 'show')->defaults('uid', Request::user()->id);
-            Route::get('/', 'show');
         });
     });
 });
