@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
+use LumePack\Foundation\Http\Middleware\Authenticate;
 
 /**
  * LaravelServiceProvider
@@ -51,11 +52,15 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../config/query.php'), 'query'
         );
         $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/auth.php'), 'auth'
+        );
+        $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
         );
 
         app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
         app('router')->aliasMiddleware('dataValidation', DataValidate::class);
+        app('router')->aliasMiddleware('lpfauth', Authenticate::class);
 
         $this->loadMigrationsFrom(
             realpath(__DIR__.'/../../database/migrations')

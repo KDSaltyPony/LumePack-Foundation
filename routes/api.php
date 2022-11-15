@@ -19,7 +19,7 @@ Route::namespace(
     'LumePack\\Foundation\\Http\\Controllers'
 )->group(function () {
     Route::prefix('auth')->namespace('Auth')->middleware(
-        'auth:sanctum'
+        'lpfauth:sanctum'
     )->group(function () {
         Route::controller('AuthController')->middleware(
             'dataValidation:auth.auth,lume_pack.foundation'
