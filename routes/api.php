@@ -24,7 +24,7 @@ Route::namespace(
         Route::controller('AuthController')->middleware(
             'dataValidation:auth.auth,lume_pack.foundation'
         )->group(function () {
-            Route::withoutMiddleware('auth:sanctum')->post('login', 'login');
+            Route::withoutMiddleware('lpfauth:sanctum')->post('login', 'login');
             Route::get('refresh', 'refresh');
             Route::get('logout', 'logout');
         });
@@ -32,9 +32,23 @@ Route::namespace(
         Route::prefix('dashboard')->controller('UserController')->middleware(
             'dataValidation:auth.user,lume_pack.foundation'
         )->group(function () {
-            // Route::get('/', 'show');
-            Route::get('/', 'show')->defaults('uid', '1');
-            // Route::get('/', 'show')->defaults('uid', Request::user()->id);
+            Route::get('/', 'show');
+            Route::put('/', 'edit');
+        });
+
+        Route::prefix('pwd')->controller(
+            'PasswordController'
+        )->group(function () {
+            Route::withoutMiddleware('lpfauth:sanctum')->middleware(
+                'dataValidation:auth.passwordForgot,lume_pack.foundation'
+            )->post('forgot', 'forgot');
+            // 6MRUa75RvqcMN8oLWyd3i1BztisJGxHy
+            Route::middleware(
+                'dataValidation:auth.passwordRenew,lume_pack.foundation'
+            )->post('renew', 'renew');
+            Route::withoutMiddleware('lpfauth:sanctum')->middleware(
+                'dataValidation:auth.passwordForgotRenew,lume_pack.foundation'
+            )->post('{token}', 'mailRenew');
         });
     });
 });

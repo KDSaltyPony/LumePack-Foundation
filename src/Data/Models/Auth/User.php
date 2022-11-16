@@ -17,6 +17,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
+use LumePack\Foundation\Database\Factories\Auth\UserFactory;
 
 /**
  * User
@@ -29,7 +30,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use UserModel, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The uid associated with the model log.
@@ -57,7 +58,10 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $hidden = [ 'password', 'remember_token', 'deleted_at' ];
+    protected $hidden = [
+        'password', 'remember_token', 'deleted_at',
+        // 'pwd_token', 'pwd_token_created_at'
+    ];
 
     /**
      * Create a new factory instance for the model.
@@ -66,7 +70,7 @@ class User extends Authenticatable
      */
     protected static function newFactory()
     {
-        return \LumePack\Foundation\Database\Factories\Auth\UserFactory::new();
+        return UserFactory::new();
     }
 
     /**

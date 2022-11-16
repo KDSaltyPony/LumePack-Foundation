@@ -24,5 +24,4 @@ use LumePack\Foundation\Http\Controllers\BaseController;
  * @link     none
  */
 class UserController extends BaseController
-{
-}
+{}

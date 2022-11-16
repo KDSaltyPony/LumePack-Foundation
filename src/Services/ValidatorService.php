@@ -64,6 +64,12 @@ abstract class ValidatorService
         $this->is_mass = !is_assoc_array($fields);
         $fields = $this->is_mass? $fields: [$fields];
 
+        if (empty($fields)) {
+            $fields[] = [
+                'has_error_probabilities' => true
+            ];
+        }
+
         foreach ($fields as $key => $subfields) {
             $validator = Validator::make($subfields, $this->rules);
             // $validator = $this->make($subfields);

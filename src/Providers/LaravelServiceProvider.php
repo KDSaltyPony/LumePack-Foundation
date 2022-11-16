@@ -51,12 +51,12 @@ class LaravelServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/query.php'), 'query'
         );
-        $this->mergeConfigFrom(
-            realpath(__DIR__.'/../../config/auth.php'), 'auth'
-        );
-        $this->mergeConfigFrom(
-            realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
-        );
+        // $this->mergeConfigFrom(
+        //     realpath(__DIR__.'/../../config/auth.php'), 'auth'
+        // );
+        // $this->mergeConfigFrom(
+        //     realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
+        // );
 
         app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
         app('router')->aliasMiddleware('dataValidation', DataValidate::class);
@@ -66,6 +66,13 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../database/migrations')
         );
 
+        $this->loadTranslationsFrom(
+            realpath(__DIR__.'/../../resources/lang/'), 'foundation'
+        );
+
+        // $this->publishes([
+        //     __DIR__.'/../lang' => $this->app->langPath('vendor/courier'),
+        // ]);
         // $this->loadRoutesFrom(
         //     realpath(__DIR__.'/../../routes/api.php')
         // );

@@ -89,20 +89,6 @@ class AuthController extends BaseController
         return $this->response->format();
     }
 
-    // public function profil(): JsonResponse
-    // {
-    //     $this->setResponse(auth()->user());
-
-    //     return $this->response->format();
-    // }
-
-    // public function profilEdit(Request $request): JsonResponse
-    // {
-    //     $request->merge([ 'entite_id' => auth()->user()->entite->id ]);
-
-    //     return parent::edit(auth()->user()->id, $request);
-    // }
-
     /**
      * Method called by the /api/auth/logout URL in GET.
      *

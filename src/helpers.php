@@ -50,7 +50,6 @@ if (!function_exists('ns_search')) {
 
         if (!Str::contains($namespace, Str::plural($origin))) {
             $origin = 'Model';
-            $namespace .= $target;
         }
 
         $namespace = Str::replace(
