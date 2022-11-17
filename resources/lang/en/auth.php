@@ -18,6 +18,7 @@ return [
     'email' => 'Unverified email.',
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
+    '403' => 'Forbidden',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 
 ];

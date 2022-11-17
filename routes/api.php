@@ -50,5 +50,25 @@ Route::namespace(
                 'dataValidation:auth.passwordForgotRenew,lume_pack.foundation'
             )->post('{token}', 'mailRenew');
         });
+
+        // Route::prefix('role')->controller('RoleController')->middleware(
+        //     'dataValidation:auth.role,lume_pack.foundation'
+        // )->group(function () {
+        //     Route::get('/', 'list');
+        //     Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+        //     Route::post('/', 'add');
+        //     Route::put('{uid}', 'edit');
+        //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+        // });
+
+        // Route::prefix('permission')->controller('PermissionController')->middleware(
+        //     'dataValidation:auth.permission,lume_pack.foundation'
+        // )->group(function () {
+        //     Route::get('/', 'list');
+        //     Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+        //     Route::post('/', 'add');
+        //     Route::put('{uid}', 'edit');
+        //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+        // });
     });
 });

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('uid')->unique();
             $table->string('name');
-            $table->foreignId('permissiontype_id')->references('id')->on(
-                'permissiontypes'
+            $table->foreignId('permission_type_id')->references('id')->on(
+                'permission_types'
             )->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

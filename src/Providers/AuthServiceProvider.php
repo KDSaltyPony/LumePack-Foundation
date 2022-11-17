@@ -109,25 +109,4 @@ class AuthServiceProvider extends ServiceProvider
     //     return JWTAuth::parseToken()->invalidate();
     //     // return $user;
     // }
-
-    /**
-     * Token auth, checking the DB token in Authorization header.
-     * Set the user if authorized.
-     *
-     * @param Request $request The request to validate
-     *
-     * @return Utilisateur|null
-     */
-    public function token(Request $request): ?User
-    {
-    //     if ($request->header('Authorization')) {
-    //         $head = explode(' ', $request->header('Authorization'));
-
-    //         if (strtolower($head[0]) === 'bearer') {
-    //             return Utilisateur::where('api_token', $head[1])->first();
-    //         }
-    //     }
-
-        return null;
-    }
 }

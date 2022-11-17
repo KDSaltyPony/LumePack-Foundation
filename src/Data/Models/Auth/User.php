@@ -13,6 +13,7 @@
 namespace LumePack\Foundation\Data\Models\Auth;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -44,7 +45,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $with = [ /*'entite', 'profils', 'avatar'*/ ];
+    protected $with = [ 'roles' ];
 
     /**
      * The accessors to append to the model's array form.
@@ -59,8 +60,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'deleted_at',
-        // 'pwd_token', 'pwd_token_created_at'
+        'password', 'remember_token', 'pivot', 'deleted_at',
+        'pwd_token', 'pwd_token_created_at'
     ];
 
     /**
@@ -78,6 +79,18 @@ class User extends Authenticatable
      * Relations
      * -------------------------------------------------------------------------
      */
+
+    /**
+     * Get the User's Roles.
+     *
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_role')->without(
+            'users'
+        )->without('permissions');
+    }
 
     /**
      * -------------------------------------------------------------------------

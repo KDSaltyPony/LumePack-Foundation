@@ -16,6 +16,9 @@ use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+use LumePack\Foundation\Data\Models\Auth\Permission;
+use LumePack\Foundation\Services\ResponseService;
 
 /**
  * Authenticate
@@ -45,15 +48,7 @@ class Authenticate extends Middleware
             Route::current()->setParameter('uid', auth()->user()->id);
         }
         // $is_guest = true;
-        // $has_rights = false;
         // $guards = explode('.', $guards);
-        // $method = $request->route()[1]['uses'];
-        // // dd($request->route());
-        // $method = str_replace('App\\Http\\Controllers\\', '', $method);
-        // $method = str_replace('\\', '', $method);
-        // $method = str_replace('Controller', '', $method);
-        // $method = str_replace('@', '_', $method);
-        // $method = strtolower($method);
 
         // foreach ($guards as $guard) {
         //     if (!$this->auth->guard($guard)->guest()) {
@@ -72,36 +67,46 @@ class Authenticate extends Middleware
         //     return $response->format();
         // }
 
-        // if (!auth()->user()->actif || auth()->user()->supprime) {
-        //     return (
-        //         new ResponseService('Utilisateur inactif ou supprimé.', 403)
-        //     )->format();
-        // }
-        // // dd($method);
+        if (!is_null(auth()->user())) {
+            if (!auth()->user()->is_active) {
+                return (new ResponseService(trans('auth.inactive'), 400))->format();
+            } elseif (is_null(auth()->user()->email_verified_at)) {
+                return (new ResponseService(trans('auth.email'), 400))->format();
+            }
 
-        // if (
-        //     !is_null(auth()->user()->entite) &&
-        //     Droit::firstWhere('uid', 'LIKE', "{$method}%")
-        // ) {
-        //     foreach (auth()->user()->profils as $profil) {
-        //         foreach ($profil->droits as $droit) {
-        //             if (str_starts_with($droit->uid, $method)) {
-        //                 $has_rights = true;
+            $method = ra_to_uid(Route::current());
+            $permission = Permission::where(
+                'uid', 'LIKE', "{$method}%"
+            )->get();
 
-        //                 $filters = explode('_', $droit->uid);
-        //                 array_shift($filters);
-        //                 array_shift($filters);
+            if ($permission->isEmpty()) {
+                $method = Str::beforeLast($method, '_');
+                $permission = Permission::where(
+                    'uid', 'LIKE', "{$method}%"
+                )->get();
+            }
 
-        //                 // $request->merge([ 'auth_filters' => $filters ]);
-        //                 config([ 'auth.filters' => $filters ]);
-        //             }
-        //         }
-        //     }
+            if ($permission->isNotEmpty()) {
+                $permission = Permission::join('role_permission as rperm', function ($join) {
+                    $join->on('rperm.permission_id', '=', 'permissions.id');
+                    $join->whereIn(
+                        'rperm.role_id', auth()->user()->roles->pluck('id')->toArray()
+                    );
+                })->whereIn(
+                    'uid', $permission->pluck('uid')->toArray()
+                )->first();
 
-        //     if (!$is_open && !$has_rights) {
-        //         return (new ResponseService('Non-autorisé.', 403))->format();
-        //     }
-        // }
+                if (is_null($permission)) {
+                    return (new ResponseService(trans('auth.403'), 403))->format();
+                }
+
+                $filters = Str::of(Str::after(
+                    $permission->uid, $method
+                ))->explode('_');
+
+                config([ 'auth.filters' => $filters->toArray() ]);
+            }
+        }
 
         return $next($request);
     }

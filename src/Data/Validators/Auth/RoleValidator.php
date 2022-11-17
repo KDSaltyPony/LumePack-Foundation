@@ -1,6 +1,6 @@
 <?php
 /**
- * UserValidator class file
+ * RoleValidator class file
  *
  * PHP Version 7.2.19
  *
@@ -15,7 +15,7 @@ namespace LumePack\Foundation\Data\Validators\Auth;
 use LumePack\Foundation\Data\Validators\Validator;
 
 /**
- * UserValidator
+ * RoleValidator
  *
  * @category Validator
  * @package  LumePack\Foundation\Data\Validators\Auth
@@ -23,7 +23,7 @@ use LumePack\Foundation\Data\Validators\Validator;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class UserValidator extends Validator
+class RoleValidator extends Validator
 {
     /**
      * The set of rules of the Validator.
@@ -31,12 +31,7 @@ class UserValidator extends Validator
      * @var array
      */
     protected $rules = [
-        'login' => [ 'required', 'string' ],
-        'email' => [ 'required', 'email' ]
+        'uid'  => [ 'required', 'string' ],
+        'name' => [ 'required', 'string' ]
     ];
-    // $table->string('password');
-    // $table->boolean('is_active')->default(true);
-    // $table->timestamp('email_verified_at')->nullable();
-    // $table->timestamps();
-    // $table->softDeletes();
 }

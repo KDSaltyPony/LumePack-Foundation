@@ -1,6 +1,6 @@
 <?php
 /**
- * User class file
+ * RoleFactory class file
  *
  * PHP Version 7.2.19
  *
@@ -13,11 +13,10 @@
 namespace LumePack\Foundation\Database\Factories\Auth;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
-use LumePack\Foundation\Data\Models\Auth\User;
+use LumePack\Foundation\Data\Models\Auth\Role;
 
 /**
- * User
+ * RoleFactory
  *
  * @category Factory
  * @package  LumePack\Foundation\Database\Factories\Auth
@@ -25,9 +24,9 @@ use LumePack\Foundation\Data\Models\Auth\User;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class UserFactory extends Factory
+class RoleFactory extends Factory
 {
-    protected $model = User::class;
+    protected $model = Role::class;
 
     /**
      * Define the model's default state.
@@ -37,23 +36,8 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'login' => fake()->unique()->safeEmail(),
-            'email' => fake()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => 'test',
-            'remember_token' => Str::random(10)
+            'uid' => fake()->unique()->word,
+            'name' => fake()->jobTitle()
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     *
-     * @return static
-     */
-    public function unverified()
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

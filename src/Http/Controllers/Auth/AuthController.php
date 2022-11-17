@@ -62,7 +62,12 @@ class AuthController extends BaseController
 
             $this->setResponse(
                 $this->_setTokenBody($user->createToken(
-                    Hash::make($request->server('HTTP_USER_AGENT'))
+                    Hash::make($request->server('HTTP_USER_AGENT')), [ '*' ],
+                    (
+                        is_null(config('sanctum.expiration'))?
+                            null:
+                            now()->addMinutes(config('sanctum.expiration'))
+                    )
                 ), $user)
             );
         }
@@ -82,7 +87,12 @@ class AuthController extends BaseController
         $request->user()->currentAccessToken()->delete();
         $this->setResponse(
             $this->_setTokenBody($request->user()->createToken(
-                Hash::make($request->server('HTTP_USER_AGENT'))
+                Hash::make($request->server('HTTP_USER_AGENT')), [ '*' ],
+                (
+                    is_null(config('sanctum.expiration'))?
+                        null:
+                        now()->addMinutes(config('sanctum.expiration'))
+                )
             ))
         );
 
@@ -119,7 +129,9 @@ class AuthController extends BaseController
             'expires_at' => (
                 is_null($token->accessToken->expires_at)? null: (
                     new \DateTime($token->accessToken->expires_at)
-                )->getTimestamp()
+                )->format('Y-m-d\TH:i:s.u\Z')
+                // 2022-11-16T13:18:20.000000Z
+                // 2022-11-16T13:30:54.000000Z
             ),
             'user'       => (is_null($user)? auth()->user(): $user)
         ];
