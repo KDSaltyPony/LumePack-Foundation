@@ -31,7 +31,7 @@ class RoleValidator extends Validator
      * @var array
      */
     protected $rules = [
-        'uid'  => [ 'required', 'string' ],
+        'uid'  => [ 'required', 'string', 'unique:roles,uid' ],
         'name' => [ 'required', 'string' ]
     ];
 }

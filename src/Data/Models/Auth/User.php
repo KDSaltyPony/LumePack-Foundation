@@ -31,7 +31,7 @@ use LumePack\Foundation\Database\Factories\Auth\UserFactory;
  */
 class User extends Authenticatable
 {
-    use UserModel, HasApiTokens, HasFactory, Notifiable;
+    use UserTrait, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The uid associated with the model log.

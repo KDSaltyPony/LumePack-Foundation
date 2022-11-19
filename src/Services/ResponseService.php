@@ -189,6 +189,10 @@ class ResponseService
             'sql_duration' => $queries_duration / 1000
         ]);
 
+        if ($this->status < 200 || $this->status >= 300) {
+            $accept = 'application/json';
+        }
+
         switch ($accept) {
             case 'application/json':
                 $response = $this->_JSON($this->headers);

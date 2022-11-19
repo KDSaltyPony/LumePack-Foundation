@@ -31,7 +31,7 @@ class UserValidator extends Validator
      * @var array
      */
     protected $rules = [
-        'login' => [ 'required', 'string' ],
+        'login' => [ 'required', 'string', 'unique:users,login' ],
         'email' => [ 'required', 'email' ]
     ];
     // $table->string('password');

@@ -13,7 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        // Schema::create('password_resets', function (Blueprint $table) {
+        // # mongo passe pas dans le down
+        // Schema::connection('mongodb')->drop('password_resets');
+        // Schema::connection('mongodb')->create('password_resets', function (Blueprint $table) {
         //     $table->string('email')->index();
         //     $table->string('token');
         //     $table->timestamp('created_at')->nullable();
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        // Schema::dropIfExists('password_resets');
+        // Schema::connection('mongodb')->drop('password_resets');
     }
 };

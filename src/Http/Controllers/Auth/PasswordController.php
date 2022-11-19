@@ -30,7 +30,7 @@ use Illuminate\Support\Str;
 class PasswordController extends BaseController
 {
     /**
-     * Method called by the /api/auth/pwd/forgot URL in GET.
+     * Method called by the /api/auth/pwd/forgot URL in POST.
      *
      * @param Request $request The request
      *
@@ -40,7 +40,7 @@ class PasswordController extends BaseController
     {
         $this->setResponse(trans('pwd.error'), 500);
 
-        $this->_tokenize(User::firstWhere(
+        $this->email(User::firstWhere(
             'login', $request->get('login')
         ));
 
@@ -48,7 +48,7 @@ class PasswordController extends BaseController
     }
 
     /**
-     * Method called by the /api/auth/pwd/{token} URL in GET.
+     * Method called by the /api/auth/pwd/{token} URL in POST.
      *
      * @param string  $token   The valid token
      * @param Request $request The request
@@ -84,7 +84,7 @@ class PasswordController extends BaseController
     }
 
     /**
-     * Method called by the /api/auth/pwd/renew URL in GET.
+     * Method called by the /api/auth/pwd/renew URL in POST.
      *
      * @param string  $jeton   The valid token
      * @param Request $request The request
@@ -104,9 +104,16 @@ class PasswordController extends BaseController
         return $this->response->format();
     }
 
-    private function _tokenize(User $user): void
+    /**
+     * Helper function to send the token via mail.
+     *
+     * @param User $user The targeted user
+     *
+     * @return void
+     */
+    protected function email(User $user): void
     {
-        $user->pwd_token = $this->_token();
+        $user->pwd_token = $this->tokenize();
         $user->pwd_token_created_at = new \DateTime();
 
         // TODO: mail
@@ -117,7 +124,12 @@ class PasswordController extends BaseController
         }
     }
 
-    private function _token(): string
+    /**
+     * Helper function to format the password token and send the mail.
+     *
+     * @return string
+     */
+    protected function tokenize(): string
     {
         do {
             $token = Str::random(32);

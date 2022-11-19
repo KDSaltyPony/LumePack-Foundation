@@ -31,7 +31,7 @@ use LumePack\Foundation\Data\Models\Auth\User;
 class AuthController extends BaseController
 {
     /**
-     * Method called by the /api/auth/login URL in GET.
+     * Method called by the /api/auth/login URL in POST.
      *
      * @param Request $request The request
      *
@@ -61,7 +61,7 @@ class AuthController extends BaseController
             }
 
             $this->setResponse(
-                $this->_setTokenBody($user->createToken(
+                $this->setTokenBody($user->createToken(
                     Hash::make($request->server('HTTP_USER_AGENT')), [ '*' ],
                     (
                         is_null(config('sanctum.expiration'))?
@@ -86,7 +86,7 @@ class AuthController extends BaseController
     {
         $request->user()->currentAccessToken()->delete();
         $this->setResponse(
-            $this->_setTokenBody($request->user()->createToken(
+            $this->setTokenBody($request->user()->createToken(
                 Hash::make($request->server('HTTP_USER_AGENT')), [ '*' ],
                 (
                     is_null(config('sanctum.expiration'))?
@@ -121,7 +121,7 @@ class AuthController extends BaseController
      *
      * @return array
      */
-    private function _setTokenBody(NewAccessToken $token, User $user = null): array
+    protected function setTokenBody(NewAccessToken $token, User $user = null): array
     {
         return [
             'token'      => $token->plainTextToken,

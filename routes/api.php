@@ -71,4 +71,33 @@ Route::namespace(
         //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
         // });
     });
+
+    // Route::prefix('storage')->namespace('Storage')->middleware(
+    //     'lpfauth:sanctum'
+    // )->group(function () {
+    Route::prefix('storage')->namespace('Storage')->group(function () {
+        Route::prefix('media')->controller('MediaController')->middleware(
+            'dataValidation:storage.media,lume_pack.foundation'
+        )->group(function () {
+            Route::get('/', 'list');
+            Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+            Route::post('/', 'add');
+            Route::put('{uid}', 'edit');
+            Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+        });
+
+        Route::prefix('file')->controller('FileController')->middleware(
+            'dataValidation:storage.file,lume_pack.foundation'
+        )->group(function () {
+            Route::get('/', 'list');
+            Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+            Route::post('/', 'add');
+            Route::put('{uid}', 'edit');
+            Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+            Route::post('upload', 'upload');
+            Route::get('stream/{token}.{action}', 'stream')->where([
+                'token' => '[0-9A-z]+', 'action' => 'show|down'
+            ]);
+        });
+    });
 });
