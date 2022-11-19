@@ -40,14 +40,14 @@ class Permission extends BaseModel
      *
      * @var string
      */
-    protected $uid = 'Permission';
+    protected $log_uid = 'Permission';
 
     /**
      * The relationships that should always be loaded.
      *
      * @var array
      */
-    protected $with = [ 'permissionType' ];
+    protected $with = [ 'type' ];
 
     /**
      * The accessors to append to the model's array form.
@@ -102,6 +102,16 @@ class Permission extends BaseModel
     }
 
     /**
+     * Get the Permission's Type.
+     *
+     * @return BelongsTo
+     */
+    public function type(): BelongsTo
+    {
+        return $this->permissionType();
+    }
+
+    /**
      * -------------------------------------------------------------------------
      * Mutators
      * -------------------------------------------------------------------------
@@ -128,6 +138,7 @@ class Permission extends BaseModel
             if (in_array('api', $route->action['middleware'])) {
                 $uid = ra_to_uid($route);
 
+                // TODO: filter permission request on permission type uid ENDPOINT
                 if (Str::startsWith($uid, $controller)) {
                     if ($has_method = Str::contains(
                         $attrs['uid'], Str::after($uid, "{$controller}_")

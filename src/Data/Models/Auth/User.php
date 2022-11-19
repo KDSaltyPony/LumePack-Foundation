@@ -14,10 +14,8 @@ namespace LumePack\Foundation\Data\Models\Auth;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Sanctum\HasApiTokens;
+use LumePack\Foundation\Data\Models\BaseAuthModel;
 use LumePack\Foundation\Database\Factories\Auth\UserFactory;
 
 /**
@@ -29,16 +27,16 @@ use LumePack\Foundation\Database\Factories\Auth\UserFactory;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class User extends Authenticatable
+class User extends BaseAuthModel
 {
-    use UserTrait, HasApiTokens, HasFactory, Notifiable;
+    use UserTrait, HasFactory;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $uid = 'User';
+    protected $log_uid = 'User';
 
     /**
      * The relationships that should always be loaded.

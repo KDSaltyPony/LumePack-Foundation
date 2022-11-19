@@ -36,7 +36,7 @@ class PermissionType extends BaseModel
      *
      * @var string
      */
-    protected $uid = 'PermissionType';
+    protected $log_uid = 'PermissionType';
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -68,7 +68,9 @@ class PermissionType extends BaseModel
      */
     public function permissions(): HasMany
     {
-        return $this->hasMany(Permission::class)->without('type');
+        return $this->hasMany(
+            Permission::class
+        )->without('permissionType')->without('type');
     }
 
     /**

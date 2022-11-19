@@ -35,7 +35,7 @@ class Role extends BaseModel
      *
      * @var string
      */
-    protected $uid = 'Role';
+    protected $log_uid = 'Role';
 
     /**
      * The relationships that should always be loaded.

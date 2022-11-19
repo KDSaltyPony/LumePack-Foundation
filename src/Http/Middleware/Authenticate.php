@@ -74,6 +74,7 @@ class Authenticate extends Middleware
                 return (new ResponseService(trans('auth.email'), 400))->format();
             }
 
+            // TODO: filter permission request on permission type uid ENDPOINT
             $method = ra_to_uid(Route::current());
             $permission = Permission::where(
                 'uid', 'LIKE', "{$method}%"

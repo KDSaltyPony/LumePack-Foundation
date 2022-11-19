@@ -1,6 +1,6 @@
 <?php
 /**
- * BaseModel class file
+ * BaseAuthModel class file
  *
  * PHP Version 7.2.19
  *
@@ -12,10 +12,12 @@
  */
 namespace LumePack\Foundation\Data\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
- * BaseModel
+ * BaseAuthModel
  *
  * @category Model
  * @package  LumePack\Foundation\Data\Models
@@ -23,9 +25,9 @@ use Illuminate\Database\Eloquent\Model;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class BaseModel extends Model
+class BaseAuthModel extends Authenticatable
 {
-    use BaseModelTrait, OrderTrait;
+    use HasApiTokens, Notifiable, BaseModelTrait;
 
     /**
      * -------------------------------------------------------------------------

@@ -1,32 +1,32 @@
 <?php
 /**
- * Media class file
+ * Taxonomy class file
  *
  * PHP Version 7.2.19
  *
  * @category Model
- * @package  LumePack\Foundation\Data\Models\Storage
+ * @package  LumePack\Foundation\Data\Models\Dictionaries
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace LumePack\Foundation\Data\Models\Storage;
+namespace LumePack\Foundation\Data\Models\Dictionaries;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use LumePack\Foundation\Data\Models\BaseModel;
-use LumePack\Foundation\Database\Factories\Storage\MediaFactory;
+use LumePack\Foundation\Database\Factories\Dictionaries\TaxonomyFactory;
 
 /**
- * Media
+ * Taxonomy
  *
  * @category Model
- * @package  LumePack\Foundation\Data\Models\Storage
+ * @package  LumePack\Foundation\Data\Models\Dictionaries
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class Media extends BaseModel
+class Taxonomy extends BaseModel
 {
     use HasFactory;
 
@@ -35,7 +35,14 @@ class Media extends BaseModel
      *
      * @var string
      */
-    protected $log_uid = 'Media';
+    protected $log_uid = 'Taxonomy';
+
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = [ 'values' ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,7 +58,7 @@ class Media extends BaseModel
      */
     protected static function newFactory()
     {
-        return MediaFactory::new();
+        return TaxonomyFactory::new();
     }
 
     /**
@@ -61,13 +68,23 @@ class Media extends BaseModel
      */
 
     /**
-     * Get the Media's Files.
+     * Get the Taxonomy's TaxonomyValues.
      *
      * @return HasMany
      */
-    public function files(): HasMany
+    public function taxonomyValues(): HasMany
     {
-        return $this->hasMany(File::class)->without('media');
+        return $this->hasMany(TaxonomyValue::class)->without('taxonomy');
+    }
+
+    /**
+     * Get the Taxonomy's TaxonomyValues.
+     *
+     * @return HasMany
+     */
+    public function values(): HasMany
+    {
+        return $this->taxonomyValues()->orderBy('order');
     }
 
     /**

@@ -12,7 +12,7 @@
  */
 namespace LumePack\Foundation\Providers;
 
-use LumePack\Foundation\Http\Middleware\DataCheck;
+// use LumePack\Foundation\Http\Middleware\DataCheck;
 use LumePack\Foundation\Http\Middleware\DataValidate;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
 use Illuminate\Support\ServiceProvider;
@@ -79,7 +79,9 @@ class LaravelServiceProvider extends ServiceProvider
         // $this->loadRoutesFrom(
         //     realpath(__DIR__.'/../../routes/api.php')
         // );
-        Route::middleware('api')->prefix('api')->group(
+        Route::middleware('api')->namespace(
+            'LumePack\\Foundation\\Http\\Controllers'
+        )->prefix('api')->group(
             realpath(__DIR__.'/../../routes/api.php')
         );
 

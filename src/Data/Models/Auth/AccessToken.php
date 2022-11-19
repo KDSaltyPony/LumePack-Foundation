@@ -33,13 +33,6 @@ class AccessToken extends SanctumPersonalAccessToken
     protected $table = 'user_access_tokens';
 
     /**
-     * The uid associated with the model log.
-     *
-     * @var string
-     */
-    protected $uid = 'AccessToken';
-
-    /**
      * -------------------------------------------------------------------------
      * Relations
      * -------------------------------------------------------------------------

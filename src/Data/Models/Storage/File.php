@@ -39,7 +39,7 @@ class File extends BaseModel
      *
      * @var string
      */
-    protected $uid = 'File';
+    protected $log_uid = 'File';
 
     /**
      * The relationships that should always be loaded.

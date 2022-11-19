@@ -53,7 +53,7 @@ class FileController extends BaseController
             $file = StorageFile::build(
                 $meta['name'], $meta['length']
             );
-            $file['media_uid'] = $file['media_uid'];
+            $file['media_uid'] = $meta['media_uid'];
 
             $this->setResponse(
                 $this->repo->create($file, $this->isLimited()), 201
@@ -86,6 +86,7 @@ class FileController extends BaseController
         $file = StorageFile::firstWhere('token', 'LIKE', $token);
         $is_errored = false;
 
+        // TODO: as validator?
         if (array_key_exists('width', $request->all())) {
             $width = intval($request->all()['width']);
             $file->setWidth($width);

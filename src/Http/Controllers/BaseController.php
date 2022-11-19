@@ -14,10 +14,10 @@ namespace LumePack\Foundation\Http\Controllers;
 
 use LumePack\Foundation\Services\ResponseService;
 use LumePack\Foundation\Data\Repositories\CRUD;
-use Laravel\Lumen\Routing\Controller as LaravelController;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Controller;
 
 /**
  * BaseController
@@ -28,7 +28,7 @@ use Illuminate\Http\JsonResponse;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-abstract class BaseController extends LaravelController
+abstract class BaseController extends Controller
 {
     /**
      * The Controller response service.
