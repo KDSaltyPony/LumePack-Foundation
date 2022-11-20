@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace LumePack\Foundation\Jobs;
 
 use App\Services\AudioProcessor;
 use Illuminate\Bus\Queueable;

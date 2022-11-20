@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('subject');
             $table->string('content');
             $table->dateTime('sent_at');
+            $table->boolean('is_success');
             $table->timestamps();
             $table->softDeletes();
         });

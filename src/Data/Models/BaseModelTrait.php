@@ -12,6 +12,8 @@
  */
 namespace LumePack\Foundation\Data\Models;
 
+use Illuminate\Support\Facades\Hash;
+
 /**
  * BaseModelTrait
  *
@@ -30,9 +32,19 @@ trait BaseModelTrait
      */
     protected static function bootBaseModelTrait()
     {
-        // // TODO: log : has trait ?
-        // static::saved(function (BaseModel $model) {
-        //     // TODO: if deleted_at not null and has udi / email or anithing unique => netralize both
-        // });
+        // TODO: log : has trait ?
+        static::deleted(function (BaseModel $model) {
+            $attrs = $model->getAttributes();
+
+            if (isset($attrs['deleted_at'])) {
+                if (isset($attrs['uid'])) {
+                    $model->uid = base64_encode($model->uid);
+                }
+
+                if (isset($attrs['email'])) {
+                    $model->email = Hash::make($model->uid);
+                }
+            }
+        });
     }
 }

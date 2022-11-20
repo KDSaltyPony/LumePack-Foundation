@@ -38,7 +38,7 @@ class BaseMail extends Mailable
 
         if (!key_exists('subject', $attributes)) {
             $this->subject = trans(
-                'foundation:mail.subject_default',
+                'foundation::mail.subject_default',
                 [ 'app' => env('APP_NAME', 'Laravel') ]
             );
         }

@@ -12,7 +12,12 @@
  */
 namespace LumePack\Foundation\Http\Controllers\Auth;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use LumePack\Foundation\Data\Models\Auth\User;
 use LumePack\Foundation\Http\Controllers\BaseController;
+use LumePack\Foundation\Mail\BaseMail;
 
 /**
  * LoginController
@@ -25,5 +30,22 @@ use LumePack\Foundation\Http\Controllers\BaseController;
  */
 class LoginController extends BaseController
 {
-    // TODO: email for forgoten login
+    /**
+     * Method called by the /api/user/login URL in POST.
+     *
+     * @param Request $request The request
+     *
+     * @return JsonResponse
+     */
+    public function forgot(Request $request): JsonResponse
+    {
+        Mail::send(new BaseMail('foundation::emails.user.logins', [
+            'logins' => User::where(
+                'email', $request->email
+            )->get()->pluck('login')->toArray(),
+            'subject' => trans('foundation::mail.subject_user_logins')
+        ]));
+
+        return $this->response->format();
+    }
 }

@@ -30,8 +30,14 @@ Route::prefix('auth')->namespace('Auth')->middleware(
         Route::get('logout', 'logout');
     });
 
-    Route::prefix('user')->controller('UserController')->group(function () {
-        Route::get('email/{token}', 'validate');
+    Route::prefix('user/email')->controller('UserController')->group(function () {
+        Route::get('{token}', 'validate');
+    });
+
+    Route::prefix('user/login')->controller('LoginController')->middleware(
+        'dataValidation:auth.login,lume_pack.foundation'
+    )->group(function () {
+        Route::post('/', 'forgot');
     });
 
     Route::prefix('dashboard')->controller('UserController')->middleware(
@@ -41,9 +47,7 @@ Route::prefix('auth')->namespace('Auth')->middleware(
         Route::put('/', 'edit');
     });
 
-    Route::prefix('pwd')->controller(
-        'PasswordController'
-    )->group(function () {
+    Route::prefix('pwd')->controller('PasswordController')->group(function () {
         Route::withoutMiddleware('lpfauth:sanctum')->middleware(
             'dataValidation:auth.passwordForgot,lume_pack.foundation'
         )->post('forgot', 'forgot');
@@ -55,95 +59,95 @@ Route::prefix('auth')->namespace('Auth')->middleware(
         )->post('{token}', 'mailRenew');
     });
 
-    //
-    //
-    // TO DELETE
-    //
-    //
-    Route::prefix('role')->controller('RoleController')->middleware(
-        'dataValidation:auth.role,lume_pack.foundation'
-    )->withoutMiddleware('lpfauth:sanctum')->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-    });
+    // //
+    // //
+    // // TO DELETE
+    // //
+    // //
+    // Route::prefix('role')->controller('RoleController')->middleware(
+    //     'dataValidation:auth.role,lume_pack.foundation'
+    // )->withoutMiddleware('lpfauth:sanctum')->group(function () {
+    //     Route::get('/', 'list');
+    //     Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+    //     Route::post('/', 'add');
+    //     Route::put('{uid}', 'edit');
+    //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+    // });
 
-    //
-    //
-    // TO DELETE
-    //
-    //
-    Route::prefix('permission')->controller('PermissionController')->middleware(
-        'dataValidation:auth.permission,lume_pack.foundation'
-    )->withoutMiddleware('lpfauth:sanctum')->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-    });
+    // //
+    // //
+    // // TO DELETE
+    // //
+    // //
+    // Route::prefix('permission')->controller('PermissionController')->middleware(
+    //     'dataValidation:auth.permission,lume_pack.foundation'
+    // )->withoutMiddleware('lpfauth:sanctum')->group(function () {
+    //     Route::get('/', 'list');
+    //     Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+    //     Route::post('/', 'add');
+    //     Route::put('{uid}', 'edit');
+    //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+    // });
 });
 
-//
-//
-// TO DELETE
-//
-//
-Route::prefix('storage')->namespace('Storage')->group(function () {
-    Route::prefix('media')->controller('MediaController')->middleware(
-        'dataValidation:storage.media,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-    });
+// //
+// //
+// // TO DELETE
+// //
+// //
+// Route::prefix('storage')->namespace('Storage')->group(function () {
+//     Route::prefix('media')->controller('MediaController')->middleware(
+//         'dataValidation:storage.media,lume_pack.foundation'
+//     )->group(function () {
+//         Route::get('/', 'list');
+//         Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('/', 'add');
+//         Route::put('{uid}', 'edit');
+//         Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+//     });
 
-    Route::prefix('file')->controller('FileController')->middleware(
-        'dataValidation:storage.file,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('upload', 'upload');
-        Route::get('stream/{token}.{action}', 'stream')->where([
-            'token' => '[0-9A-z]+', 'action' => 'show|down'
-        ]);
-    });
-});
+//     Route::prefix('file')->controller('FileController')->middleware(
+//         'dataValidation:storage.file,lume_pack.foundation'
+//     )->group(function () {
+//         Route::get('/', 'list');
+//         Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('/', 'add');
+//         Route::put('{uid}', 'edit');
+//         Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('upload', 'upload');
+//         Route::get('stream/{token}.{action}', 'stream')->where([
+//             'token' => '[0-9A-z]+', 'action' => 'show|down'
+//         ]);
+//     });
+// });
 
-//
-//
-// TO DELETE
-//
-//
-Route::prefix('taxonomy')->namespace('Dictionaries')->group(function () {
-    Route::controller('TaxonomyController')->middleware(
-        'dataValidation:dictionaries.taxonomy,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-    });
+// //
+// //
+// // TO DELETE
+// //
+// //
+// Route::prefix('taxonomy')->namespace('Dictionaries')->group(function () {
+//     Route::controller('TaxonomyController')->middleware(
+//         'dataValidation:dictionaries.taxonomy,lume_pack.foundation'
+//     )->group(function () {
+//         Route::get('/', 'list');
+//         Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('/', 'add');
+//         Route::put('{uid}', 'edit');
+//         Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+//     });
 
-    Route::prefix('value')->controller('TaxonomyValueController')->middleware(
-        'dataValidation:dictionaries.taxonomy_value,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('upload', 'upload');
-        Route::get('stream/{token}.{action}', 'stream')->where([
-            'token' => '[0-9A-z]+', 'action' => 'show|down'
-        ]);
-    });
-});
+//     Route::prefix('value')->controller('TaxonomyValueController')->middleware(
+//         'dataValidation:dictionaries.taxonomy_value,lume_pack.foundation'
+//     )->group(function () {
+//         Route::get('/', 'list');
+//         Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('/', 'add');
+//         Route::put('{uid}', 'edit');
+//         Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('upload', 'upload');
+//         Route::get('stream/{token}.{action}', 'stream')->where([
+//             'token' => '[0-9A-z]+', 'action' => 'show|down'
+//         ]);
+//     });
+// });

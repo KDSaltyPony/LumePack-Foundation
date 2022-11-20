@@ -7,6 +7,9 @@
     </head>
 
     <body>
-        Create a new password: /api/auth/pwd/renew/{{ $user->pwd_token }}
+        Your logins:
+        @foreach ($logins as $login)
+            {{ $login }}
+        @endforeach
     </body>
 </html>

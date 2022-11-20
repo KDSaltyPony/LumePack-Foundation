@@ -28,9 +28,8 @@ use LumePack\Foundation\Http\Controllers\BaseController;
  */
 class UserController extends BaseController
 {
-
     /**
-     * Method called by the /api/auth/pwd/{token} URL in POST.
+     * Method called by the /api/auth/user/email/{token} URL in POST.
      *
      * @param string  $token   The valid token
      * @param Request $request The request
@@ -39,15 +38,15 @@ class UserController extends BaseController
      */
     public function validate(string $token, Request $request): JsonResponse
     {
-        $user = User::firstWhere('foundation:email', base64_decode($token));
+        $user = User::firstWhere('login', base64_decode($token));
 
-        $this->setResponse(trans('foundation:user.unverified'), 500);
+        $this->setResponse(trans('foundation::user.unverified'), 500);
 
         if (!is_null($user)) {
             $user->email_verified_at = new \DateTime();
             $user->save();
 
-            $this->setResponse(trans('foundation:user.email'), 200);
+            $this->setResponse(trans('foundation::user.login'), 200);
         }
 
         return $this->response->format();

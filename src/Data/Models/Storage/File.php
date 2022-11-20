@@ -420,9 +420,8 @@ class File extends BaseModel
      */
     public static function systemFriendly(string $str): string
     {
-        // TODO: remove Temp from file
         $str = base64_encode($str);
-        $str = strtr($str, '+/=', '000');
+        $str = Str::after(strtr($str, '+/=', '000'), 'Temp');
 
         return $str;
     }

@@ -41,7 +41,7 @@ class PasswordController extends BaseController
     public function forgot(Request $request): JsonResponse
     {
         $user = User::firstWhere('login', $request->get('login'));
-        $this->setResponse(trans('foundation:pwd.error'), 500);
+        $this->setResponse(trans('foundation::pwd.error'), 500);
 
         if (!is_null($user)) {
             $this->email($user);
@@ -60,7 +60,7 @@ class PasswordController extends BaseController
      */
     public function mailRenew(string $token, Request $request): JsonResponse
     {
-        $user = User::firstWhere('foundation:pwd_token', $token);
+        $user = User::firstWhere('foundation::pwd_token', $token);
 
         if (is_null($user)) {
             $duration_min = env('PWD_TOKEN_VALIDITY') + 1;
@@ -71,14 +71,14 @@ class PasswordController extends BaseController
             $duration_min += $duration->i;
         }
 
-        $this->setResponse(trans('foundation:pwd.token'), 500);
+        $this->setResponse(trans('foundation::pwd.token'), 500);
 
         if ($duration_min <= env('PWD_TOKEN_VALIDITY')) {
             $user->password = $request->get('password');
             $user->pwd_token = null;
 
             if ($user->save()) {
-                $this->setResponse(trans('foundation:pwd.renew'), 200);
+                $this->setResponse(trans('foundation::pwd.renew'), 200);
             }
         }
 
@@ -95,12 +95,12 @@ class PasswordController extends BaseController
      */
     public function renew(Request $request): JsonResponse
     {
-        $this->setResponse(trans('foundation:pwd.error'), 500);
+        $this->setResponse(trans('foundation::pwd.error'), 500);
 
         $request->user()->password = $request->get('new_password');
 
         if ($request->user()->save()) {
-            $this->setResponse(trans('foundation:pwd.renew'), 200);
+            $this->setResponse(trans('foundation::pwd.renew'), 200);
         }
 
         return $this->response->format();
@@ -117,12 +117,14 @@ class PasswordController extends BaseController
     {
         $user->pwd_token = User::tokenize();
 
-        // TODO: mail
-        Mail::send(new BaseMail('foundation:emails.auth.forgot'));
-        $this->setResponse(trans('foundation:pwd.email_error'), 500);
+        Mail::send(new BaseMail('foundation::emails.auth.forgot', [
+            'subject' => trans('foundation::mail.subject_auth_forgot')
+        ]));
+
+        $this->setResponse(trans('foundation::pwd.email_error'), 500);
 
         if (Mail::failures() === 0 && $user->save()) {
-            $this->setResponse(trans('foundation:pwd.email'));
+            $this->setResponse(trans('foundation::pwd.email'));
         }
     }
 }

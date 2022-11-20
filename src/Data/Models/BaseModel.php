@@ -13,6 +13,8 @@
 namespace LumePack\Foundation\Data\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use LumePack\Foundation\Data\Models\Auth\Permission;
 
 /**
  * BaseModel
@@ -38,5 +40,16 @@ class BaseModel extends Model
      * Mutators
      * -------------------------------------------------------------------------
      */
-    //TODO: filter attributes depending on persmissions where permission type uid MODEL_ATTR
+
+    public function toArray()
+    {
+        $class = Str::upper(Str::afterLast(get_class($this), '/'));
+        $permissions = Permission::where('uid', 'LIKE', "{$class}_%")->get();
+
+        foreach ($permissions as $permission) {
+            $this->hidden[] = Str::camel(Str::after($permission->uid, '_'));
+        }
+
+        return parent::toArray();
+    }
 }

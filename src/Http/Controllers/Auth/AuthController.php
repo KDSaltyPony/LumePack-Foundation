@@ -46,11 +46,11 @@ class AuthController extends BaseController
             !$user || !is_null($user->deleted_at) ||
             !Hash::check($request->password, $user->password)
         ) {
-            $this->setResponse(trans('foundation:auth.failed'), 400);
+            $this->setResponse(trans('foundation::auth.failed'), 400);
         } elseif (!$user->is_active) {
-            $this->setResponse(trans('foundation:auth.inactive'), 400);
+            $this->setResponse(trans('foundation::auth.inactive'), 400);
         } elseif (is_null($user->email_verified_at)) {
-            $this->setResponse(trans('foundation:auth.email'), 400);
+            $this->setResponse(trans('foundation::auth.email'), 400);
         } else {
             foreach ($user->tokens()->getResults() as $access_token) {
                 if (
@@ -110,7 +110,7 @@ class AuthController extends BaseController
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        $this->setResponse(trans('foundation:auth.logout'));
+        $this->setResponse(trans('foundation::auth.logout'));
 
         return $this->response->format();
     }

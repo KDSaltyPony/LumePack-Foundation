@@ -41,7 +41,7 @@ class FileController extends BaseController
         // TODO: MD5 checksum ou erreur???
         $meta = $request->input('meta');
 
-        $this->setResponse(trans('foundation:storage.up_progress'), 200);
+        $this->setResponse(trans('foundation::storage.up_progress'), 200);
 
         if (
             StorageFile::chunk(
@@ -102,7 +102,7 @@ class FileController extends BaseController
             ) {
                 $is_errored = true;
 
-                $this->setResponse(trans('foundation:storage.wrong_width'), 400);
+                $this->setResponse(trans('foundation::storage.wrong_width'), 400);
             }
         }
 
@@ -121,7 +121,7 @@ class FileController extends BaseController
             ) {
                 $is_errored = true;
 
-                $this->setResponse(trans('foundation:storage.wrong_height'), 400);
+                $this->setResponse(trans('foundation::storage.wrong_height'), 400);
             }
         }
 

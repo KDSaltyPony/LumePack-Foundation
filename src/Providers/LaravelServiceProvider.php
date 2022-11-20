@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Http\Middleware\Authenticate;
+use LumePack\Foundation\Listeners\LogSendingMessageListener;
+use LumePack\Foundation\Listeners\LogSentMessageListener;
 
 /**
  * LaravelServiceProvider
@@ -33,6 +35,16 @@ use LumePack\Foundation\Http\Middleware\Authenticate;
  */
 class LaravelServiceProvider extends ServiceProvider
 {
+    /**
+     * The event listener mappings for the application.
+     *
+     * @var array
+     */
+    protected $listen = [
+        MessageSending::class => [ LogSendingMessageListener::class ],
+        MessageSent::class => [ LogSentMessageListener::class ]
+    ];
+
     /**
      * Boot the authentication services for the application.
      *
