@@ -9,7 +9,7 @@ return [
     | This user model.
     |
     */
-    'user_model' => env('USER_MODEL', \App\Data\Models\User::class),
+    'user_model' => env('USER_MODEL', \LumePack\Foundation\Data\Models\Auth\User::class),
 
     /*
     |--------------------------------------------------------------------------

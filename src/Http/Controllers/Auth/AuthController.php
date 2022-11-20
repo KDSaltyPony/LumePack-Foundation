@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\NewAccessToken;
+use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Data\Models\Auth\User;
 
 /**
@@ -45,11 +46,11 @@ class AuthController extends BaseController
             !$user || !is_null($user->deleted_at) ||
             !Hash::check($request->password, $user->password)
         ) {
-            $this->setResponse(trans('auth.failed'), 400);
+            $this->setResponse(trans('foundation:auth.failed'), 400);
         } elseif (!$user->is_active) {
-            $this->setResponse(trans('auth.inactive'), 400);
+            $this->setResponse(trans('foundation:auth.inactive'), 400);
         } elseif (is_null($user->email_verified_at)) {
-            $this->setResponse(trans('auth.email'), 400);
+            $this->setResponse(trans('foundation:auth.email'), 400);
         } else {
             foreach ($user->tokens()->getResults() as $access_token) {
                 if (
@@ -109,7 +110,7 @@ class AuthController extends BaseController
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        $this->setResponse(trans('auth.logout'));
+        $this->setResponse(trans('foundation:auth.logout'));
 
         return $this->response->format();
     }
@@ -117,11 +118,11 @@ class AuthController extends BaseController
     /**
      * Helper function to format the response with the token.
      *
-     * @param NewAccessToken $token The token
+     * @param AccessToken $token The token
      *
      * @return array
      */
-    protected function setTokenBody(NewAccessToken $token, User $user = null): array
+    protected function setTokenBody(AccessToken $token, User $user = null): array
     {
         return [
             'token'      => $token->plainTextToken,

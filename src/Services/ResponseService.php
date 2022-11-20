@@ -81,7 +81,7 @@ class ResponseService
         $this->metadata = [
             'success' => $is_success,
             'status'  => $this->status,
-            'message' => trans("status.{$status}")
+            'message' => trans("foundation:status.{$status}")
         ];
         $this->body = $body;
 

@@ -69,9 +69,9 @@ class Authenticate extends Middleware
 
         if (!is_null(auth()->user())) {
             if (!auth()->user()->is_active) {
-                return (new ResponseService(trans('auth.inactive'), 400))->format();
+                return (new ResponseService(trans('foundation:auth.inactive'), 400))->format();
             } elseif (is_null(auth()->user()->email_verified_at)) {
-                return (new ResponseService(trans('auth.email'), 400))->format();
+                return (new ResponseService(trans('foundation:auth.email'), 400))->format();
             }
 
             // TODO: filter permission request on permission type uid ENDPOINT
@@ -98,7 +98,7 @@ class Authenticate extends Middleware
                 )->first();
 
                 if (is_null($permission)) {
-                    return (new ResponseService(trans('auth.403'), 403))->format();
+                    return (new ResponseService(trans('foundation:auth.403'), 403))->format();
                 }
 
                 $filters = Str::of(Str::after(

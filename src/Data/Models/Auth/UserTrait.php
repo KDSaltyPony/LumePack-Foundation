@@ -12,6 +12,10 @@
  */
 namespace LumePack\Foundation\Data\Models\Auth;
 
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use LumePack\Foundation\Mail\BaseMail;
+
 /**
  * UserTrait
  *
@@ -30,16 +34,35 @@ trait UserTrait
      */
     protected static function bootUserTrait()
     {
-        // static::saved(function (User $model) {
+        static::saving(function (User $model) {
+            $old_email = $model->getOriginal('email');
+
+            $model->pwd_token_created_at = (
+                is_null($model->pwd_token)? null: new \DateTime()
+            );
+
+            if ($old_email !== $model->email) {
+                Mail::send(new BaseMail('foundation:emails.user.validate', [
+                    'user' => $model,
+                    'token' => base64_encode($model->email)
+                ]));
+
+                $model->email_verified_at = null;
+            }
+
+            if (Hash::needsRehash($model->password)) {
+                $model->password = Hash::make($model->password);
+            }
+        });
+
+        static::saved(function (User $model) {
         //     // TODO: old password !== new password => send mail!
         //     // TODO: old email !== new email => send confirmation mail
-        //     // if (Hash::needsRehash($hashed)) {
-        //     //     $hashed = Hash::make('plain-text');
-        //     // }
-        // });
+        //     // TODO: password is null => send password change mail
+        });
 
         // static::created(function (User $model) {
-        //     // TODO: send mail confirmation mail (email_verified_at = null)! code the endpoint to pass email_verified_at at now
+        // //     // TODO: send mail confirmation mail ( = null)! code the endpoint to pass  at now
         // });
     }
 }

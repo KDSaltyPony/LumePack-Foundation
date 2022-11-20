@@ -62,6 +62,7 @@ class FileValidator extends Validator
         $order = Request::get('order');
         $media = null;
 
+        // TODO: width / height validation???
         if (!is_null($meta)) {
             if (array_key_exists('media_uid', $meta)) {
                 $media = StorageMedia::firstWhere('uid', 'LIKE', $meta['media_uid']);

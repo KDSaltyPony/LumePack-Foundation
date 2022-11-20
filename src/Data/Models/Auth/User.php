@@ -15,6 +15,7 @@ namespace LumePack\Foundation\Data\Models\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseAuthModel;
 use LumePack\Foundation\Database\Factories\Auth\UserFactory;
 
@@ -118,5 +119,19 @@ class User extends BaseAuthModel
     public function setPasswordAttribute(string $value): void
     {
         $this->attributes['password'] = Hash::make($value);
+    }
+
+    /**
+     * Create a token.
+     *
+     * @return string
+     */
+    public static function tokenize(): string
+    {
+        do {
+            $token = Str::random(32);
+        } while (!is_null(User::firstWhere('pwd_token', $token)));
+
+        return $token;
     }
 }

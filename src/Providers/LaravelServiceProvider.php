@@ -73,6 +73,10 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../resources/lang/'), 'foundation'
         );
 
+        $this->loadViewsFrom(
+            realpath(__DIR__.'/../../resources/views/'), 'foundation'
+        );
+
         // $this->publishes([
         //     __DIR__.'/../lang' => $this->app->langPath('vendor/courier'),
         // ]);
