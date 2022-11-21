@@ -35,27 +35,31 @@ class LogSentMessageListener
      */
     public function handle(MessageSent $event)
     {
-        $this->repo->updateWhereSentAt([
-            'is_success' => true
-        ], $event->message->getHeaders()->get(
-            'date'
-        )->getDateTime());
+        $token = $event->message->getHeaders()->getHeaderBody(
+            'x-metadata-sendmail-token'
+        );
+
+        if (!is_null($token)) {
+            $this->repo->updateWhereToken([ 'is_success' => true ], $token);
+        }
     }
 
     /**
      * Handle a job failure.
      *
-     * @param MessageSending $event
-     * @param \Throwable     $exception
+     * @param MessageSent $event
+     * @param \Throwable  $exception
      *
      * @return void
      */
-    public function failed(MessageSending $event, $exception)
+    public function failed(MessageSent $event, $exception)
     {
-        $this->repo->updateWhereSentAt([
-            'is_success' => false
-        ], $event->message->getHeaders()->get(
-            'date'
-        )->getDateTime());
+        $token = $event->message->getHeaders()->getHeaderBody(
+            'x-metadata-sendmail-token'
+        );
+
+        if (!is_null($token)) {
+            $this->repo->updateWhereToken([ 'is_success' => false ], $token);
+        }
     }
 }

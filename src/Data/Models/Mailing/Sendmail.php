@@ -13,6 +13,7 @@
 namespace LumePack\Foundation\Data\Models\Mailing;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseModel;
 
 /**
@@ -63,4 +64,18 @@ class Sendmail extends BaseModel
      * Mutators
      * -------------------------------------------------------------------------
      */
+
+    /**
+     * Create a token.
+     *
+     * @return string
+     */
+    public static function tokenize(): string
+    {
+        do {
+            $token = Str::random(32);
+        } while (!is_null(Sendmail::firstWhere('token', $token)));
+
+        return $token;
+    }
 }

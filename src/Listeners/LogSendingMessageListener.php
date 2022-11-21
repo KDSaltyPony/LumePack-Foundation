@@ -36,16 +36,32 @@ class LogSendingMessageListener
      */
     public function handle(MessageSending $event)
     {
-        dump('create bitch');
-        $this->repo->create([
-            'from'    => implode(', ', array_keys($event->message->getFrom())),
-            'to'      => implode(', ', array_keys($event->message->getTo())),
-            'subject' => $event->message->getSubject(),
-            'content' => $event->message->getBody(),
-            'sent_at' => $event->message->getHeaders()->get(
-                'date'
-            )->getDateTime()
-        ]);
+        $token = $event->message->getHeaders()->getHeaderBody(
+            'x-metadata-sendmail-token'
+        );
+
+        if (!is_null($token)) {
+            $from = '';
+            $to = '';
+
+            foreach ($event->message->getFrom() as $address) {
+                $from .= "{$address->getName()}: {$address->getAddress()},";
+            }
+
+            foreach ($event->message->getTo() as $address) {
+                $to .= "{$address->getAddress()},";
+            }
+
+            $this->repo->create([
+                'from'    => $from,
+                'to'      => $to,
+                'subject' => $event->message->getSubject(),
+                'content' => e($event->message->getBody()->getBody()),
+                'sent_at' => new \DateTime(),
+                'token' => $token,
+                'is_success' => null
+            ]);
+        }
     }
 
     /**
@@ -58,10 +74,12 @@ class LogSendingMessageListener
      */
     public function failed(MessageSending $event, $exception)
     {
-        $this->repo->updateWhereSentAt([
-            'is_success' => false
-        ], $event->message->getHeaders()->get(
-            'date'
-        )->getDateTime());
+        $token = $event->message->getHeaders()->getHeaderBody(
+            'x-metadata-sendmail-token'
+        );
+
+        if (!is_null($token)) {
+            $this->repo->updateWhereToken([ 'is_success' => false ], $token);
+        }
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use LumePack\Foundation\Data\Models\Mailing\Sendmail;
 
 class BaseMail extends Mailable
 {
@@ -58,6 +59,10 @@ class BaseMail extends Mailable
         if (!key_exists('user', $attributes)) {
             $attributes['user'] = $this->user;
         }
+
+        if (!key_exists('user', $attributes)) {
+            $attributes['user'] = $this->user;
+        }
     }
 
     /**
@@ -70,7 +75,13 @@ class BaseMail extends Mailable
         return new Envelope(
             from: new Address($this->from_address, $this->from_name),
             to: $this->to_address,
-            subject: $this->subject
+            subject: $this->subject,
+            // tags: [
+            //     'token' => Sendmail::tokenize()
+            // ]
+            metadata: [
+                'sendmail-token' => Sendmail::tokenize()
+            ]
         );
     }
 

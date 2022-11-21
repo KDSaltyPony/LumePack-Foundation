@@ -33,11 +33,9 @@ class SendmailRepository extends CRUD
      *
      * @return bool
      */
-    public function updateWhereSentAt(array $fields, \DateTimeImmutable $date): bool
+    public function updateWhereToken(array $fields, string $token): bool
     {
-        $this->model = $this->model_class::firstWhere(
-            'sent_at', $date->format('Y-m-d H:i:s.u')
-        );
+        $this->model = $this->model_class::firstWhere('token', $token);
 
         return $this->register($fields);
     }
@@ -50,7 +48,6 @@ class SendmailRepository extends CRUD
      */
     protected function register(array $fields): bool
     {
-        dump('register bitch');
         return $this->defaultRegister($fields);
     }
 }

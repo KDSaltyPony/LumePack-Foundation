@@ -15,12 +15,14 @@ return new class extends Migration
     {
         Schema::create('sendmails', function (Blueprint $table) {
             $table->id();
+            $table->string('token');
             $table->string('from');
             $table->string('to');
             $table->string('subject');
-            $table->string('content');
+            $table->text('content');
             $table->dateTime('sent_at');
-            $table->boolean('is_success');
+            $table->boolean('is_success')->nullable();
+            // $table->string('error');
             $table->timestamps();
             $table->softDeletes();
         });
