@@ -12,7 +12,6 @@
     "require": {
         "php": ">=8.1",
         "laravel/sanctum": "^3.0.1",
-        "jenssegers/mongodb": ">=v3.9.2",
         "laravel/framework": "^9.19"
     },
     "autoload": {
