@@ -41,13 +41,32 @@ trait UserTrait
             );
 
             if ($model->getOriginal('email') !== $model->email) {
+                $model->email_token = User::emailTokenize();
+                $model->email_verified_at = null;
+
                 Mail::send(new BaseMail('foundation::emails.user.validate', [
                     'user' => $model,
-                    'token' => base64_encode($model->login),
-                    'subject' => trans('foundation::mail.subject_user_validate')
+                    'token' => $model->email_token,
+                    'subject' => trans(
+                        'foundation::mail.subject_user_validate'
+                    )
                 ]));
+            }
 
-                $model->email_verified_at = null;
+            if ($model->getOriginal(
+                'email_verified_at'
+            ) !== $model->email_verified_at) {
+                $model->email_token = null;
+            }
+
+            if (
+                $model->getOriginal('pwd_token') !== $model->pwd_token &&
+                !is_null($model->pwd_token)
+            ) {
+                Mail::send(new BaseMail('foundation::emails.auth.forgot', [
+                    'subject' => trans('foundation::mail.subject_auth_forgot'),
+                    'user' => $model
+                ]));
             }
 
             if (Hash::needsRehash($model->password)) {
@@ -56,7 +75,10 @@ trait UserTrait
         });
 
         static::saved(function (User $model) {
-            if (Request::has('password') && Hash::check(Request::get('password'), $model->password)) {
+            if (
+                Request::has('password') &&
+                Hash::check(Request::get('password'), $model->password)
+            ) {
                 Mail::send(new BaseMail('foundation::emails.user.password', [
                     'user' => $model,
                     'subject' => trans('foundation::mail.subject_user_password')
@@ -64,7 +86,7 @@ trait UserTrait
             }
 
             if (is_null($model->password) && $model->pwd_token) {
-                $model->pwd_token = User::tokenize();
+                $model->pwd_token = User::pwdTokenize();
 
                 Mail::send(new BaseMail('foundation::emails.auth.password', [
                     'user' => $model,

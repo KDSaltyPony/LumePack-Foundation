@@ -7,6 +7,6 @@
     </head>
 
     <body>
-        /api/auth/user/{{ $token }}
+        /api/auth/user/email/{{ $token }}
     </body>
 </html>

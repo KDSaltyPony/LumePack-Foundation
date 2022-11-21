@@ -44,7 +44,10 @@ class PasswordController extends BaseController
         $this->setResponse(trans('foundation::pwd.error'), 500);
 
         if (!is_null($user)) {
-            $this->email($user);
+            $user->pwd_token = User::pwdTokenize();
+            $user->save();
+
+            $this->setResponse(trans('foundation::pwd.email'));
         }
 
         return $this->response->format();
@@ -60,7 +63,7 @@ class PasswordController extends BaseController
      */
     public function mailRenew(string $token, Request $request): JsonResponse
     {
-        $user = User::firstWhere('foundation::pwd_token', $token);
+        $user = User::firstWhere('pwd_token', $token);
 
         if (is_null($user)) {
             $duration_min = env('PWD_TOKEN_VALIDITY') + 1;
@@ -104,27 +107,5 @@ class PasswordController extends BaseController
         }
 
         return $this->response->format();
-    }
-
-    /**
-     * Helper function to send the token via mail.
-     *
-     * @param User $user The targeted user
-     *
-     * @return void
-     */
-    protected function email(User $user): void
-    {
-        $user->pwd_token = User::tokenize();
-
-        Mail::send(new BaseMail('foundation::emails.auth.forgot', [
-            'subject' => trans('foundation::mail.subject_auth_forgot')
-        ]));
-
-        $this->setResponse(trans('foundation::pwd.email_error'), 500);
-
-        if (Mail::failures() === 0 && $user->save()) {
-            $this->setResponse(trans('foundation::pwd.email'));
-        }
     }
 }

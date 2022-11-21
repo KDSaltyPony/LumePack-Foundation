@@ -31,13 +31,13 @@ Route::prefix('auth')->namespace('Auth')->middleware(
     });
 
     Route::prefix('user/email')->controller('UserController')->group(function () {
-        Route::get('{token}', 'validate');
+        Route::withoutMiddleware('lpfauth:sanctum')->get('{token}', 'validate');
     });
 
     Route::prefix('user/login')->controller('LoginController')->middleware(
         'dataValidation:auth.login,lume_pack.foundation'
     )->group(function () {
-        Route::post('/', 'forgot');
+        Route::withoutMiddleware('lpfauth:sanctum')->post('/', 'forgot');
     });
 
     Route::prefix('dashboard')->controller('UserController')->middleware(

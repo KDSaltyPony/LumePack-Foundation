@@ -38,7 +38,7 @@ class UserController extends BaseController
      */
     public function validate(string $token, Request $request): JsonResponse
     {
-        $user = User::firstWhere('login', base64_decode($token));
+        $user = User::firstWhere('email_token', $token);
 
         $this->setResponse(trans('foundation::user.unverified'), 500);
 

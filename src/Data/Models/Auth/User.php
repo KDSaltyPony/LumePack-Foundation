@@ -126,11 +126,25 @@ class User extends BaseAuthModel
      *
      * @return string
      */
-    public static function tokenize(): string
+    public static function pwdTokenize(): string
     {
         do {
             $token = Str::random(32);
         } while (!is_null(User::firstWhere('pwd_token', $token)));
+
+        return $token;
+    }
+
+    /**
+     * Create a token.
+     *
+     * @return string
+     */
+    public static function emailTokenize(): string
+    {
+        do {
+            $token = Str::random(32);
+        } while (!is_null(User::firstWhere('email_token', $token)));
 
         return $token;
     }

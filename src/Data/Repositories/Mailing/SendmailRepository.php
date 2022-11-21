@@ -50,6 +50,7 @@ class SendmailRepository extends CRUD
      */
     protected function register(array $fields): bool
     {
+        dump('register bitch');
         return $this->defaultRegister($fields);
     }
 }

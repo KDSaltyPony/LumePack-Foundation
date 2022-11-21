@@ -36,7 +36,7 @@ class LogSendingMessageListener
      */
     public function handle(MessageSending $event)
     {
-        // dd('event');
+        dump('create bitch');
         $this->repo->create([
             'from'    => implode(', ', array_keys($event->message->getFrom())),
             'to'      => implode(', ', array_keys($event->message->getTo())),

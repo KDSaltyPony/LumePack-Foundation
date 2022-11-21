@@ -27,7 +27,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "LumePack\\Foundation\\Providers\\LaravelServiceProvider"
+                "LumePack\\Foundation\\Providers\\LaravelServiceProvider",
+                "LumePack\\Foundation\\Providers\\EventServiceProvider"
             ]
         }
     }
