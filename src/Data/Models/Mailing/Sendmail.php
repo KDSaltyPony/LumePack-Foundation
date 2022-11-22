@@ -13,8 +13,10 @@
 namespace LumePack\Foundation\Data\Models\Mailing;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseModel;
+use LumePack\Foundation\Mail\BaseMail;
 
 /**
  * Sendmail
@@ -113,6 +115,30 @@ class Sendmail extends BaseModel
         $this->attributes['token'] = (
             is_null($value)? Sendmail::tokenize(): $value
         );
+    }
+
+    /**
+     * Send an email if content = [ \
+     * "template" => "...", \
+     * "attributes" => [ ... ] \
+     * ]
+     *
+     * @return bool
+     */
+    public function send(): bool
+    {
+        if (
+            is_array($this->content) &&
+            array_key_exists('template', $this->content) &&
+            array_key_exists('attributes', $this->content)
+        ) {
+            Mail::send(new BaseMail(
+                $this->content['template'],
+                $this->content['attributes']
+            ));
+        }
+
+        return !is_null($this->sent_at);
     }
 
     /**
