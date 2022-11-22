@@ -15,6 +15,7 @@ namespace LumePack\Foundation\Data\Models\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
+use LumePack\Foundation\Data\Models\Mailing\Sendmail;
 use LumePack\Foundation\Mail\BaseMail;
 
 /**
@@ -40,33 +41,10 @@ trait UserTrait
                 is_null($model->pwd_token)? null: new \DateTime()
             );
 
-            if ($model->getOriginal('email') !== $model->email) {
-                $model->email_token = User::emailTokenize();
-                $model->email_verified_at = null;
-
-                Mail::send(new BaseMail('foundation::emails.user.validate', [
-                    'user' => $model,
-                    'token' => $model->email_token,
-                    'subject' => trans(
-                        'foundation::mail.subject_user_validate'
-                    )
-                ]));
-            }
-
             if ($model->getOriginal(
                 'email_verified_at'
             ) !== $model->email_verified_at) {
                 $model->email_token = null;
-            }
-
-            if (
-                $model->getOriginal('pwd_token') !== $model->pwd_token &&
-                !is_null($model->pwd_token)
-            ) {
-                Mail::send(new BaseMail('foundation::emails.auth.forgot', [
-                    'subject' => trans('foundation::mail.subject_auth_forgot'),
-                    'user' => $model
-                ]));
             }
 
             if (Hash::needsRehash($model->password)) {
@@ -82,6 +60,30 @@ trait UserTrait
                 Mail::send(new BaseMail('foundation::emails.user.password', [
                     'user' => $model,
                     'subject' => trans('foundation::mail.subject_user_password')
+                ]));
+            }
+
+            if (
+                $model->getOriginal('pwd_token') !== $model->pwd_token &&
+                !is_null($model->pwd_token)
+            ) {
+                Mail::send(new BaseMail('foundation::emails.auth.forgot', [
+                    'subject' => trans('foundation::mail.subject_auth_forgot'),
+                    'user' => $model
+                ]));
+            }
+
+            if ($model->getOriginal('email') !== $model->email) {
+                $model->email_token = User::emailTokenize();
+                $model->email_verified_at = null;
+                $model->saveQuietly();
+
+                Mail::send(new BaseMail('foundation::emails.user.validate', [
+                    'user' => $model,
+                    'token' => $model->email_token,
+                    'subject' => trans(
+                        'foundation::mail.subject_user_validate'
+                    )
                 ]));
             }
 

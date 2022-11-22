@@ -6,6 +6,7 @@ use App\Data\Repositories\Utilities\MailRepository;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use LumePack\Foundation\Data\Models\Mailing\Sendmail;
 use LumePack\Foundation\Data\Repositories\Mailing\SendmailRepository;
 
 class LogSendingMessageListener
@@ -41,26 +42,35 @@ class LogSendingMessageListener
         );
 
         if (!is_null($token)) {
-            $from = '';
-            $to = '';
+            if (Sendmail::firstWhere('token', $token)) {
+                $this->repo->updateWhereToken(
+                    [
+                        'sent_at' => new \DateTime(),
+                        'content' => $event->message->getBody()->getBody()
+                    ], $token
+                );
+            } else {
+                $from = '';
+                $to = '';
 
-            foreach ($event->message->getFrom() as $address) {
-                $from .= "{$address->getName()}: {$address->getAddress()},";
+                foreach ($event->message->getFrom() as $address) {
+                    $from .= "{$address->getName()}: {$address->getAddress()}";
+                }
+
+                foreach ($event->message->getTo() as $address) {
+                    $to .= "{$address->getName()}: {$address->getAddress()},";
+                }
+
+                $this->repo->create([
+                    'from'    => $from,
+                    'to'      => $to,
+                    'subject' => $event->message->getSubject(),
+                    'content' => $event->message->getBody()->getBody(),
+                    'sent_at' => new \DateTime(),
+                    'token' => $token,
+                    'is_success' => null
+                ]);
             }
-
-            foreach ($event->message->getTo() as $address) {
-                $to .= "{$address->getAddress()},";
-            }
-
-            $this->repo->create([
-                'from'    => $from,
-                'to'      => $to,
-                'subject' => $event->message->getSubject(),
-                'content' => e($event->message->getBody()->getBody()),
-                'sent_at' => new \DateTime(),
-                'token' => $token,
-                'is_success' => null
-            ]);
         }
     }
 

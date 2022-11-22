@@ -5,12 +5,12 @@
  * PHP Version 7.2.19
  *
  * @category Repository
- * @package  LumePack\Foundation\Data\Repositories\Dictionaries
+ * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace LumePack\Foundation\Data\Repositories\Dictionaries;
+namespace LumePack\Foundation\Data\Repositories;
 
 use LumePack\Foundation\Data\Repositories\CRUD;
 
@@ -18,7 +18,7 @@ use LumePack\Foundation\Data\Repositories\CRUD;
  * CRONTaskRepository
  *
  * @category Repository
- * @package  LumePack\Foundation\Data\Repositories\Dictionaries
+ * @package  LumePack\Foundation\Data\Repositories
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none

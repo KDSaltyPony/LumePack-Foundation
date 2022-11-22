@@ -32,10 +32,16 @@ class BaseMail extends Mailable
         $this->user = auth()->user();
         $this->template = $template;
         $this->attributes = $attributes;
+        $this->sendmail_token = null;
 
         foreach ($attributes as $key => $value) {
             $this->$key = $value;
         }
+
+        $this->sendmail_token = (
+            is_null($this->sendmail_token)?
+                Sendmail::tokenize(): $this->sendmail_token
+        );
 
         if (!key_exists('subject', $attributes)) {
             $this->subject = trans(
@@ -52,12 +58,26 @@ class BaseMail extends Mailable
             $this->from_name = env('MAIL_FROM_NAME');
         }
 
-        if (!key_exists('to_address', $attributes)) {
-            $this->to_address = is_null($this->user)? env('MAIL_FROM_ADDRESS'): $this->user->email;
+        $this->from_address = new Address(
+            $this->from_address, $this->from_name
+        );
+
+        if (!key_exists('to_addresses', $attributes)) {
+            $this->to_addresses = [ (
+                is_null($this->user)? [
+                    'email' => env('MAIL_FROM_ADDRESS'),
+                    'name' => env('MAIL_FROM_NAME')
+                ]: [
+                    'email' => $this->user->email,
+                    'name' => $this->user->login
+                ]
+            ) ];
         }
 
-        if (!key_exists('user', $attributes)) {
-            $attributes['user'] = $this->user;
+        foreach ($this->to_addresses as $key => $to_address) {
+            $this->to_addresses[$key] = new Address(
+                $to_address['email'], $to_address['name']
+            );
         }
 
         if (!key_exists('user', $attributes)) {
@@ -73,14 +93,11 @@ class BaseMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            from: new Address($this->from_address, $this->from_name),
-            to: $this->to_address,
+            from: $this->from_address,
+            to: $this->to_addresses,
             subject: $this->subject,
-            // tags: [
-            //     'token' => Sendmail::tokenize()
-            // ]
             metadata: [
-                'sendmail-token' => Sendmail::tokenize()
+                'sendmail-token' => $this->sendmail_token
             ]
         );
     }

@@ -66,6 +66,102 @@ class Sendmail extends BaseModel
      */
 
     /**
+     * Set the sendmail's content.
+     *
+     * @param string $value The email value
+     *
+     * @return void
+     */
+    public function setContentAttribute(string|array $value): void
+    {
+        if (is_array($value)) {
+            $this->attributes['content'] = "__json:" . json_encode(
+                Sendmail::netralizeContent($value)
+            );
+        } else {
+            $this->attributes['content'] = e($value);
+        }
+    }
+
+    /**
+     * Get the sendmail's content.
+     *
+     * @param string $value The first name value
+     *
+     * @return string|array
+     */
+    public function getContentAttribute(string $value): string|array
+    {
+        if (Str::startsWith($value, '__json:')) {
+            $value = Sendmail::retriveContent(
+                json_decode(Str::after($value, '__json:'))
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Set the sendmail's content.
+     *
+     * @param string|null $value The email value
+     *
+     * @return void
+     */
+    public function setTokenAttribute(?string $value): void
+    {
+        $this->attributes['token'] = (
+            is_null($value)? Sendmail::tokenize(): $value
+        );
+    }
+
+    /**
+     * Netralize a data structure to store it. \
+     * Remove objects that don't contain ids. \
+     * If the object has an id it will be store to be retrived has a model.
+     *
+     * @return array
+     */
+    public static function netralizeContent(array $value): array
+    {
+        foreach ($value as $key => $val) {
+            if (is_object($val)) {
+                if (!is_null($val->id)) {
+                    $value[$key] = get_class($val) . ":{$val->id}";
+                } else {
+                    unset($value[$key]);
+                }
+            } elseif (is_array($val)) {
+                $value[$key] = Sendmail::netralizeContent($val);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Retrive a data structure that has been netralized. \
+     * Retrive the models based in the string \Namespace\Model:id.
+     *
+     * @return array
+     */
+    public static function retriveContent(array $value): array
+    {
+        foreach ($value as $key => $val) {
+            if (is_string($val) && class_exists(Str::before($val, ':'))) {
+                $class = Str::before($val, ':');
+                $id = Str::after($val, ':');
+
+                $value[$key] = $class::firstWhere('id', $id);
+            } elseif (is_array($val)) {
+                $value[$key] = Sendmail::retriveContent($val);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * Create a token.
      *
      * @return string

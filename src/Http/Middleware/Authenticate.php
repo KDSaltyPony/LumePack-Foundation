@@ -70,8 +70,8 @@ class Authenticate extends Middleware
         if (!is_null(auth()->user())) {
             if (!auth()->user()->is_active) {
                 return (new ResponseService(trans('foundation::auth.inactive'), 400))->format();
-            } elseif (is_null(auth()->user()->email_verified_at)) {
-                return (new ResponseService(trans('foundation::auth.email'), 400))->format();
+            // } elseif (is_null(auth()->user()->email_verified_at)) {
+            //     return (new ResponseService(trans('foundation::auth.email'), 400))->format();
             }
 
             // TODO: filter permission request on permission type uid ENDPOINT
