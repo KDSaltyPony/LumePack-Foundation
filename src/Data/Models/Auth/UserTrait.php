@@ -75,7 +75,9 @@ trait UserTrait
 
             if ($model->getOriginal('email') !== $model->email) {
                 $model->email_token = User::emailTokenize();
-                $model->email_verified_at = null;
+                $model->email_verified_at = (
+                    config('auth.is_mail_relocked')? null: $model->email_verified_at
+                );
                 $model->saveQuietly();
 
                 Mail::send(new BaseMail('foundation::emails.user.validate', [

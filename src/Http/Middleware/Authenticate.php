@@ -47,31 +47,12 @@ class Authenticate extends Middleware
         if (Route::current()->uri === 'api/auth/dashboard') {
             Route::current()->setParameter('uid', auth()->user()->id);
         }
-        // $is_guest = true;
-        // $guards = explode('.', $guards);
-
-        // foreach ($guards as $guard) {
-        //     if (!$this->auth->guard($guard)->guest()) {
-        //         $is_guest = false;
-        //     }
-        // }
-        // dd(auth()->user());
-
-        // if ($is_guest) {
-        //     $response = new ResponseService('Non-autorisé.', 401);
-
-        //     $response->setHeader(
-        //         'WWW-Authenticate', 'Bearer realm="Access to the API"'
-        //     );
-
-        //     return $response->format();
-        // }
 
         if (!is_null(auth()->user())) {
             if (!auth()->user()->is_active) {
                 return (new ResponseService(trans('foundation::auth.inactive'), 400))->format();
-            // } elseif (is_null(auth()->user()->email_verified_at)) {
-            //     return (new ResponseService(trans('foundation::auth.email'), 400))->format();
+            } elseif (config('auth.is_mail_locked') && is_null(auth()->user()->email_verified_at)) {
+                return (new ResponseService(trans('foundation::auth.email'), 400))->format();
             }
 
             // TODO: filter permission request on permission type uid ENDPOINT

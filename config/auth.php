@@ -108,4 +108,21 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | If the user email validation is mendatory to login
+    |--------------------------------------------------------------------------
+    */
+
+    'is_mail_locked' => env('AUTH_MAIL_LOCK', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | If the user email validation is mendatory to login
+    | after email modification
+    |--------------------------------------------------------------------------
+    */
+
+    'is_mail_relocked' => env('AUTH_MAIL_RELOCK', false),
+
 ];
