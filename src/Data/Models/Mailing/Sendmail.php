@@ -68,6 +68,100 @@ class Sendmail extends BaseModel
      */
 
     /**
+     * Set the sendmail's from.
+     *
+     * @param string|array $value The from value
+     *
+     * @return void
+     */
+    public function setFromAttribute(string|array $value): void
+    {
+        if (is_array($value)) {
+            $temp_value = '';
+
+            foreach ($value as $key => $address) {
+                $temp_value .= ($key === 0)? '': ', ';
+
+                if (is_array($address)) {
+                    $temp_value .= "{$address['name']}: {$address['address']}";
+                } else {
+                    $temp_value .= "{$address->getName()}: {$address->getAddress()}";
+                }
+            }
+        }
+
+        $this->attributes['from'] = $value;
+    }
+
+    /**
+     * Get the sendmail's from.
+     *
+     * @param string $value The from value
+     *
+     * @return string|array
+     */
+    public function getFromAttribute(string $value): array
+    {
+        $array_value = [];
+
+        foreach (explode(', ', $value) as $from) {
+            $array_value[] = [
+                'address' => Str::after(': ', $from),
+                'name' => Str::before(': ', $from)
+            ];
+        }
+
+        return $array_value[0];
+    }
+
+    /**
+     * Set the sendmail's to.
+     *
+     * @param string|array $value The to value
+     *
+     * @return void
+     */
+    public function setToAttribute(string|array $value): void
+    {
+        if (is_array($value)) {
+            $temp_value = '';
+
+            foreach ($value as $key => $address) {
+                $temp_value .= ($key === 0)? '': ', ';
+
+                if (is_array($address)) {
+                    $temp_value .= "{$address['name']}: {$address['address']}";
+                } else {
+                    $temp_value .= "{$address->getName()}: {$address->getAddress()}";
+                }
+            }
+        }
+
+        $this->attributes['from'] = $value;
+    }
+
+    /**
+     * Get the sendmail's to.
+     *
+     * @param string $value The to value
+     *
+     * @return string|array
+     */
+    public function getToAttribute(string $value): array
+    {
+        $array_value = [];
+
+        foreach (explode(', ', $value) as $from) {
+            $array_value[] = [
+                'address' => Str::after(': ', $from),
+                'name' => Str::before(': ', $from)
+            ];
+        }
+
+        return $array_value;
+    }
+
+    /**
      * Set the sendmail's content.
      *
      * @param string $value The email value
@@ -80,15 +174,15 @@ class Sendmail extends BaseModel
             $this->attributes['content'] = "__json:" . json_encode(
                 Sendmail::netralizeContent($value)
             );
-        } else {
-            $this->attributes['content'] = e($value);
         }
+
+        $this->attributes['content'] = e($value);
     }
 
     /**
      * Get the sendmail's content.
      *
-     * @param string $value The first name value
+     * @param string $value The content value
      *
      * @return string|array
      */
@@ -127,14 +221,19 @@ class Sendmail extends BaseModel
      */
     public function send(): bool
     {
+        $attributes = $this->content['attributes'];
+
+        $attributes['from_address'] = $this->from['address'];
+        $attributes['from_name'] = $this->from['name'];
+        $attributes['to_addresses'] = $this->to;
+
         if (
             is_array($this->content) &&
             array_key_exists('template', $this->content) &&
             array_key_exists('attributes', $this->content)
         ) {
             Mail::send(new BaseMail(
-                $this->content['template'],
-                $this->content['attributes']
+                $this->content['template'], $attributes
             ));
         }
 

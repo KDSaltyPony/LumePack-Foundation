@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\Route;;
 //     return response('');
 // }]);
 
+//
+//
+// TO DELETE
+//
+//
+Route::get('tests', function (Request $request) {
+});
+
 Route::prefix('auth')->namespace('Auth')->middleware(
     'lpfauth:sanctum'
 )->group(function () {

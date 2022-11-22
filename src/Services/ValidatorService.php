@@ -57,7 +57,6 @@ abstract class ValidatorService
      * Build a validation and store the results in attributes.
      *
      * @param array $fields  The fields to validate
-     * @param bool  $is_mass Is this a mass validation ?
      */
     public function __construct(array $fields)
     {

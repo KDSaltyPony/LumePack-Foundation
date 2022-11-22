@@ -35,10 +35,10 @@ class ProcessSendmail implements ShouldQueue
     // /**
     //  * Execute the job.
     //  *
-    //  * @param  App\Services\AudioProcessor  $processor
+    //  * @param  SendmailProcessor  $processor
     //  * @return void
     //  */
-    // public function handle(AudioProcessor $processor)
+    // public function handle(SendmailProcessor $processor)
     // {
     //     // Process uploaded podcast...
     // }

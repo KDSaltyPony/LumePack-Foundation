@@ -5,5 +5,5 @@ return [
     'email_error' => 'Something went wrong. The email wasn\'t sended.',
     'error'       => 'Something went wrong.',
     'token'       => 'Invalid token.',
-    'renew'       => 'The password was rened.',
+    'renew'       => 'The password was renewed.',
 ];

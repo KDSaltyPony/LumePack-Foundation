@@ -49,5 +49,5 @@ return [
     | This maximum number of variation for one image (default 10).
     |
     */
-    'max_variations' => env('STORAGE_MAX_Variations', 10)
+    'max_variations' => env('STORAGE_MAX_VARIATIONS', 10)
 ];

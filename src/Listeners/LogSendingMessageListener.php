@@ -50,24 +50,13 @@ class LogSendingMessageListener
                     ], $token
                 );
             } else {
-                $from = '';
-                $to = '';
-
-                foreach ($event->message->getFrom() as $address) {
-                    $from .= "{$address->getName()}: {$address->getAddress()}";
-                }
-
-                foreach ($event->message->getTo() as $address) {
-                    $to .= "{$address->getName()}: {$address->getAddress()},";
-                }
-
                 $this->repo->create([
-                    'from'    => $from,
-                    'to'      => $to,
-                    'subject' => $event->message->getSubject(),
-                    'content' => $event->message->getBody()->getBody(),
-                    'sent_at' => new \DateTime(),
-                    'token' => $token,
+                    'from'       => $event->message->getFrom(),
+                    'to'         => $event->message->getTo(),
+                    'subject'    => $event->message->getSubject(),
+                    'content'    => $event->message->getBody()->getBody(),
+                    'sent_at'    => new \DateTime(),
+                    'token'      => $token,
                     'is_success' => null
                 ]);
             }
