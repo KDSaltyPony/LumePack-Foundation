@@ -53,7 +53,7 @@ class File extends BaseModel
      *
      * @var array
      */
-    protected $hidden = [ 'deleted_at' ];
+    protected $hidden = [ 'deleted_at', 'media_id' ];
 
     /**
      * The width of an image.

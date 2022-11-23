@@ -118,11 +118,11 @@ class AuthController extends BaseController
     /**
      * Helper function to format the response with the token.
      *
-     * @param AccessToken $token The token
+     * @param NewAccessToken $token The token
      *
      * @return array
      */
-    protected function setTokenBody(AccessToken $token, User $user = null): array
+    protected function setTokenBody(NewAccessToken $token, User $user = null): array
     {
         return [
             'token'      => $token->plainTextToken,
