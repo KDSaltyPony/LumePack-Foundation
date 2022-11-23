@@ -24,8 +24,8 @@ use Illuminate\Support\Facades\Route;;
 // TO DELETE
 //
 //
-Route::get('tests', function (Request $request) {
-});
+// Route::get('tests', function (Request $request) {
+// });
 
 Route::prefix('auth')->namespace('Auth')->middleware(
     'lpfauth:sanctum'
@@ -82,20 +82,20 @@ Route::prefix('auth')->namespace('Auth')->middleware(
     //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
     // });
 
-    // //
-    // //
-    // // TO DELETE
-    // //
-    // //
-    // Route::prefix('permission')->controller('PermissionController')->middleware(
-    //     'dataValidation:auth.permission,lume_pack.foundation'
-    // )->withoutMiddleware('lpfauth:sanctum')->group(function () {
-    //     Route::get('/', 'list');
-    //     Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-    //     Route::post('/', 'add');
-    //     Route::put('{uid}', 'edit');
-    //     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-    // });
+    //
+    //
+    // TO DELETE
+    //
+    //
+    Route::prefix('permission')->controller('PermissionController')->middleware(
+        'dataValidation:auth.permission,lume_pack.foundation'
+    )->withoutMiddleware('lpfauth:sanctum')->group(function () {
+        Route::get('/', 'list');
+        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+        Route::post('/', 'add');
+        Route::put('{uid}', 'edit');
+        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+    });
 });
 
 // //

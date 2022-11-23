@@ -75,42 +75,45 @@ if (!function_exists('ra_to_uid')) {
     function ra_to_uid(
         Route $route, string $ctrl_folder = 'Http\\Controllers'
     ) {
-        $action = $route->action['uses'];
-        $uri = $route->uri;
-        // Hash::make()
-        $uri = preg_replace_callback(
-            '/(?:^\\/?[A-z]|\\/[A-z]|\\_[A-z]|\\-[A-z])([^\\/\\_$]+)/',
-            function ($matches) {
-                return Str::substr(
-                    Str::replace($matches[1], '', $matches[0]), -1
-                );
-            }, $uri
-        );
-        $uri = preg_replace('/\\/?\\{[^\\{\\}]+\\}/', '', $uri);
-
-        $uri = ($uri === '/')? '': $uri;
-
-        if (!Str::startsWith($ctrl_folder, '\\')) {
-            $ctrl_folder = "\\{$ctrl_folder}";
-        }
-
-        if (!Str::endsWith($ctrl_folder, '\\')) {
-            $ctrl_folder .= '\\';
-        }
-
-        $namespace = Str::before($action, $ctrl_folder);
         $uid = '';
-        $uid = (
-            Str::contains($namespace, 'App')?
-                'APP': preg_replace('/[a-z\\\]/', '', $namespace)
-        );
-        $uid .= "{$uri}_";
-        $action = Str::afterLast($action, $ctrl_folder);
-        $action = Str::replace('\\', '', $action);
-        $action = Str::replace('Controller', '', $action);
-        $action = Str::replace('@', '_', $action);
-        $uid .= $action;
-        $uid = Str::upper($uid);
+        $action = $route->action['uses'];
+
+        if (is_string($action)) {
+            $uri = $route->uri;
+            // Hash::make()
+            $uri = preg_replace_callback(
+                '/(?:^\\/?[A-z]|\\/[A-z]|\\_[A-z]|\\-[A-z])([^\\/\\_$]+)/',
+                function ($matches) {
+                    return Str::substr(
+                        Str::replace($matches[1], '', $matches[0]), -1
+                    );
+                }, $uri
+            );
+            $uri = preg_replace('/\\/?\\{[^\\{\\}]+\\}/', '', $uri);
+
+            $uri = ($uri === '/')? '': $uri;
+
+            if (!Str::startsWith($ctrl_folder, '\\')) {
+                $ctrl_folder = "\\{$ctrl_folder}";
+            }
+
+            if (!Str::endsWith($ctrl_folder, '\\')) {
+                $ctrl_folder .= '\\';
+            }
+
+            $namespace = Str::before($action, $ctrl_folder);
+            $uid = (
+                Str::contains($namespace, 'App')?
+                    'APP': preg_replace('/[a-z\\\]/', '', $namespace)
+            );
+            $uid .= "{$uri}_";
+            $action = Str::afterLast($action, $ctrl_folder);
+            $action = Str::replace('\\', '', $action);
+            $action = Str::replace('Controller', '', $action);
+            $action = Str::replace('@', '_', $action);
+            $uid .= $action;
+            $uid = Str::upper($uid);
+        }
 
         return $uid;
     }
