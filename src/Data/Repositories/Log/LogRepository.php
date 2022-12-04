@@ -1,29 +1,29 @@
 <?php
 /**
- * RoleRepository class file
+ * LogRepository class file
  *
  * PHP Version 7.2.19
  *
  * @category Repository
- * @package  LumePack\Foundation\Data\Repositories\Auth
+ * @package  LumePack\Foundation\Data\Repositories\Log
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace LumePack\Foundation\Data\Repositories\Auth;
+namespace LumePack\Foundation\Data\Repositories\Log;
 
 use LumePack\Foundation\Data\Repositories\CRUD;
 
 /**
- * RoleRepository
+ * LogRepository
  *
  * @category Repository
- * @package  LumePack\Foundation\Data\Repositories\Auth
+ * @package  LumePack\Foundation\Data\Repositories\Log
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class RoleRepository extends CRUD
+class LogRepository extends CRUD
 {
     /**
      * The rows available as filters in the query
@@ -31,7 +31,10 @@ class RoleRepository extends CRUD
      * @var array
      */
     protected $filters = [
-        'user' => 'relation.users'
+        'id' => '_id',
+        'process' => 'process',
+        'source' => 'source',
+        'code' => 'code'
     ];
 
     /**

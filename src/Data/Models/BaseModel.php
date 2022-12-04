@@ -27,7 +27,15 @@ use LumePack\Foundation\Data\Models\Auth\Permission;
  */
 class BaseModel extends Model
 {
-    use BaseModelTrait, OrderTrait;
+    use BaseModelTrait, OrderTrait, LogTrait;
+
+    /**
+     * The uid associated with the model log (default: null). \
+     * If null: not logged
+     *
+     * @var string
+     */
+    public $log_uid = null;
 
     /**
      * -------------------------------------------------------------------------

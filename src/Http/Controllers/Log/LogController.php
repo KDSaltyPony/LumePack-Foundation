@@ -1,27 +1,27 @@
 <?php
 /**
- * SendmailController class file
+ * LogController class file
  *
  * PHP Version 7.2.19
  *
  * @category Controller
- * @package  LumePack\Foundation\Http\Controllers\Mailing
+ * @package  LumePack\Foundation\Http\Controllers\Log
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-namespace LumePack\Foundation\Http\Controllers\Mailing;
+namespace LumePack\Foundation\Http\Controllers\Log;
 
 use LumePack\Foundation\Http\Controllers\BaseController;
 
 /**
- * SendmailController
+ * LogController
  *
  * @category Controller
- * @package  LumePack\Foundation\Http\Controllers\Mailing
+ * @package  LumePack\Foundation\Http\Controllers\Log
  * @author   KDSaltyPony <kallofdragon@gmail.com>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class SendmailController extends BaseController
+class LogController extends BaseController
 {}

@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Dictionaries;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LumePack\Foundation\Data\Models\BaseModel;
 use LumePack\Foundation\Database\Factories\Dictionaries\TaxonomyValueFactory;
 
@@ -28,14 +29,14 @@ use LumePack\Foundation\Database\Factories\Dictionaries\TaxonomyValueFactory;
  */
 class TaxonomyValue extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'TaxonomyValue';
+    public $log_uid = 'TaxonomyValue';
 
     /**
      * The attribute used to group orders.
@@ -56,7 +57,7 @@ class TaxonomyValue extends BaseModel
      *
      * @var array
      */
-    protected $hidden = [ 'deleted_at' ];
+    // protected $hidden = [ 'taxonomy_id', 'deleted_at' ];
 
     /**
      * Create a new factory instance for the model.

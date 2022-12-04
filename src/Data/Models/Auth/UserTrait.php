@@ -47,7 +47,7 @@ trait UserTrait
                 $model->email_token = null;
             }
 
-            if (Hash::needsRehash($model->password)) {
+            if (!is_null($model->password) && Hash::needsRehash($model->password)) {
                 $model->password = Hash::make($model->password);
             }
         });
@@ -89,7 +89,17 @@ trait UserTrait
                 ]));
             }
 
-            if (is_null($model->password) && $model->pwd_token) {
+            if (
+                is_null($model->password) &&
+                is_null($model->deleted_at) &&
+                (
+                    (
+                        config('auth.is_mail_locked') &&
+                        !is_null($model->email_verified_at)
+                    ) || !config('auth.is_mail_locked')
+                ) &&
+                $model->is_active
+            ) {
                 $model->pwd_token = User::pwdTokenize();
 
                 Mail::send(new BaseMail('foundation::emails.auth.password', [
@@ -97,7 +107,7 @@ trait UserTrait
                     'subject' => trans('foundation::mail.subject_auth_password')
                 ]));
 
-                $model->save();
+                $model->saveQuietly();
             }
         });
     }

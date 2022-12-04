@@ -31,9 +31,9 @@ class TaxonomyValueValidator extends Validator
      * @var array
      */
     protected $rules = [
-        'uid'          => [ 'required', 'string', 'unique:taxonomy_values,uid' ],
-        'value'        => [ 'required', 'string' ],
-        'order'        => [ 'required', 'integer', 'min:1' ],
+        'uid'          => [ 'string', 'required', 'unique:taxonomy_values,uid' ],
+        'value'        => [ 'string', 'required' ],
+        'order'        => [ 'integer', 'nullable', 'min:1' ],
         'taxonomy_uid' => [ 'string', 'required', 'exists:taxonomies,uid' ]
     ];
 }

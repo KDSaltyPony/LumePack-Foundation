@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Jenssegers\Mongodb\Connection;
 
 /**
  * CRUD
@@ -157,9 +158,13 @@ abstract class CRUD
         $this->model_class = $model_class;
         $this->model = new $model_class();
         $this->table = $this->model->getTable();
-        $this->query = $this->model_class::selectRaw(
-            "{$this->table}.*"
-        )->whereRaw('1=1');
+        if ($this->model->getConnection() instanceof Connection) {
+            $this->query = $this->model_class::select();
+        } else {
+            $this->query = $this->model_class::selectRaw(
+                "{$this->table}.*"
+            )->where('1', 1);
+        }
         $this->reflect = new \ReflectionClass($this->model_class);
     }
 
@@ -471,11 +476,11 @@ abstract class CRUD
         }
         // $this->query->dd();
 
-        if (
-            Schema::hasColumn($this->getTable(), 'deleted_at') && Auth::check()
-        ) {
-            $this->query->withoutTrashed();
-        }
+        // if (
+        //     Schema::hasColumn($this->getTable(), 'deleted_at') && Auth::check()
+        // ) {
+        //     $this->query->withoutTrashed();
+        // }
 
         return $this->query;
     }
@@ -555,7 +560,9 @@ abstract class CRUD
                 $operator, $value, $repo
             );
         } else {
-            $params = "{$table}.{$params}";
+            $params = (
+                $this->model->getConnection() instanceof Connection
+            )? $params: "{$table}.{$params}";
             $params = [ $params ];
 
             call_user_func_array(
@@ -614,10 +621,14 @@ abstract class CRUD
 
             $this->_setQueryOrder($query, $target, $order, $repo);
         } else {
-            $query->orderBy((
-                Schema::hasColumn($table, $target[0])?
-                "{$table}.{$target[0]}": $target[0]
-            ), $order);
+            if ($this->model->getConnection() instanceof Connection) {
+                $query->orderBy($target[0], $order);
+            } else {
+                $query->orderBy((
+                    Schema::hasColumn($table, $target[0])?
+                    "{$table}.{$target[0]}": $target[0]
+                ), $order);
+            }
         }
     }
 

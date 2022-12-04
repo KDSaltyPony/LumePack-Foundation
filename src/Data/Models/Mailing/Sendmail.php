@@ -12,7 +12,9 @@
  */
 namespace LumePack\Foundation\Data\Models\Mailing;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseModel;
@@ -29,14 +31,14 @@ use LumePack\Foundation\Mail\BaseMail;
  */
 class Sendmail extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'Sendmail';
+    public $log_uid = 'Sendmail';
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -44,6 +46,15 @@ class Sendmail extends BaseModel
      * @var array
      */
     protected $hidden = [ 'deleted_at' ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'sent_at' => 'datetime'
+    ];
 
     // /**
     //  * Create a new factory instance for the model.
@@ -88,6 +99,8 @@ class Sendmail extends BaseModel
                     $temp_value .= "{$address->getName()}: {$address->getAddress()}";
                 }
             }
+
+            $value = $temp_value;
         }
 
         $this->attributes['from'] = $value;
@@ -98,7 +111,7 @@ class Sendmail extends BaseModel
      *
      * @param string $value The from value
      *
-     * @return string|array
+     * @return array
      */
     public function getFromAttribute(string $value): array
     {
@@ -135,9 +148,11 @@ class Sendmail extends BaseModel
                     $temp_value .= "{$address->getName()}: {$address->getAddress()}";
                 }
             }
+
+            $value = $temp_value;
         }
 
-        $this->attributes['from'] = $value;
+        $this->attributes['to'] = $value;
     }
 
     /**
@@ -145,7 +160,7 @@ class Sendmail extends BaseModel
      *
      * @param string $value The to value
      *
-     * @return string|array
+     * @return array
      */
     public function getToAttribute(string $value): array
     {

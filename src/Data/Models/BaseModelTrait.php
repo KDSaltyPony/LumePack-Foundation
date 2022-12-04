@@ -12,7 +12,9 @@
  */
 namespace LumePack\Foundation\Data\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
  * BaseModelTrait
@@ -32,19 +34,31 @@ trait BaseModelTrait
      */
     protected static function bootBaseModelTrait()
     {
-        // TODO: log : has trait ?
-        static::deleted(function (BaseModel $model) {
+        static::deleted(function (Model $model) {
             $attrs = $model->getAttributes();
 
-            if (isset($attrs['deleted_at'])) {
-                if (isset($attrs['uid'])) {
-                    $model->uid = base64_encode($model->uid);
-                }
-
-                if (isset($attrs['email'])) {
-                    $model->email = Hash::make($model->uid);
-                }
+            if (isset($attrs['uid'])) {
+                $model->uid = Str::replace('=', '', base64_encode($model->uid));
+                $model->uid = Str::replace('+', '', $model->uid);
+                $model->uid = Str::replace('/', '', $model->uid);
             }
+
+            if (isset($attrs['login'])) {
+                $model->login = Str::replace('=', '', base64_encode($model->login));
+                $model->login = Str::replace('+', '', $model->login);
+                $model->login = Str::replace('/', '', $model->login);
+            }
+
+            if (isset($attrs['email'])) {
+                $model->email = Hash::make($model->email);
+            }
+
+            if (isset($attrs['password'])) {
+                $model->password = null;
+            }
+
+            // TODO: instance of user => netralize logs
+            $model->saveQuietly();
         });
     }
 }

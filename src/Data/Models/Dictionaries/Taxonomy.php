@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Dictionaries;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LumePack\Foundation\Data\Models\BaseModel;
 use LumePack\Foundation\Database\Factories\Dictionaries\TaxonomyFactory;
 
@@ -28,14 +29,14 @@ use LumePack\Foundation\Database\Factories\Dictionaries\TaxonomyFactory;
  */
 class Taxonomy extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'Taxonomy';
+    public $log_uid = 'Taxonomy';
 
     /**
      * The relationships that should always be loaded.

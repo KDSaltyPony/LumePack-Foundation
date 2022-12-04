@@ -12,6 +12,8 @@
  */
 namespace LumePack\Foundation\Data\Models;
 
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * OrderTrait
  *
@@ -30,7 +32,7 @@ trait OrderTrait
      */
     protected static function bootOrderTrait()
     {
-        static::creating(function (BaseModel $model) {
+        static::creating(function (Model $model) {
             if (
                 is_null($model->order) &&
                 $model->is_ordered &&
@@ -49,7 +51,7 @@ trait OrderTrait
             }
         });
 
-        static::created(function (BaseModel $model) {
+        static::created(function (Model $model) {
             if ($model->is_ordered && $model->order_grouped_by) {
                 // dump("created start");
                 $class = get_class($model);
@@ -71,7 +73,7 @@ trait OrderTrait
             }
         });
 
-        static::updating(function (BaseModel $model) {
+        static::updating(function (Model $model) {
             if ($model->is_ordered && $model->order_grouped_by) {
                 // dump("updating start");
                 $old_order = $model->getOriginal('order');
@@ -104,7 +106,7 @@ trait OrderTrait
             }
         });
 
-        static::deleted(function (BaseModel $model) {
+        static::deleted(function (Model $model) {
             if ($model->is_ordered && $model->order_grouped_by) {
                 // dump("deleted start");
                 $class = get_class($model);

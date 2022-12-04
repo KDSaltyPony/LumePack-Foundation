@@ -26,6 +26,15 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class PermissionRepository extends CRUD
 {
     /**
+     * The rows available as filters in the query
+     *
+     * @var array
+     */
+    protected $filters = [
+        'role' => 'relation.roles'
+    ];
+
+    /**
      * Call parent abstract register method.
      *
      * @inheritdoc

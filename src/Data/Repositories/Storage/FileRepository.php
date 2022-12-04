@@ -26,6 +26,15 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class FileRepository extends CRUD
 {
     /**
+     * The rows available as filters in the query
+     *
+     * @var array
+     */
+    protected $filters = [
+        'media' => 'relation.media'
+    ];
+
+    /**
      * Call parent abstract register method.
      *
      * @inheritdoc

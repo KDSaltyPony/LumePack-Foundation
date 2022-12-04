@@ -14,10 +14,13 @@ namespace LumePack\Foundation\Services;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Jenssegers\Mongodb\Eloquent\Model as MongoModel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
@@ -84,6 +87,17 @@ class ResponseService
             'message' => trans("foundation::status.{$status}")
         ];
         $this->body = $body;
+
+        if ($this->body instanceof Collection) {
+            $this->metadata['count'] = $this->body->count();
+        }
+
+        // if (
+        //     $this->body instanceof Model ||
+        //     $this->body instanceof MongoModel
+        // ) {
+        //     # code...
+        // }
 
         if (!$is_success) {
             $this->body = [

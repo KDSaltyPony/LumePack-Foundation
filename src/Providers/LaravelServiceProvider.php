@@ -17,6 +17,7 @@ use LumePack\Foundation\Http\Middleware\DataValidate;
 use LumePack\Foundation\Http\Middleware\QueryStringToConfig;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
@@ -94,5 +95,10 @@ class LaravelServiceProvider extends ServiceProvider
 
         Sanctum::ignoreMigrations();
         Sanctum::usePersonalAccessTokenModel(AccessToken::class);
+
+        config([ 'logs.process' => (
+            Request::has('lproc')? Request::get('lproc'): uniqid()
+        ) ]);
+        // dd(config('logs.process'));
     }
 }

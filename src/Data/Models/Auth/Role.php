@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Auth;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LumePack\Foundation\Data\Models\BaseModel;
 use LumePack\Foundation\Database\Factories\Auth\RoleFactory;
 
@@ -28,14 +29,14 @@ use LumePack\Foundation\Database\Factories\Auth\RoleFactory;
  */
 class Role extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'Role';
+    public $log_uid = 'Role';
 
     /**
      * The relationships that should always be loaded.

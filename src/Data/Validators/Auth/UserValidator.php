@@ -31,12 +31,10 @@ class UserValidator extends Validator
      * @var array
      */
     protected $rules = [
-        'login' => [ 'required', 'string', 'unique:users,login' ],
-        'email' => [ 'required', 'email' ]
+        'login'       => [ 'required', 'string', 'unique:users,login' ],
+        'email'       => [ 'required', 'email' ],
+        'roles'       => [ 'array' ],
+        'roles.*'     => [ 'array' ],
+        'roles.*.uid' => [ 'required', 'exists:roles,uid', 'distinct' ]
     ];
-    // $table->string('password');
-    // $table->boolean('is_active')->default(true);
-    // $table->timestamp('email_verified_at')->nullable();
-    // $table->timestamps();
-    // $table->softDeletes();
 }

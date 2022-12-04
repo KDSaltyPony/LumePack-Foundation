@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Storage;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LumePack\Foundation\Data\Models\BaseModel;
 use LumePack\Foundation\Database\Factories\Storage\MediaFactory;
 
@@ -28,14 +29,14 @@ use LumePack\Foundation\Database\Factories\Storage\MediaFactory;
  */
 class Media extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'Media';
+    public $log_uid = 'Media';
 
     /**
      * The attributes excluded from the model's JSON form.

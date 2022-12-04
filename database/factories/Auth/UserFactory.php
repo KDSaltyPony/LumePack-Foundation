@@ -40,8 +40,7 @@ class UserFactory extends Factory
             'login' => fake()->unique()->safeEmail(),
             'email' => fake()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => 'test',
-            'remember_token' => Str::random(10)
+            'password' => null
         ];
     }
 

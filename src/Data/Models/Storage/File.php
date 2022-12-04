@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Storage;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File as FacadesFile;
 use Illuminate\Support\Facades\Storage;
@@ -32,14 +33,14 @@ use LumePack\Foundation\Database\Factories\Storage\FileFactory;
  */
 class File extends BaseModel
 {
-    use HasFactory, FileTrait;
+    use HasFactory, FileTrait, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'File';
+    public $log_uid = 'File';
 
     /**
      * The relationships that should always be loaded.

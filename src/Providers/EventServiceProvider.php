@@ -13,10 +13,11 @@
 namespace LumePack\Foundation\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Http\Client\Events\RequestSending;
+use Illuminate\Http\Client\Events\ResponseReceived;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
-use LumePack\Foundation\Listeners\LogSendingMessageListener;
-use LumePack\Foundation\Listeners\LogSentMessageListener;
+use LumePack\Foundation\Listeners;
 
 /**
  * LaravelServiceProvider
@@ -35,9 +36,16 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        MessageSending::class => [ LogSendingMessageListener::class ],
-        MessageSent::class => [ LogSentMessageListener::class ]
+        MessageSending::class => [ Listeners\MessageSendingListener::class ],
+        MessageSent::class => [ Listeners\MessageSentListener::class ],
+        RequestSending::class => [ Listeners\RequestSendingListner::class ],
+        ResponseReceived::class => [ Listeners\RequestSentListner::class ],
     ];
+// protected $listen = [
+//     'Illuminate\Http\Client\Events\ConnectionFailed' => [
+//         'App\Listeners\LogConnectionFailed',
+//     ],
+// ];
 
     /**
      * Register any events for your application.

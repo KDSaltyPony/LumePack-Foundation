@@ -49,13 +49,22 @@ class AuthController extends BaseController
             $this->setResponse(trans('foundation::auth.failed'), 400);
         } elseif (!$user->is_active) {
             $this->setResponse(trans('foundation::auth.inactive'), 400);
-        } elseif (config('auth.is_mail_locked') && is_null($user->email_verified_at)) {
+        } elseif (
+            config('auth.is_mail_locked') && is_null($user->email_verified_at)
+        ) {
             $this->setResponse(trans('foundation::auth.email'), 400);
         } else {
             foreach ($user->tokens()->getResults() as $access_token) {
                 if (
-                    Hash::check($request->server('HTTP_USER_AGENT'), $access_token->name) ||
-                    (!is_null($access_token->expires_at) && new \DateTime($access_token->expires_at) < new \DateTime())
+                    Hash::check(
+                        $request->server('HTTP_USER_AGENT'),
+                        $access_token->name
+                    ) || (
+                        !is_null($access_token->expires_at) &&
+                        new \DateTime(
+                            $access_token->expires_at
+                        ) < new \DateTime()
+                    )
                 ) {
                     $access_token->delete();
                 }

@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Auth;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseAuthModel;
@@ -30,14 +31,21 @@ use LumePack\Foundation\Database\Factories\Auth\UserFactory;
  */
 class User extends BaseAuthModel
 {
-    use UserTrait, HasFactory;
+    use UserTrait, HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'User';
+    public $log_uid = 'User';
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [ 'is_active' => true ];
 
     /**
      * The relationships that should always be loaded.
@@ -60,7 +68,16 @@ class User extends BaseAuthModel
      */
     protected $hidden = [
         'password', 'remember_token', 'pivot', 'deleted_at',
-        'pwd_token', 'pwd_token_created_at'
+        'pwd_token', 'pwd_token_created_at', 'email_token'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'pwd_token_created_at' => 'datetime', 'email_verified_at' => 'datetime'
     ];
 
     /**
@@ -116,9 +133,9 @@ class User extends BaseAuthModel
      *
      * @return void
      */
-    public function setPasswordAttribute(string $value): void
+    public function setPasswordAttribute(?string $value): void
     {
-        $this->attributes['password'] = Hash::make($value);
+        $this->attributes['password'] = is_null($value)? null: Hash::make($value);
     }
 
     /**

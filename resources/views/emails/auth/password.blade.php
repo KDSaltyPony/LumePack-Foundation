@@ -7,6 +7,6 @@
     </head>
 
     <body>
-        You're account is ready. Create a password: /api/auth/pwd/renew/{{ $user->pwd_token }}
+        You're account is ready. Create a password: /api/auth/pwd/{{ $user->pwd_token }}?lproc={{ $lproc }}
     </body>
 </html>

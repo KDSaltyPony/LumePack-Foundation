@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseModel;
@@ -33,14 +34,14 @@ use LumePack\Foundation\Database\Factories\Auth\PermissionFactory;
  */
 class Permission extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'Permission';
+    public $log_uid = 'Permission';
 
     /**
      * The relationships that should always be loaded.

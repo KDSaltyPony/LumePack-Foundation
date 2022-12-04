@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models\Dictionaries\Types;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LumePack\Foundation\Data\Models\Auth\Permission;
 use LumePack\Foundation\Data\Models\BaseModel;
 use LumePack\Foundation\Database\Factories\Auth\PermissionTypeFactory;
@@ -29,14 +30,14 @@ use LumePack\Foundation\Database\Factories\Auth\PermissionTypeFactory;
  */
 class PermissionType extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The uid associated with the model log.
      *
      * @var string
      */
-    protected $log_uid = 'PermissionType';
+    public $log_uid = 'PermissionType';
 
     /**
      * The attributes excluded from the model's JSON form.

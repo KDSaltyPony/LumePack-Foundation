@@ -48,14 +48,21 @@ class BaseMail extends Mailable
                 'foundation::mail.subject_default',
                 [ 'app' => env('APP_NAME', 'Laravel') ]
             );
+            $this->attributes['subject'] = $this->subject;
+        }
+
+        if (!key_exists('lproc', $attributes)) {
+            $this->attributes['lproc'] = config('logs.process');
         }
 
         if (!key_exists('from_address', $attributes)) {
             $this->from_address = env('MAIL_FROM_ADDRESS');
+            $this->attributes['from_address'] = $this->from_address;
         }
 
         if (!key_exists('from_name', $attributes)) {
             $this->from_name = env('MAIL_FROM_NAME');
+            $this->attributes['from_name'] = $this->from_name;
         }
 
         $this->from_address = new Address(
@@ -72,6 +79,7 @@ class BaseMail extends Mailable
                     'name' => $this->user->login
                 ]
             ) ];
+            $this->attributes['to_addresses'] = $this->to_addresses;
         }
 
         foreach ($this->to_addresses as $key => $to_address) {
@@ -81,7 +89,7 @@ class BaseMail extends Mailable
         }
 
         if (!key_exists('user', $attributes)) {
-            $attributes['user'] = $this->user;
+            $this->attributes['user'] = $this->user;
         }
     }
 
