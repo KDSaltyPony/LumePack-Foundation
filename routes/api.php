@@ -98,12 +98,13 @@ Route::prefix('auth')->namespace('Auth')->middleware(
     // });
 });
 
-Route::prefix('log')->namespace('Log')->group(function () {
+Route::prefix('log')->namespace('Log')->middleware(
+    'lpfauth:sanctum'
+)->group(function () {
     Route::controller('LogController')->middleware(
         'dataValidation:log.log,lume_pack.foundation'
     )->group(function () {
         Route::get('/', 'list');
-        // Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
         Route::post('/', 'add');
         Route::post('mass', 'massAdd');
     });
@@ -121,53 +122,53 @@ Route::prefix('log')->namespace('Log')->group(function () {
 //
 //
 
-//
-//
-// TO DELETE
-//
-//
-Route::prefix('user')->controller('Auth\UserController')->middleware(
-    'dataValidation:auth.user,lume_pack.foundation'
-)->withoutMiddleware('lpfauth:sanctum')->group(function () {
-    Route::get('/', 'list');
-    Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-    Route::post('/', 'add');
-    Route::put('{uid}', 'edit');
-    Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-});
+// //
+// //
+// // TO DELETE
+// //
+// //
+// Route::prefix('user')->controller('Auth\UserController')->middleware(
+//     'dataValidation:auth.user,lume_pack.foundation'
+// )->withoutMiddleware('lpfauth:sanctum')->group(function () {
+//     Route::get('/', 'list');
+//     Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//     Route::post('/', 'add');
+//     Route::put('{uid}', 'edit');
+//     Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+// });
 
-//
-//
-// TO DELETE
-//
-//
-Route::prefix('taxonomy')->namespace('Dictionaries')->withoutMiddleware(
-    'lpfauth:sanctum'
-)->group(function () {
-    Route::controller('TaxonomyController')->middleware(
-        'dataValidation:dictionaries.taxonomy,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-    });
+// //
+// //
+// // TO DELETE
+// //
+// //
+// Route::prefix('taxonomy')->namespace('Dictionaries')->withoutMiddleware(
+//     'lpfauth:sanctum'
+// )->group(function () {
+//     Route::controller('TaxonomyController')->middleware(
+//         'dataValidation:dictionaries.taxonomy,lume_pack.foundation'
+//     )->group(function () {
+//         Route::get('/', 'list');
+//         Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('/', 'add');
+//         Route::put('{uid}', 'edit');
+//         Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+//     });
 
-    Route::prefix('value')->controller('TaxonomyValueController')->middleware(
-        'dataValidation:dictionaries.taxonomy_value,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'list');
-        Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('/', 'add');
-        Route::put('{uid}', 'edit');
-        Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
-        Route::post('upload', 'upload');
-        Route::get('stream/{token}.{action}', 'stream')->where([
-            'token' => '[0-9A-z]+', 'action' => 'show|down'
-        ]);
-    });
-});
+//     Route::prefix('value')->controller('TaxonomyValueController')->middleware(
+//         'dataValidation:dictionaries.taxonomy_value,lume_pack.foundation'
+//     )->group(function () {
+//         Route::get('/', 'list');
+//         Route::get('{uid}', 'show')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('/', 'add');
+//         Route::put('{uid}', 'edit');
+//         Route::delete('{uid}', 'delete')->where([ 'uid' => '[0-9]+' ]);
+//         Route::post('upload', 'upload');
+//         Route::get('stream/{token}.{action}', 'stream')->where([
+//             'token' => '[0-9A-z]+', 'action' => 'show|down'
+//         ]);
+//     });
+// });
 
 
 
