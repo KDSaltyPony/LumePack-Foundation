@@ -940,7 +940,8 @@ abstract class CRUD
 
         $this->_sync($fields);
 
-        $this->model->load($this->reloads);
+        // $this->model->load($this->reloads);
+        $this->model = (clone $this->query)->find($this->model->id);
 
         return $this->is_saved;
     }
