@@ -14,6 +14,7 @@ namespace LumePack\Foundation\Data\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * InheritanceModel
@@ -26,15 +27,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait InheritanceModel
 {
-    // /**
-    //  * Initialize the trait
-    //  *
-    //  * @return void
-    //  */
-    // protected function initializeInheritanceModel()
-    // {
-    //     dd('test');
-    // }
 
     /**
      * Boot the trait
@@ -43,178 +35,20 @@ trait InheritanceModel
      */
     protected static function bootInheritanceModel()
     {
-        static::retrieved(function(Model $model) {
-            $settings = $model->inheritanceModel();
-            $pkey = array_key_exists(
-                'parent_relation', $settings
-            )? $settings['parent_relation']: 'parent';
-            $parent = $model->$pkey;
-
-            // TODO
-            // foreach (array_merge(
-            //     $model->merge, $model->inherited
-            // ) as $relation) {
-            //     if (!($model->$relation instanceof Collection)) {
-            //         // TODO throw error
-            //     }
-            // }
-
-            if (!is_null($parent)) {
-                // if (array_key_exists('merged', $settings)) {
-                //     foreach ($settings['merged'] as $relation) {
-                //         foreach ($parent->$relation as $value) {
-                //             $model->setRelation($relation, $value);
-                //             // $model->$relation->add($value);
-                //         }
-                //     }
-                // }
-
-                // if (array_key_exists('inherited', $settings)) {
-                //     foreach ($settings['inherited'] as $relation => $reverse) {
-                //         $type = substr(
-                //             strrchr(get_class($model->$relation()), '\\'), 1
-                //         );
-
-                //         foreach ($parent->$relation as $value) {
-                //             switch ($type) {
-                //                 case 'BelongsToMany':
-                //                     // $model->$relation()->attach($value);
-                //                     break;
-
-                //                 case 'HasMany':
-                //                     $value->$reverse()->associate($model);
-                //                     break;
-                //             }
-                //         }
-                //         $model->$relation = $parent->$relation;
-                //     }
-                // }
-
-                // if (array_key_exists('inherited', $settings)) {
-                //     foreach ($settings['inherited'] as $relation => $reverse) {
-                //         $type = substr(
-                //             strrchr(get_class($model->$relation()), '\\'), 1
-                //         );
-
-                //         foreach ($parent->$relation as $value) {
-                //             switch ($type) {
-                //                 case 'BelongsToMany':
-                //                     $model->setRelation($relation, $value);
-                //                     // $model->$relation()->attach($value);
-                //                     break;
-
-                //                 case 'HasMany':
-                //                     $model->setRelation($relation, $value);
-                //                     // $value->$reverse()->associate($model);
-                //                     break;
-                //             }
-                //         }
-                //         $model->$relation = $parent->$relation;
-                //     }
-                // }
-
-                foreach ($model->attributes as $attribute => $value) {
-                    if (
-                        (
-                            !array_key_exists('ignored', $settings) || (
-                                array_key_exists('ignored', $settings) &&
-                                !in_array($attribute, $settings['ignored'])
-                            )
-                        ) && is_null($value)
-                    ) {
-                        $model->$attribute = $parent->$attribute;
-                    }
-                }
-            }
-
-            return $model;
-        });
-
-        static::saving(function(Model $model) {
-            $settings = $model->inheritanceModel();
-            $pkey = array_key_exists(
-                'parent_relation', $settings
-            )? $settings['parent_relation']: 'parent';
-            $ckey = array_key_exists(
-                'children_relation', $settings
-            )? $settings['children_relation']: 'children';
-            $parent = $model->$pkey;
-            $children = $model->$ckey;
-
-            // foreach (array_merge(
-            //     $model->merge, $model->inherited
-            // ) as $relation) {
-            //     if (!($model->$relation instanceof Collection)) {
-            //         // TODO throw error
-            //     }
-            // }
-
-            if (!is_null($parent)) {
-                // if (array_key_exists('merged', $settings)) {
-                //     foreach ($settings['merged'] as $relation) {
-                //         // TODO No need if already exist in parent
-                //     }
-                // }
-
-                // if (array_key_exists('inherited', $settings)) {
-                //     foreach ($settings['inherited'] as $relation => $reverse) {
-                //         $type = substr(
-                //             strrchr(get_class($model->$relation()), '\\'), 1
-                //         );
-
-                //         switch ($type) {
-                //             case 'BelongsToMany':
-                //                 $model->$relation()->sync();
-                //                 break;
-
-                //             case 'HasMany':
-                //                 foreach ($parent->$relation as $value) {
-                //                     $value->$reverse()->associate($parent);
-                //                 }
-                //                 break;
-                //         }
-
-                //         $model->$relation = $parent->$relation;
-                //     }
-                // }
-
-                foreach ($model->attributes as $attribute => $value) {
-                    // if attribute in ignored array, can't force null
-                    if (
-                        array_key_exists('ignored', $settings) &&
-                        !in_array($attribute, $settings['ignored']) &&
-                        $attribute !== 'id' &&
-                        $attribute !== "{$model->getTable()}_id"
-                    ) {
-                        // if attribute in locked array, can't overwrite so store null
-                        // if attribute not in unlocked array, can't overwrite so store null
-                        // if attribute value same as parent, can't overwrite so store null
-                        if (
-                            (
-                                array_key_exists('locked', $settings) &&
-                                in_array($attribute, $settings['locked'])
-                            ) || (
-                                array_key_exists('unlocked', $settings) &&
-                                !in_array($attribute, $settings['unlocked'])
-                            ) || $value === $parent->$attribute
-                        ) {
-                            $model->$attribute = null;
-                        }
-                    }
-                }
-            }
-
-            // if ($children->count() > 0) {
-            //     if (array_key_exists('merged', $settings)) {
-            //         foreach ($settings['merged'] as $relation) {
-            //             // TODO Remove duplicate in children
-            //         }
-            //     }
-            // }
-
-            return $model;
-        });
-
+        // 'ignored' => fields not affected by cascading
+        // 'associations' => fields with different names ([ 'parent' => 'child', ... ])
+        // FOR THE CHILD
+        // 'locked' => fields can't be edited
+        // or
+        // 'unlocked' => other fields can't be edited
+        // FOR THE PARENT
+        // 'cascaded' => fields are cascaded
+        // or
+        // 'uncascaded' => other fields are cascaded
+        // FOR BOTH
+        // 'inherited' => fields are locked and cascaded
+        // or
+        // 'uninherited' => other fields are locked and cascaded
         static::saved(function(Model $model) {
             $settings = $model->inheritanceModel();
             $pkey = array_key_exists(
@@ -226,56 +60,339 @@ trait InheritanceModel
             $parent = $model->$pkey;
             $children = $model->$ckey;
 
+            if (!array_key_exists('ignored', $settings)) {
+                $settings['ignored'] = [];
+            }
+
+            $settings['ignored'] = array_merge(
+                $settings['ignored'], [
+                    'id', "{$model->getTable()}_id",
+                    'created_at', 'updated_at', 'deleted_at',
+                    $pkey, $ckey
+                ]
+            );
+
             if (!is_null($parent)) {
+                $psettings = $parent->inheritanceModel();
+
+                foreach ($psettings as $attr => $values) {
+                    if (key_exists($attr, $settings) && is_array($values)) {
+                        $psettings[$attr] = array_unique(
+                            array_merge($values, $settings)[$attr]
+                        );
+                    }
+                }
+
+                $psettings = array_merge($psettings, $settings);
+
                 foreach ($model->attributes as $attribute => $value) {
                     if (
-                        array_key_exists('ignored', $settings) &&
-                        !in_array($attribute, $settings['ignored']) &&
-                        $attribute !== 'id' &&
-                        $attribute !== "{$model->getTable()}_id"
+                        !in_array($attribute, $psettings['ignored']) && (
+                            array_key_exists($attribute, $parent->attributes) ||
+                            (
+                                array_key_exists('associations', $psettings) &&
+                                array_key_exists($attribute, $psettings['associations']) &&
+                                array_key_exists($psettings['associations'][$attribute], $parent->attributes)
+                            )
+                        ) && // the attribute exists in parent model
+                        $value !== $parent->$attribute && ( // the child attribute value is different from the parent
+                            ( // the attribute is locked or not unlocked
+                                array_key_exists('locked', $psettings) &&
+                                in_array($attribute, $psettings['locked'])
+                            ) || (
+                                array_key_exists('unlocked', $psettings) &&
+                                !in_array($attribute, $psettings['unlocked'])
+                            ) || ( // the attribute is inherited or not uninherited
+                                array_key_exists('inherited', $psettings) &&
+                                in_array($attribute, $psettings['inherited'])
+                            ) || (
+                                array_key_exists('uninherited', $psettings) &&
+                                !in_array($attribute, $psettings['uninherited'])
+                            )
+                        )
                     ) {
                         if (
-                            (
-                                array_key_exists('locked', $settings) &&
-                                in_array($attribute, $settings['locked'])
-                            ) || (
-                                array_key_exists('unlocked', $settings) &&
-                                !in_array($attribute, $settings['unlocked'])
-                            ) || is_null($value)
+                            array_key_exists('associations', $psettings) &&
+                            array_key_exists($attribute, $psettings['associations']) &&
+                            array_key_exists($psettings['associations'][$attribute], $parent->attributes)
                         ) {
+                            $model->{$psettings['associations'][$attribute]} = $parent->$attribute;
+                        } else {
                             $model->$attribute = $parent->$attribute;
                         }
                     }
                 }
+
+                $model->saveQuietly();
+            }
+
+            foreach ($children as $child) {
+                $csettings = $child->inheritanceModel();
+
+                foreach ($csettings as $attr => $values) {
+                    if (key_exists($attr, $settings) && is_array($values)) {
+                        $csettings[$attr] = array_unique(
+                            array_merge($values, $settings)[$attr]
+                        );
+                    }
+                }
+
+                $csettings = array_merge($csettings, $settings);
+
+                foreach ($model->attributes as $attribute => $value) {
+                    if (
+                        !in_array($attribute, $csettings['ignored']) && (
+                            array_key_exists($attribute, $child->attributes) ||
+                            (
+                                array_key_exists('associations', $csettings) &&
+                                array_key_exists($attribute, $csettings['associations']) &&
+                                array_key_exists($csettings['associations'][$attribute], $child->attributes)
+                            )
+                        ) && // the attribute exists in child model
+                        $value !== $child->$attribute && // the parent attribute value is different from the child
+                        $model->getOriginal($attribute) === $child->$attribute && ( // the child attribute wasn't overwriten
+                            ( // the attribute is cascaded or not not cascaded
+                                array_key_exists('cascaded', $csettings) &&
+                                in_array($attribute, $csettings['cascaded'])
+                            ) || (
+                                array_key_exists('uncascaded', $csettings) &&
+                                !in_array($attribute, $csettings['uncascaded'])
+                            ) || ( // the attribute is inherited or not uninherited
+                                array_key_exists('inherited', $csettings) &&
+                                in_array($attribute, $csettings['inherited'])
+                            ) || (
+                                array_key_exists('uninherited', $csettings) &&
+                                !in_array($attribute, $csettings['uninherited'])
+                            )
+                        )
+                    ) {
+                        // dump($attribute);
+                        if (
+                            array_key_exists('associations', $csettings) &&
+                            array_key_exists($attribute, $csettings['associations']) &&
+                            array_key_exists($csettings['associations'][$attribute], $child->attributes)
+                        ) {
+                            $child->{$psettings['associations'][$attribute]} = $model->$attribute;
+                        } else {
+                            $child->$attribute = $model->$attribute;
+                        }
+                    }
+                }
+
+                $child->save(); // trigger the cascade for children of children if required
             }
 
             return $model;
         });
     }
 
-    /**
-     * -------------------------------------------------------------------------
-     * Mutators
-     * -------------------------------------------------------------------------
-     */
+    public function syncInherit(): void
+    {
+        $settings = $this->inheritanceModel();
+        $pkey = array_key_exists(
+            'parent_relation', $settings
+        )? $settings['parent_relation']: 'parent';
+        $ckey = array_key_exists(
+            'children_relation', $settings
+        )? $settings['children_relation']: 'children';
+        $parent = $this->$pkey;
+        $children = $this->$ckey;
+        $hmrelations = [];
+        $mmrelations = [];
 
-    // public function toArray()
-    // {
-    //     $model = parent::toArray();
-    //     $settings = $this->inheritanceModel();
+        if (!array_key_exists('ignored', $settings)) {
+            $settings['ignored'] = [];
+        }
 
-    //     if (!is_null($this->parent)) {
-    //         $parent = $this->parent->toArray();
+        $settings['ignored'] = array_merge(
+            $settings['ignored'], [
+                'id', "{$this->getTable()}_id",
+                'created_at', 'updated_at', 'deleted_at',
+                $pkey, $ckey
+            ]
+        );
 
-    //         if (array_key_exists('inherited', $settings)) {
-    //             foreach ($settings['inherited'] as $relation) {
-    //                 if (array_key_exists($relation, $model)) {
-    //                     $model[$relation] = $parent[$relation];
-    //                 }
-    //             }
-    //         }
-    //     }
+        $reflect = new \ReflectionClass($this);
+        foreach ($reflect->getMethods() as $method) {
+            if (!is_null($method->getReturnType())) {
+                $type = explode('\\', $method->getReturnType()->getName());
+                $type = $type[count($type) - 1];
+                $method_name = $method->getName();
 
-    //     return $model;
-    // }
+                switch (Str::lower($type)) {
+                    case 'hasmany':
+                        $hmrelations[$method_name] = (
+                            $reflect->newInstance()
+                        )->{$method->getName()}();
+                        break;
+
+                    case 'belongstomany':
+                        $mmrelations[$method_name] = (
+                            $reflect->newInstance()
+                        )->{$method->getName()}();
+                        break;
+                }
+            }
+        }
+
+        if (!is_null($parent)) {
+            $psettings = $parent->inheritanceModel();
+
+            foreach ($psettings as $attr => $values) {
+                if (key_exists($attr, $settings) && is_array($values)) {
+                    $psettings[$attr] = array_unique(
+                        array_merge($values, $settings)[$attr]
+                    );
+                }
+            }
+
+            $psettings = array_merge($psettings, $settings);
+
+            foreach ($mmrelations as $mname => $mreturn) {
+                if (
+                    !in_array($mname, $psettings['ignored']) &&
+                    method_exists($parent, $mname) && ( // the method exists in parent model
+                        ( // the attribute is locked or not unlocked
+                            array_key_exists('locked', $psettings) &&
+                            in_array($mname, $psettings['locked'])
+                        ) || (
+                            array_key_exists('unlocked', $psettings) &&
+                            !in_array($mname, $psettings['unlocked'])
+                        ) || ( // the attribute is inherited or not uninherited
+                            array_key_exists('inherited', $psettings) &&
+                            in_array($mname, $psettings['inherited'])
+                        ) || (
+                            array_key_exists('uninherited', $psettings) &&
+                            !in_array($mname, $psettings['uninherited'])
+                        )
+                    ) &&
+                    $mreturn->getRelatedPivotKeyName() === $parent->$mname()->getRelatedPivotKeyName() // The relations target a common table
+                ) {
+                    $parent->load($mname);
+                    $sync = [];
+
+                    foreach ($parent->$mname as $value) {
+                        // $id = $value->{$mreturn->getRelatedPivotKeyName()};
+                        $id = $value->{$mreturn->getRelatedKeyName()};
+
+                        if (empty($mreturn->getPivotColumns())) {
+                            array_push($sync, $id);
+                        } else {
+                            $sync[$id] = [];
+
+                            foreach ($mreturn->getPivotColumns() as $attr) {
+                                $sync[$id][$attr] = $value->$attr;
+                            }
+                        }
+                    }
+
+                    $this->$mname()->sync($sync);
+                }
+            }
+
+            // foreach ($hmrelations as $mname => $mreturn) {
+            //     if (
+            //         !in_array($mname, $psettings['ignored']) &&
+            //         method_exists($parent, $mname) && ( // the method exists in parent model
+            //             ( // the attribute is locked or not unlocked
+            //                 array_key_exists('locked', $psettings) &&
+            //                 in_array($mname, $psettings['locked'])
+            //             ) || (
+            //                 array_key_exists('unlocked', $psettings) &&
+            //                 !in_array($mname, $psettings['unlocked'])
+            //             ) || ( // the attribute is inherited or not uninherited
+            //                 array_key_exists('inherited', $psettings) &&
+            //                 in_array($mname, $psettings['inherited'])
+            //             ) || (
+            //                 array_key_exists('uninherited', $psettings) &&
+            //                 !in_array($mname, $psettings['uninherited'])
+            //             )
+            //         )
+            //     ) {
+            //     }
+            // }
+        }
+
+        foreach ($children as $child) {
+            $csettings = $child->inheritanceModel();
+
+            foreach ($csettings as $attr => $values) {
+                if (key_exists($attr, $settings) && is_array($values)) {
+                    $csettings[$attr] = array_unique(
+                        array_merge($values, $settings)[$attr]
+                    );
+                }
+            }
+
+            $csettings = array_merge($csettings, $settings);
+
+            foreach ($mmrelations as $mname => $mreturn) {
+                if (
+                    !in_array($mname, $csettings['ignored']) &&
+                    method_exists($child, $mname) && ( // the method exists in child model
+                        ( // the attribute is cascaded or not cascaded
+                            array_key_exists('cascaded', $csettings) &&
+                            in_array($mname, $csettings['cascaded'])
+                        ) || (
+                            array_key_exists('uncascaded', $csettings) &&
+                            !in_array($mname, $csettings['uncascaded'])
+                        ) || ( // the attribute is inherited or not uninherited
+                            array_key_exists('inherited', $csettings) &&
+                            in_array($mname, $csettings['inherited'])
+                        ) || (
+                            array_key_exists('uninherited', $csettings) &&
+                            !in_array($mname, $csettings['uninherited'])
+                        )
+                    ) &&
+                    $mreturn->getRelatedPivotKeyName() === $child->$mname()->getRelatedPivotKeyName() // The relations target a common table
+                ) {
+                    $this->load($mname);
+                    $sync = [];
+
+                    foreach ($this->$mname as $value) {
+                        // $id = $value->{$mreturn->getRelatedPivotKeyName()};
+                        $id = $value->{$mreturn->getRelatedKeyName()};
+
+                        if (empty($mreturn->getPivotColumns())) {
+                            array_push($sync, $id);
+                        } else {
+                            $sync[$id] = [];
+
+                            foreach ($mreturn->getPivotColumns() as $attr) {
+                                $sync[$id][$attr] = $value->$attr;
+                            }
+                        }
+                    }
+
+                    // dump($sync);
+                    // dump($child->id);
+                    // dump($child->$mname->toArray());
+                    $child->$mname()->sync($sync);
+                    $child->syncInherit();
+                }
+            }
+
+            // foreach ($hmrelations as $mname => $mreturn) {
+            //     if (
+            //         !in_array($mname, $psettings['ignored']) &&
+            //         method_exists($child, $mname) && ( // the method exists in parent model
+            //             ( // the attribute is cascaded or not uncascaded
+            //                 array_key_exists('cascaded', $psettings) &&
+            //                 in_array($mname, $psettings['cascaded'])
+            //             ) || (
+            //                 array_key_exists('uncascaded', $psettings) &&
+            //                 !in_array($mname, $psettings['uncascaded'])
+            //             ) || ( // the attribute is inherited or not uninherited
+            //                 array_key_exists('inherited', $psettings) &&
+            //                 in_array($mname, $psettings['inherited'])
+            //             ) || (
+            //                 array_key_exists('uninherited', $psettings) &&
+            //                 !in_array($mname, $psettings['uninherited'])
+            //             )
+            //         )
+            //     ) {
+            //     }
+            // }
+        }
+    }
 }

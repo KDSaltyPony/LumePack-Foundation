@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use LumePack\Foundation\Data\Models\InheritanceModel;
 
 /**
  * CRUD
@@ -937,8 +938,13 @@ abstract class CRUD
         // if put and not patch => foreach attributes that are not in $fields = null ???
 
         $this->is_saved = $this->model->save();
-
         $this->_sync($fields);
+
+        if (in_array(
+            InheritanceModel::class, array_keys($this->reflect->getTraits())
+        )) {
+            $this->model->syncInherit();
+        }
 
         // $this->model->load($this->reloads);
         $this->model = (clone $this->query)->find($this->model->id);
