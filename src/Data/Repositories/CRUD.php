@@ -645,7 +645,7 @@ abstract class CRUD
             }
 
             $this->joins[] = $join['repo'];
-            $this->query->join(
+            $this->query->leftJoin(
                 $target, "{$target}.{$join['owner_key']}",
                 "{$table}.{$join['target_key']}"
             );
