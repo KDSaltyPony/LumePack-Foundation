@@ -554,7 +554,7 @@ abstract class CRUD
                 $operator, $value, $repo
             );
         } else {
-            $params = "{$table}.{$params}";
+            $params = Schema::hasColumn($table, $params)? "{$table}.{$params}": $params;
             $params = [ $params ];
 
             call_user_func_array(
