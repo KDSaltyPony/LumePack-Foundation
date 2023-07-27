@@ -57,6 +57,12 @@ class QueryStringToConfig
             $this->_formatFilters($request->query('filters'));
         }
 
+        if (!is_null($request->query('distinct'))) {
+            config(
+                [ 'query.distinct' => boolval($request->query('distinct')) ]
+            );
+        }
+
         return $next($request);
     }
 

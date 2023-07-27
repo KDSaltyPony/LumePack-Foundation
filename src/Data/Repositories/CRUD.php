@@ -474,6 +474,10 @@ abstract class CRUD
                 $this->query, config('query.order_by')
             );
         }
+
+        if (config('query.distinct')) {
+            $this->query->distinct();
+        }
         // $this->query->dd();
 
         return $this->query;
