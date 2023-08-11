@@ -56,6 +56,12 @@ class QueryStringToConfig
             $this->_formatFilters($request->query('filters'));
         }
 
+        if (!is_null($request->query('distinct'))) {
+            config(
+                [ 'query.distinct' => intval($request->query('distinct')) ]
+            );
+        }
+
         return $next($request);
     }
 
@@ -105,7 +111,7 @@ class QueryStringToConfig
     private function _formatFilters(string $filters): void
     {
         config(
-            [ 'query.conditions' => $this->_filtersParser($filters, []) ]
+            [ 'query.conditions' => $this->_filtersParser($filters) ]
         );
 
         if (count(config('query.conditions')) > 0) {

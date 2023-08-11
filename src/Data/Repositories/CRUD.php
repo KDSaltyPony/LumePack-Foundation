@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Jenssegers\Mongodb\Connection;
+use LumePack\Foundation\Data\Models\InheritanceTrait;
 
 /**
  * CRUD
@@ -79,7 +80,7 @@ abstract class CRUD
      *
      * @var string
      */
-    protected $talbe = null;
+    protected $table = null;
 
     /**
      * The Collection retrived by "all" method
@@ -103,11 +104,25 @@ abstract class CRUD
     protected $query = null;
 
     /**
-     * The many to many relations with there key
+     * The Belongs To Many relations with there key
      *
      * @var array
      */
     protected $nn_relations = [];
+
+    /**
+     * The Has Many relations with there key
+     *
+     * @var array
+     */
+    protected $on_relations = [];
+
+    /**
+     * The Belongs To relations with there key
+     *
+     * @var array
+     */
+    protected $no_relations = [];
 
     /**
      * The relations to reload after the register
@@ -158,6 +173,8 @@ abstract class CRUD
         $this->model_class = $model_class;
         $this->model = new $model_class();
         $this->table = $this->model->getTable();
+        $this->reflect = new \ReflectionClass($this->model_class);
+
         if ($this->model->getConnection() instanceof Connection) {
             $this->query = $this->model_class::select();
         } else {
@@ -165,7 +182,8 @@ abstract class CRUD
                 "{$this->table}.*"
             )->where('1', 1);
         }
-        $this->reflect = new \ReflectionClass($this->model_class);
+
+        // $this->_setRelations();
     }
 
     /**
@@ -423,26 +441,6 @@ abstract class CRUD
     }
 
     /**
-     * The Many To Many relations ans the keys used in register.
-     *
-     * @return array
-     */
-    public function addNNRelation($relation, $register_key): void
-    {
-        $this->nn_relations[$relation] = $register_key;
-    }
-
-    /**
-     * The Many To Many relations ans the keys used in register.
-     *
-     * @return array
-     */
-    public function getNNRelations(): array
-    {
-        return $this->nn_relations;
-    }
-
-    /**
      * The Filters.
      *
      * @return array
@@ -474,6 +472,10 @@ abstract class CRUD
                 $this->query, config('query.order_by')
             );
         }
+
+        if (config('query.distinct')) {
+            $this->query->distinct();
+        }
         // $this->query->dd();
 
         // if (
@@ -483,6 +485,109 @@ abstract class CRUD
         // }
 
         return $this->query;
+    }
+
+    /**
+     * The Belongs To Many relations and the keys used in register.
+     *
+     * @return array
+     */
+    public function setNNRelation($relation, $register_key): void
+    {
+        $this->nn_relations[$relation] = $register_key;
+    }
+
+    /**
+     * The Belongs To Many relations ans the keys used in register.
+     *
+     * @return array
+     */
+    public function getNNRelations(): array
+    {
+        return $this->nn_relations;
+    }
+
+    // /**
+    //  * The Belongs To Many relations and the keys used in register.
+    //  *
+    //  * @return array
+    //  */
+    // public function setONRelation($relation, $register_key): void
+    // {
+    //     $this->on_relations[$relation] = $register_key;
+    // }
+
+    // /**
+    //  * The Belongs To Many relations ans the keys used in register.
+    //  *
+    //  * @return array
+    //  */
+    // public function getONRelation(): array
+    // {
+    //     return $this->nn_relations;
+    // }
+
+    /**
+     * Set the relations arrays.
+     *
+     * @return void
+     */
+    private function _setRelations(): void
+    {
+        $methods = $this->reflect->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+        foreach ($methods as $method) {
+            $name = $method->getName();
+            $type = explode('\\', $method->getReturnType()->getName());
+            $type = $type[count($type) - 1];
+            $method_r = (
+                $this->reflect->newInstance()
+            )->$name();
+            $name = Str::kebab($name);
+
+            switch (Str::lower($type)) {
+                case 'belongsto':
+                    // TODO
+                    break;
+
+                case 'hasmany':
+                    // TODO
+                    break;
+
+                case 'belongstomany':
+                    $this->setNNRelation($name, $method_r->getParentKeyName());
+                    break;
+            }
+        }
+        //     switch (Str::lower($type)) {
+        //         case 'belongsto':
+        //             $relation = [
+        //                 'repo'       => $repo,
+        //                 'owner_key'  => $method_r->getOwnerKeyName(),
+        //                 'target_key' => $method_r->getForeignKeyName()
+        //             ];
+        //             break;
+        //         case 'hasmany':
+        //             $relation = [
+        //                 'repo'       => $repo,
+        //                 'owner_key'  => $method_r->getForeignKeyName(),
+        //                 'target_key' => $method_r->getLocalKeyName()
+        //             ];
+        //             break;
+        //         case 'belongstomany':
+        //             $relation = [
+        //                 'pivot'      => [
+        //                     'table'      => $method_r->getTable(),
+        //                     'owner_key'  => $method_r->getForeignPivotKeyName(),
+        //                     'target_key' => $method_r->getParentKeyName()
+        //                 ],
+        //                 'repo'       => $repo,
+        //                 'owner_key'  => $method_r->getRelatedKeyName(),
+        //                 'target_key' => $method_r->getRelatedPivotKeyName()
+        //             ];
+        //             break;
+        //     }
+        // }
     }
 
     /**
@@ -563,6 +668,7 @@ abstract class CRUD
             $params = (
                 $this->model->getConnection() instanceof Connection
             )? $params: "{$table}.{$params}";
+            // $params = Schema::hasColumn($table, $params)? "{$table}.{$params}": $params;
             $params = [ $params ];
 
             call_user_func_array(
@@ -657,7 +763,7 @@ abstract class CRUD
             }
 
             $this->joins[] = $join['repo'];
-            $this->query->join(
+            $this->query->leftJoin(
                 $target, "{$target}.{$join['owner_key']}",
                 "{$table}.{$join['target_key']}"
             );
@@ -826,9 +932,10 @@ abstract class CRUD
             $method_r = (
                 $this->reflect->newInstance()
             )->$method_name();
-            $repo = get_class($method_r->getRelated());
-            $repo = str_replace('Models', 'Repositories', $repo);
-            $repo .= 'Repository';
+            // $repo = get_class($method_r->getRelated());
+            // $repo = str_replace('Models', 'Repositories', $repo);
+            // $repo .= 'Repository';
+            $repo = ns_search(get_class($method_r->getRelated()), 'repository');
 
             if (!class_exists($repo)) {
                 throw new Exception("{$repo} not found!");
@@ -916,7 +1023,6 @@ abstract class CRUD
      */
     protected function defaultRegister(array $fields)
     {
-        // $nn_relations = [ 'sous_thematiques' => 'uid', 'cultures' => 'uid' ];
         $this->reloads = [];
 
         foreach ($fields as $field => $value) {
@@ -926,8 +1032,6 @@ abstract class CRUD
                 $association = Str::camel(implode('_', $association));
 
                 if (method_exists($this->model_class, $association)) {
-                    array_push($this->reloads, $association);
-
                     if (is_null($value)) {
                         $this->model->$association()->dissociate();
                     } else {
@@ -940,7 +1044,7 @@ abstract class CRUD
                         );
                     }
                 }
-            } elseif (!in_array($field, array_keys($this->nn_relations))) {
+            } elseif (!in_array($field, array_keys($this->getNNRelations()))) {
                 if ($this->model->getConnection() instanceof Connection) {
                     $this->model->$field = $value;
                 } elseif (Schema::hasColumn($this->getTable(), $field)) {
@@ -955,21 +1059,26 @@ abstract class CRUD
 
         $this->_sync($fields);
 
-        $this->model->load($this->reloads);
+        // Can't be called in InheritanceTrait because it also handel relations
+        if (in_array(
+            InheritanceTrait::class, array_keys($this->reflect->getTraits())
+        )) {
+            $this->model->syncInherit();
+        }
 
         return $this->is_saved;
     }
 
     /**
-     * Register Many to Many fields associated with the model in database.
+     * Register Belongs to Many fields associated with the model in database.
      *
      * @param array $fields The fields to save
      *
-     * @return bool TRUE if success or FALSE if failed
+     * @return void
      */
-    private function _sync(array $fields)
+    private function _sync(array $fields): void
     {
-        foreach ($this->nn_relations as $nnr => $field) {
+        foreach ($this->getNNRelations() as $nnr => $field) {
             if (array_key_exists($nnr, $fields)) {
                 array_push($this->reloads, $association = Str::camel($nnr));
                 $target = get_class(
