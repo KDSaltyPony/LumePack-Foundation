@@ -16,11 +16,53 @@ class BaseMail extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * The Utilisateur instances.
+     * The User instances.
      *
-     * @var Utilisateur
+     * @var \Illuminate\Foundation\Auth\User
      */
-    public $user;
+    protected $user;
+
+    /**
+     * The template used for the mail.
+     *
+     * @var string
+     */
+    protected $template;
+
+    /**
+     * The attributes of the mail.
+     *
+     * @var array
+     */
+    protected $attributes = [];
+
+    /**
+     * The token of the mail. Used to identify it during the send process.
+     *
+     * @var string
+     */
+    protected $sendmail_token = null;
+
+    /**
+     * The sender address of the mail.
+     *
+     * @var string
+     */
+    protected $from_address = null;
+
+    /**
+     * The sender name of the mail.
+     *
+     * @var string
+     */
+    protected $from_name = null;
+
+    /**
+     * The reciver address of the mail.
+     *
+     * @var string
+     */
+    protected $to_addresses = null;
 
     /**
      * Create a new message instance.
@@ -32,7 +74,6 @@ class BaseMail extends Mailable
         $this->user = auth()->user();
         $this->template = $template;
         $this->attributes = $attributes;
-        $this->sendmail_token = null;
 
         foreach ($attributes as $key => $value) {
             $this->$key = $value;

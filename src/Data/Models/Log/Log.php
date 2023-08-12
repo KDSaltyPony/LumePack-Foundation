@@ -36,6 +36,13 @@ class Log extends MongoModel
     use HasFactory;
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = [ "created_at" ];
+
+    /**
      * The database connection that should be used by the model.
      *
      * @var string

@@ -31,6 +31,13 @@ use Illuminate\Routing\Controller;
 abstract class BaseController extends Controller
 {
     /**
+     * List the methods that are not auth filterd.
+     *
+     * @var array AUTH_UNLIMITED
+     */
+    static $AUTH_UNLIMITED = [];
+
+    /**
      * The Controller response service.
      *
      * @var ResponseService $response
@@ -43,13 +50,6 @@ abstract class BaseController extends Controller
      * @var CRUD $repo
      */
     protected $repo = null;
-
-    /**
-     * List the methods that are not limited.
-     *
-     * @var array $unlimited
-     */
-    protected $unlimited = [];
 
     /**
      * Set the repository based on the child.
@@ -79,7 +79,7 @@ abstract class BaseController extends Controller
      */
     public function list(Request $request): JsonResponse
     {
-        $this->setResponse($this->repo->all($this->isLimited()));
+        $this->setResponse($this->repo->all());
 
         return $this->response->format();
     }
@@ -94,7 +94,7 @@ abstract class BaseController extends Controller
      */
     public function show(int $uid, Request $request): JsonResponse
     {
-        $this->setResponse($this->repo->read($uid, $this->isLimited()));
+        $this->setResponse($this->repo->read($uid));
 
         return $this->response->format();
     }
@@ -108,9 +108,7 @@ abstract class BaseController extends Controller
      */
     public function add(Request $request): JsonResponse
     {
-        $this->setResponse(
-            $this->repo->create($request->post(), $this->isLimited()), 201
-        );
+        $this->setResponse($this->repo->create($request->post()), 201);
 
         return $this->response->format();
     }
@@ -124,9 +122,7 @@ abstract class BaseController extends Controller
      */
     public function massAdd(Request $request): JsonResponse
     {
-        $this->setResponse(
-            $this->repo->massCreate($request->post(), $this->isLimited()), 201
-        );
+        $this->setResponse($this->repo->massCreate($request->post()), 201);
 
         return $this->response->format();
     }
@@ -141,9 +137,7 @@ abstract class BaseController extends Controller
      */
     public function edit(int $uid, Request $request): JsonResponse
     {
-        $this->setResponse(
-            $this->repo->update($request->post(), $uid, $this->isLimited())
-        );
+        $this->setResponse($this->repo->update($request->post(), $uid));
 
         return $this->response->format();
     }
@@ -157,9 +151,7 @@ abstract class BaseController extends Controller
      */
     public function massEdit(Request $request): JsonResponse
     {
-        $this->setResponse(
-            $this->repo->massUpdate($request->post(), $this->isLimited())
-        );
+        $this->setResponse($this->repo->massUpdate($request->post()));
 
         return $this->response->format();
     }
@@ -174,9 +166,7 @@ abstract class BaseController extends Controller
      */
     public function remove(int $uid, Request $request): JsonResponse
     {
-        $this->setResponse(
-            $this->repo->delete($request->post(), $uid, $this->isLimited())
-        );
+        $this->setResponse($this->repo->delete($request->post(), $uid));
 
         return $this->response->format();
     }
@@ -190,9 +180,7 @@ abstract class BaseController extends Controller
      */
     public function massRemove(Request $request): JsonResponse
     {
-        $this->setResponse(
-            $this->repo->massDelete($request->post(), $this->isLimited())
-        );
+        $this->setResponse($this->repo->massDelete($request->post()));
 
         return $this->response->format();
     }
@@ -244,16 +232,5 @@ abstract class BaseController extends Controller
             ucfirst(strtolower($this->repo->getModelClassName())):
             'Targeted data'
         ;
-    }
-
-    /**
-     * Check if the calling method limit the access to the resource
-     * to the Authenticated user only.
-     *
-     * @return string
-     */
-    protected function isLimited(): bool
-    {
-        return !in_array(debug_backtrace()[1]['function'], $this->unlimited);
     }
 }

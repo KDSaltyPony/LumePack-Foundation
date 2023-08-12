@@ -40,7 +40,7 @@ class AuthController extends BaseController
      */
     public function login(Request $request): JsonResponse
     {
-        $user = User::where('login', $request->login)->first();
+        $user = User::where('login', $request->login)->with('roles')->first();
 
         if (
             !$user || !is_null($user->deleted_at) ||

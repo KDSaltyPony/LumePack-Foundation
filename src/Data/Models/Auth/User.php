@@ -52,14 +52,14 @@ class User extends BaseAuthModel
      *
      * @var array
      */
-    protected $with = [ 'roles' ];
+    protected $with = [ /*'roles'*/ ];
 
     /**
      * The accessors to append to the model's array form.
      *
      * @var array
      */
-    protected $appends = [ /*'nom_complet'*/ ];
+    protected $appends = [ /*'fullname'*/ ];
 
     /**
      * The attributes excluded from the model's JSON form.

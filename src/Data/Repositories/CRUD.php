@@ -180,7 +180,7 @@ abstract class CRUD
         } else {
             $this->query = $this->model_class::selectRaw(
                 "{$this->table}.*"
-            )->where('1', 1);
+            );
         }
 
         // $this->_setRelations();
@@ -189,17 +189,12 @@ abstract class CRUD
     /**
      * Retrive all items.
      *
-     * @param bool $limited Limit to the authenticateded user (user_id field)
-     *
-     * @return Collection|Model[]|Paginator
+     * @return Paginator|Collection|Model[]
      */
-    public function all(bool $limited = true)
+    public function all(): Paginator|Collection|array
     {
         $this->setQuery();
-
-        if ($limited) {
-            $this->setQueryLimiter();
-        }
+        $this->setQueryLimiters();
 
         if (config('paginator.limit') !== 0) {
             $this->paginator = $this->query->paginate(
@@ -220,16 +215,14 @@ abstract class CRUD
     /**
      * Retrive one item by id.
      *
-     * @param int  $uid     The unique id of the model to retrieve
-     * @param bool $limited Limit to the authenticateded user (user_id field)
+     * @param int $uid The unique id of the model to retrieve
      *
      * @return Model|null
      */
-    public function read(int $uid, bool $limited = true): ?Model
+    public function read(int $uid): ?Model
     {
-        if ($limited) {
-            $this->setQueryLimiter();
-        }
+        $this->setQueryLimiters();
+        $this->setQueryRelations();
 
         return $this->model = (clone $this->query)->find($uid);
     }
@@ -237,18 +230,15 @@ abstract class CRUD
     /**
      * Register a new database item.
      *
-     * @param array $fields  The fields to register
-     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     * @param array $fields The fields to register
      *
      * @return bool
      */
-    public function create(array $fields, bool $limited = true): bool
+    public function create(array $fields): bool
     {
         $this->model = $this->reflect->newInstanceArgs();
-
-        if ($limited) {
-            $this->setQueryLimiter($fields);
-        }
+        $this->setQueryLimiters($fields);
+        $this->setQueryRelations();
 
         return $this->register($fields);
     }
@@ -256,17 +246,16 @@ abstract class CRUD
     /**
      * Register new database items.
      *
-     * @param array $items   A matrix of the fields to register
-     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     * @param array $items A matrix of the fields to register
      *
      * @return Collection|Model[]
      */
-    public function massCreate(array $items, bool $limited = true): ?Collection
+    public function massCreate(array $items): ?Collection
     {
         $this->collection = new Collection();
 
         foreach ($items as $fields) {
-            $this->create($fields, $limited);
+            $this->create($fields);
             $this->collection->add($this->model);
         }
 
@@ -276,18 +265,15 @@ abstract class CRUD
     /**
      * Modify an existing database item.
      *
-     * @param array $fields  The fields to register
-     * @param int   $uid     The unique id of the model to modify
-     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     * @param array $fields The fields to register
+     * @param int   $uid    The unique id of the model to modify
      *
      * @return bool
      */
-    public function update(array $fields, int $uid, bool $limited = true): bool
+    public function update(array $fields, int $uid): bool
     {
-        if ($limited) {
-            $this->setQueryLimiter($fields);
-        }
-
+        $this->setQueryLimiters($fields);
+        $this->setQueryRelations();
         $this->model = (clone $this->query)->find($uid);
 
         return $this->register($fields);
@@ -297,11 +283,10 @@ abstract class CRUD
      * Modify existing database items.
      *
      * @param array $items   A matrix of the fields to register
-     * @param bool  $limited Limit to the authenticateded user (user_id field)
      *
      * @return bool
      */
-    public function massUpdate(array $items, bool $limited = true): Collection
+    public function massUpdate(array $items): Collection
     {
         $this->collection = new Collection();
 
@@ -309,7 +294,7 @@ abstract class CRUD
             $uid = $fields['id'];
 
             unset($fields['id']);
-            $this->update($fields, $uid, $limited);
+            $this->update($fields, $uid);
             $this->collection->add($this->model);
         }
 
@@ -319,18 +304,15 @@ abstract class CRUD
     /**
      * Delete a database item.
      *
-     * @param array $fields  The fields to register
-     * @param int   $uid     The unique id of the model to retrieve
-     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     * @param array $fields The fields to register
+     * @param int   $uid    The unique id of the model to retrieve
      *
      * @return bool
      */
-    public function delete(array $fields, int $uid, bool $limited = true): bool
+    public function delete(array $fields, int $uid): bool
     {
-        if ($limited) {
-            $this->setQueryLimiter();
-        }
-
+        $this->setQueryLimiters();
+        $this->setQueryRelations();
         $this->model = (clone $this->query)->find($uid);
 
         return $this->model->delete() === true;
@@ -339,18 +321,15 @@ abstract class CRUD
     /**
      * Delete database items.
      *
-     * @param array $items   A matrix of the fields to register
-     * @param bool  $limited Limit to the authenticateded user (user_id field)
+     * @param array $items A matrix of the fields to register
      *
      * @return bool
      */
-    public function massDelete(
-        array $items = null, bool $limited = true
-    ): Collection
+    public function massDelete(array $items = null): Collection
     {
         if (is_null($items) || empty($items)) {
             config( [ 'paginator.limit' => 0 ] );
-            $this->all($limited);
+            $this->all();
 
             $items = $this->collection->map->only('id')->toArray();
         }
@@ -361,7 +340,7 @@ abstract class CRUD
             $uid = $fields['id'];
 
             unset($fields['id']);
-            $this->delete($fields, $uid, $limited);
+            $this->delete($fields, $uid);
             $this->collection->add($this->model);
         }
 
@@ -457,6 +436,10 @@ abstract class CRUD
      */
     protected function setQuery(): Builder
     {
+        if (config('query.distinct')) {
+            $this->query->distinct();
+        }
+
         if (config('query.conditions')) {
             $this->query->where(
                 function ($q) {
@@ -467,15 +450,8 @@ abstract class CRUD
             );
         }
 
-        if (config('query.order_by')) {
-            $this->_setQueryOrders(
-                $this->query, config('query.order_by')
-            );
-        }
-
-        if (config('query.distinct')) {
-            $this->query->distinct();
-        }
+        $this->_setQueryOrders();
+        $this->setQueryRelations();
         // $this->query->dd();
 
         // if (
@@ -507,25 +483,61 @@ abstract class CRUD
         return $this->nn_relations;
     }
 
-    // /**
-    //  * The Belongs To Many relations and the keys used in register.
-    //  *
-    //  * @return array
-    //  */
-    // public function setONRelation($relation, $register_key): void
-    // {
-    //     $this->on_relations[$relation] = $register_key;
-    // }
+    /**
+     * The Has Many relations and the keys used in register.
+     *
+     * @return array
+     */
+    public function setONRelation($relation, $register_key): void
+    {
+        $this->on_relations[$relation] = $register_key;
+    }
 
-    // /**
-    //  * The Belongs To Many relations ans the keys used in register.
-    //  *
-    //  * @return array
-    //  */
-    // public function getONRelation(): array
-    // {
-    //     return $this->nn_relations;
-    // }
+    /**
+     * The Has Many relations ans the keys used in register.
+     *
+     * @return array
+     */
+    public function getONRelation(): array
+    {
+        return $this->on_relations;
+    }
+
+    /**
+     * The Belongs To relations and the keys used in register.
+     *
+     * @return array
+     */
+    public function setNORelation($relation, $register_key): void
+    {
+        $this->no_relations[$relation] = $register_key;
+    }
+
+    /**
+     * The Belongs To relations ans the keys used in register.
+     *
+     * @return array
+     */
+    public function getNORelation(): array
+    {
+        return $this->no_relations;
+    }
+
+    /**
+     * Format Query Relations.
+     *
+     * @param array $relations An array of relations
+     *
+     * @return void
+     */
+    public function setQueryRelations(array $relations = []): void
+    {
+        $relations = empty($relations)? config('query.relations', []): $relations;
+
+        foreach ($relations as $relation) {
+            $this->query->with($relation);
+        }
+    }
 
     /**
      * Set the relations arrays.
@@ -537,57 +549,49 @@ abstract class CRUD
         $methods = $this->reflect->getMethods(\ReflectionMethod::IS_PUBLIC);
 
         foreach ($methods as $method) {
-            $name = $method->getName();
-            $type = explode('\\', $method->getReturnType()->getName());
-            $type = $type[count($type) - 1];
-            $method_r = (
-                $this->reflect->newInstance()
-            )->$name();
-            $name = Str::kebab($name);
+            if (!is_null($method->getReturnType()) && method_exists($method->getReturnType(), 'getName')) {
+                $name = $method->getName();
+                $type = explode('\\', $method->getReturnType()->getName());
+                $type = $type[count($type) - 1];
 
-            switch (Str::lower($type)) {
-                case 'belongsto':
-                    // TODO
-                    break;
+                if (in_array(Str::lower($type), [
+                    'belongsto', 'hasmany', 'belongstomany'
+                ])) {
+                    $method_r = (
+                        $this->reflect->newInstance()
+                    )->$name();
+                    $name = Str::kebab($name);
+                    // dump("{$name} - {$type}");
 
-                case 'hasmany':
-                    // TODO
-                    break;
+                    switch (Str::lower($type)) {
+                        case 'belongsto':
+                            $this->setNORelation($name, $method_r->getOwnerKeyName());
+                            break;
 
-                case 'belongstomany':
-                    $this->setNNRelation($name, $method_r->getParentKeyName());
-                    break;
+                        case 'hasmany':
+                            $this->setONRelation($name, $method_r->getForeignKeyName());
+                            break;
+
+                        case 'belongstomany':
+                            // dump($name);
+                            // dump($method_r->getForeignPivotKeyName());
+                            // dump($method_r->getQualifiedForeignPivotKeyName());
+                            // dump($method_r->getParentKeyName());
+                            // dump($method_r->getQualifiedParentKeyName());
+                            // dump($method_r->getRelatedKeyName());
+                            // dump($method_r->getQualifiedRelatedKeyName());
+                            // dump($method_r->getRelatedPivotKeyName());
+                            // dump($method_r->getQualifiedRelatedPivotKeyName());
+                            $this->setNNRelation($name, $method_r->getRelatedKeyName());
+                            break;
+                    }
+                }
             }
         }
-        //     switch (Str::lower($type)) {
-        //         case 'belongsto':
-        //             $relation = [
-        //                 'repo'       => $repo,
-        //                 'owner_key'  => $method_r->getOwnerKeyName(),
-        //                 'target_key' => $method_r->getForeignKeyName()
-        //             ];
-        //             break;
-        //         case 'hasmany':
-        //             $relation = [
-        //                 'repo'       => $repo,
-        //                 'owner_key'  => $method_r->getForeignKeyName(),
-        //                 'target_key' => $method_r->getLocalKeyName()
-        //             ];
-        //             break;
-        //         case 'belongstomany':
-        //             $relation = [
-        //                 'pivot'      => [
-        //                     'table'      => $method_r->getTable(),
-        //                     'owner_key'  => $method_r->getForeignPivotKeyName(),
-        //                     'target_key' => $method_r->getParentKeyName()
-        //                 ],
-        //                 'repo'       => $repo,
-        //                 'owner_key'  => $method_r->getRelatedKeyName(),
-        //                 'target_key' => $method_r->getRelatedPivotKeyName()
-        //             ];
-        //             break;
-        //     }
-        // }
+        // dump($this->getNNRelations());
+        // dump($this->getONRelation());
+        // dump($this->getNORelation());
+        // dd($methods);
     }
 
     /**
@@ -666,9 +670,9 @@ abstract class CRUD
             );
         } else {
             $params = (
-                $this->model->getConnection() instanceof Connection
+                $this->model->getConnection() instanceof Connection xor
+                !Schema::hasColumn($table, $params)
             )? $params: "{$table}.{$params}";
-            // $params = Schema::hasColumn($table, $params)? "{$table}.{$params}": $params;
             $params = [ $params ];
 
             call_user_func_array(
@@ -683,21 +687,19 @@ abstract class CRUD
     /**
      * Format Query Orders.
      *
-     * @param Builder &$query The query to edit (by reference)
-     * @param array   $orders An array of orders
+     * @param array $orders An array of orders
      *
      * @return void
      */
-    private function _setQueryOrders(
-        Builder &$query, array $orders
-    ): void
+    private function _setQueryOrders(array $orders = []): void
     {
+        $orders = empty($orders)? config('query.order_by', []): $orders;
+
         foreach ($orders as $order) {
             $this->_setQueryOrder(
-                $query, $order['attribute'], $order['order']
+                $this->query, $order['attribute'], $order['order']
             );
         }
-        // $this->query->dd();
     }
 
     /**
@@ -732,7 +734,7 @@ abstract class CRUD
             } else {
                 $query->orderBy((
                     Schema::hasColumn($table, $target[0])?
-                    "{$table}.{$target[0]}": $target[0]
+                        "{$table}.{$target[0]}": $target[0]
                 ), $order);
             }
         }
@@ -984,23 +986,30 @@ abstract class CRUD
      *
      * @return void
      */
-    protected function setQueryLimiter(?array &$fields = null): void
+    protected function setQueryLimiters(?array &$fields = null): void
     {
         $uentity = config('crud.user_entity');
         $urelation = config('crud.user_relation');
         $ufk = config('crud.user_fk');
 
         if (
-            Schema::hasColumn($this->getTable(), $ufk) && Auth::check()
+            Schema::hasColumn($this->getTable(), $ufk) && auth()->check()
         ) {
-            if (is_null($fields)) {
-                $this->query->where(
-                    function ($q) use ($ufk) {
-                        $q->where($ufk, Auth::user()->id)->orWhereNull($ufk);
-                    }
-                );
-            } elseif (!is_null($this->model)) {
-                $this->model->$urelation()->associate(Auth::user());
+            $backtrace = array_values(array_filter(debug_backtrace(), function ($backtrace) {
+                return array_key_exists('object', $backtrace) && property_exists($backtrace['object'], 'AUTH_UNLIMITED');
+            }));
+            $unlimited = empty($backtrace)? []: $backtrace[0]['object']::$AUTH_UNLIMITED;
+
+            if (!in_array(debug_backtrace()[1]['function'], $unlimited)) {
+                if (is_null($fields)) {
+                    $this->query->where(
+                        function ($q) use ($ufk) {
+                            $q->where($ufk, auth()->user()->id)->orWhereNull($ufk);
+                        }
+                    );
+                } elseif (!is_null($this->model)) {
+                    $this->model->$urelation()->associate(auth()->user());
+                }
             }
         }
     }
