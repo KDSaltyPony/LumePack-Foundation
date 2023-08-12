@@ -62,19 +62,23 @@ class QueryStringToConfig
             );
         }
 
+        if (!is_null($request->query('with'))) {
+            $this->_formatRelations($request->query('with'));
+        }
+
         return $next($request);
     }
 
     /**
      * Extract the order by raw string and add it to global config
      *
-     * @param string $sort The sort query param
+     * @param string $qstring The sort query param
      *
      * @return void
      */
-    private function _formatOrderBy(string $sort): void
+    private function _formatOrderBy(string $qstring): void
     {
-        $orders = explode(',', $sort);
+        $orders = explode(',', $qstring);
 
         foreach ($orders as $key => $order) {
             if ($order !== '') {
@@ -97,44 +101,44 @@ class QueryStringToConfig
         }
 
         if (count(config('query.order_by')) > 0) {
-            config([ 'query.sort' => $sort ]);
+            config([ 'query.sort' => $qstring ]);
         }
     }
 
     /**
      * Extract the filters raw string and add it to global config
      *
-     * @param string $filters The filters query param
+     * @param string $qstring The filters query param
      *
      * @return void
      */
-    private function _formatFilters(string $filters): void
+    private function _formatFilters(string $qstring): void
     {
         config(
-            [ 'query.conditions' => $this->_filtersParser($filters) ]
+            [ 'query.conditions' => $this->_filtersParser($qstring) ]
         );
 
         if (count(config('query.conditions')) > 0) {
-            config([ 'query.sort' => $filters ]);
+            config([ 'query.sort' => $qstring ]);
         }
     }
 
     /**
      * Change a filters string into nested arrays of conditions
      *
-     * @param string $filters The filters query to parse
+     * @param string $qstring The filters query to parse
      *
      * @return void
      */
-    private function _filtersParser(string $filters): array
+    private function _filtersParser(string $qstring): array
     {
         // TODO : refactoring this shit
         $conditions = [];
-        $brakets = $this->_getBraketsPositions($filters);
+        $brakets = $this->_getBraketsPositions($qstring);
 
         if (count($brakets) === 0) {
             $conditions = array_merge(
-                $conditions, $this->_conditionsParser($filters)
+                $conditions, $this->_conditionsParser($qstring)
             );
         }
 
@@ -146,7 +150,7 @@ class QueryStringToConfig
                 $conditions = array_merge(
                     $conditions,
                     $this->_conditionsParser(
-                        substr($filters, $start, $close)
+                        substr($qstring, $start, $close)
                     )
                 );
             }
@@ -157,20 +161,20 @@ class QueryStringToConfig
             $conditions[count($conditions)] = [
                 'bitwise'    => (
                     $br['opening'] === 0
-                )? 'n': $filters[$br['opening'] - 2],
+                )? 'n': $qstring[$br['opening'] - 2],
                 'conditions' => $this->_filtersParser(
-                    substr($filters, $start, $close)
+                    substr($qstring, $start, $close)
                 )
             ];
 
             if (
                 $key === count($brakets) - 1 &&
-                $br['closing'] + 1 !== strlen($filters)
+                $br['closing'] + 1 !== strlen($qstring)
             ) {
                 $conditions = array_merge(
                     $conditions,
                     $this->_conditionsParser(
-                        substr($filters, $br['closing'] + 1)
+                        substr($qstring, $br['closing'] + 1)
                     )
                 );
             }
@@ -216,14 +220,14 @@ class QueryStringToConfig
     /**
      * Change a filters string into an array of conditions
      *
-     * @param string $filters The filters query to parse
+     * @param string $qstring The filters query to parse
      *
      * @return array
      */
-    private function _conditionsParser(string $filters): array
+    private function _conditionsParser(string $qstring): array
     {
         $filters = explode(
-            ' ', preg_replace('/\|(u|n|\\\)\|/', ' $1:', $filters)
+            ' ', preg_replace('/\|(u|n|\\\)\|/', ' $1:', $qstring)
         );
 
         if ($filters[0] === '') {
@@ -247,5 +251,35 @@ class QueryStringToConfig
         }
 
         return $filters;
+    }
+
+    /**
+     * Extract the relations raw string and add it to global config
+     *
+     * @param string $qstring The relations to load
+     *
+     * @return void
+     */
+    private function _formatRelations(string $qstring): void
+    {
+        config(
+            [ 'query.relations' => $this->_relationsParser($qstring) ]
+        );
+
+        if (count(config('query.relations')) > 0) {
+            config([ 'query.with' => $qstring ]);
+        }
+    }
+
+    /**
+     * Change a with string into array of relations
+     *
+     * @param string $qstring The with query to parse
+     *
+     * @return void
+     */
+    private function _relationsParser(string $qstring): array
+    {
+        return explode(';', $qstring);
     }
 }
