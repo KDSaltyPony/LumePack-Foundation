@@ -56,13 +56,13 @@ class FileController extends BaseController
             $file['media_uid'] = $meta['media_uid'];
 
             $this->setResponse(
-                $this->repo->create($file, $this->isLimited()), 201
+                $this->repo->create($file), 201
             );
 
             // TODO: vérification des dimensions
             // if (condition) {
             //     $this->setResponse(
-            //         $this->repo->create($file, $this->isLimited()), 400
+            //         $this->repo->create($file), 400
             //     );
             // }
         }

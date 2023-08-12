@@ -137,15 +137,16 @@ class File extends BaseModel
             $mimetypes = File::apacheMimeTypes(
                 (new \Imagick())->queryFormats()
             );
-        // } else {
-        //     TODO: GD images
-        //     foreach (gd_info() as $type => $is_supported) {
-        //         if ($is_supported) {
-        //             $mimetypes[] = Str::before($type, ' ');
-        //         }
-        //     }
+        } else {
+            // foreach (gd_info() as $type => $is_supported) {
+            //     if ($is_supported) {
+            //         if (!Str::contains($type, 'Create')) {
+            //             $mimetypes[] = Str::before($type, ' ');
+            //         }
+            //     }
+            // }
 
-        //     $mimetypes = File::apacheMimeTypes($mimetypes);
+            // $mimetypes = File::apacheMimeTypes($mimetypes);
         }
 
         if (in_array(
@@ -190,8 +191,10 @@ class File extends BaseModel
 
                     $imagick->scaleImage($this->width, $this->height);
                     $imagick->writeImage($path);
+                }  else {
+                    // TODO: GD images
+                    // IMG_AVIF imageavif | IMG_BMP imagebmp | IMG_GIF imagegif | IMG_JPG imagejpeg | IMG_PNG imagepng | IMG_WBMP imagewbmp | IMG_XPM | IMG_WEBP imagewebp
                 }
-            // } else { TODO: GD images
             }
         }
 
