@@ -43,7 +43,7 @@ class Role extends BaseModel
      *
      * @var array
      */
-    protected $with = [ 'permissions' ];
+    protected $with = [ /*'permissions'*/ ];
 
     /**
      * The attributes excluded from the model's JSON form.

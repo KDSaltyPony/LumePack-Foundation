@@ -43,7 +43,7 @@ class Taxonomy extends BaseModel
      *
      * @var array
      */
-    protected $with = [ 'values' ];
+    protected $with = [ /*'values'*/ ];
 
     /**
      * The attributes excluded from the model's JSON form.

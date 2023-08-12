@@ -48,7 +48,7 @@ class Permission extends BaseModel
      *
      * @var array
      */
-    protected $with = [ 'type' ];
+    protected $with = [ /*'type'*/ ];
 
     /**
      * The accessors to append to the model's array form.

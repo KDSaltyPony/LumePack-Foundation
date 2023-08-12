@@ -50,7 +50,7 @@ class TaxonomyValue extends BaseModel
      *
      * @var array
      */
-    protected $with = [ 'taxonomy' ];
+    protected $with = [ /*'taxonomy'*/ ];
 
     /**
      * The attributes excluded from the model's JSON form.

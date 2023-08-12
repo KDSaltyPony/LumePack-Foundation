@@ -47,7 +47,7 @@ class File extends BaseModel
      *
      * @var array
      */
-    protected $with = [ 'media' ];
+    protected $with = [ /*'media'*/ ];
 
     /**
      * The attributes excluded from the model's JSON form.

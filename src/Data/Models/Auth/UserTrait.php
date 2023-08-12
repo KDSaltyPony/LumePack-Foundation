@@ -47,34 +47,21 @@ trait UserTrait
                 $model->email_token = null;
             }
 
+            if (is_null($model->email_verified_at)) {
+                $model->email_token = User::emailTokenize();
+            }
+
             if (!is_null($model->password) && Hash::needsRehash($model->password)) {
                 $model->password = Hash::make($model->password);
             }
         });
 
         static::saved(function (User $model) {
+            // Send email validation when a new mail token is generated
             if (
-                Request::has('password') &&
-                Hash::check(Request::get('password'), $model->password)
+                $model->getOriginal('email_token') !== $model->email_token &&
+                !is_null($model->email_token)
             ) {
-                Mail::send(new BaseMail('foundation::emails.user.password', [
-                    'user' => $model,
-                    'subject' => trans('foundation::mail.subject_user_password')
-                ]));
-            }
-
-            if (
-                $model->getOriginal('pwd_token') !== $model->pwd_token &&
-                !is_null($model->pwd_token)
-            ) {
-                Mail::send(new BaseMail('foundation::emails.auth.forgot', [
-                    'subject' => trans('foundation::mail.subject_auth_forgot'),
-                    'user' => $model
-                ]));
-            }
-
-            if ($model->getOriginal('email') !== $model->email) {
-                $model->email_token = User::emailTokenize();
                 $model->email_verified_at = (
                     config('auth.is_mail_relocked')? null: $model->email_verified_at
                 );
@@ -89,25 +76,55 @@ trait UserTrait
                 ]));
             }
 
+            // Send email validation success on email verification
+            if (
+                !is_null($model->email_verified_at) &&
+                $model->email_verified_at->ne($model->getOriginal('email_verified_at'))
+            ) {
+                Mail::send(new BaseMail('foundation::emails.user.email', [
+                    'user' => $model,
+                    'subject' => trans(
+                        'foundation::mail.subject_user_validates'
+                    )
+                ]));
+            }
+
+            // Send password creation link when password and pwd_token empty
             if (
                 is_null($model->password) &&
+                is_null($model->pwd_token) &&
                 is_null($model->deleted_at) &&
-                (
-                    (
-                        config('auth.is_mail_locked') &&
-                        !is_null($model->email_verified_at)
-                    ) || !config('auth.is_mail_locked')
-                ) &&
                 $model->is_active
             ) {
                 $model->pwd_token = User::pwdTokenize();
+                $model->saveQuietly();
 
                 Mail::send(new BaseMail('foundation::emails.auth.password', [
                     'user' => $model,
                     'subject' => trans('foundation::mail.subject_auth_password')
                 ]));
+            }
 
-                $model->saveQuietly();
+            // Send forgot password when new pwd token is generated
+            if (
+                $model->getOriginal('pwd_token') !== $model->pwd_token &&
+                !is_null($model->pwd_token)
+            ) {
+                Mail::send(new BaseMail('foundation::emails.auth.forgot', [
+                    'subject' => trans('foundation::mail.subject_auth_forgot'),
+                    'user' => $model
+                ]));
+            }
+
+            // Send password creation success on password change
+            if (
+                Request::has('password') &&
+                Hash::check(Request::get('password'), $model->password)
+            ) {
+                Mail::send(new BaseMail('foundation::emails.user.password', [
+                    'user' => $model,
+                    'subject' => trans('foundation::mail.subject_user_password')
+                ]));
             }
         });
     }

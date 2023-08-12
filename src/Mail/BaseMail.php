@@ -60,7 +60,7 @@ class BaseMail extends Mailable
     /**
      * The reciver address of the mail.
      *
-     * @var string
+     * @var array
      */
     protected $to_addresses = null;
 

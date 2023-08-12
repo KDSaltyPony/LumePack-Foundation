@@ -7,6 +7,10 @@
     </head>
 
     <body>
-        Password updated with success.
+        Email validated with success.
+
+        @if (is_null($user->password))
+            <p>Check your emails to create your password.</p>
+        @endif
     </body>
 </html>
