@@ -133,11 +133,14 @@ class File extends BaseModel
         $width = getimagesize($path)[0];
         $height = getimagesize($path)[1];
 
+        // TODO: put that in validation shit
         if (extension_loaded('imagick')) {
-            $mimetypes = File::apacheMimeTypes(
+            $mimetypes = array_filter(File::apacheMimeTypes(
                 (new \Imagick())->queryFormats()
-            );
-        } else {
+            ), function ($extension, $mimetype) {
+                return Str::startsWith($mimetype, 'image');
+            }, ARRAY_FILTER_USE_BOTH);
+        } elseif (extension_loaded('gd')) {
             // foreach (gd_info() as $type => $is_supported) {
             //     if ($is_supported) {
             //         if (!Str::contains($type, 'Create')) {
@@ -191,7 +194,7 @@ class File extends BaseModel
 
                     $imagick->scaleImage($this->width, $this->height);
                     $imagick->writeImage($path);
-                }  else {
+                }  elseif (extension_loaded('gd')) {
                     // TODO: GD images
                     // IMG_AVIF imageavif | IMG_BMP imagebmp | IMG_GIF imagegif | IMG_JPG imagejpeg | IMG_PNG imagepng | IMG_WBMP imagewbmp | IMG_XPM | IMG_WEBP imagewebp
                 }

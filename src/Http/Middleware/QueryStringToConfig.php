@@ -280,6 +280,6 @@ class QueryStringToConfig
      */
     private function _relationsParser(string $qstring): array
     {
-        return explode(';', $qstring);
+        return explode(':', $qstring);
     }
 }
