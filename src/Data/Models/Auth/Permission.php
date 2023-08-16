@@ -134,16 +134,17 @@ class Permission extends BaseModel
         $controller = Str::beforeLast($attrs['uid'], $controller);
         $has_method = false;
 
-        // dd(Route::getRoutes()->getRoutes());
         foreach (Route::getRoutes() as $route) {
-            if (in_array('api', $route->action['middleware'])) {
+            if (in_array('lpfauth:sanctum', $route->action['middleware'])) {
                 $uid = ra_to_uid($route);
 
                 // TODO: filter permission request on permission type uid ENDPOINT
                 if (Str::startsWith($uid, $controller)) {
-                    if ($has_method = Str::contains(
+                    $has_method = !$has_method? Str::contains(
                         $attrs['uid'], Str::after($uid, "{$controller}_")
-                    ) || Permission::where(
+                    ): $has_method;
+
+                    if ($has_method || Permission::where(
                         'uid', 'LIKE', "{$uid}%"
                     )->where(
                         'id', '<>', $attrs['id']
