@@ -14,13 +14,10 @@ namespace LumePack\Foundation\Data\Models\Log;
 
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Str;
-use LumePack\Foundation\Data\Models\BaseModel;
-use Jenssegers\Mongodb\Eloquent\Model as MongoModel;
+use MongoDB\Laravel\Eloquent\Model as MongoModel;
 
 /**
  * Sendmail
@@ -33,7 +30,12 @@ use Jenssegers\Mongodb\Eloquent\Model as MongoModel;
  */
 class Log extends MongoModel
 {
-    use HasFactory;
+    /**
+     * The database connection that should be used by the model.
+     *
+     * @var string
+     */
+    protected $connection = 'mongodb';
 
     /**
      * Indicates if the model should be timestamped.
@@ -43,13 +45,6 @@ class Log extends MongoModel
     public $timestamps = [ "created_at" ];
 
     /**
-     * The database connection that should be used by the model.
-     *
-     * @var string
-     */
-    protected $connection = 'mongodb';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -57,16 +52,6 @@ class Log extends MongoModel
     protected $fillable = [
         'process', 'source', 'code', 'data', 'created_at'
     ];
-
-    // /**
-    //  * Create a new factory instance for the model.
-    //  *
-    //  * @return \Illuminate\Database\Eloquent\Factories\Factory
-    //  */
-    // protected static function newFactory()
-    // {
-    //     return LogFactory::new();
-    // }
 
     /**
      * Create a new cast class instance.

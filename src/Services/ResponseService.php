@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Jenssegers\Mongodb\Eloquent\Model as MongoModel;
+use MongoDB\Laravel\Eloquent\Model as MongoModel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**

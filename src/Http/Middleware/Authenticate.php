@@ -44,7 +44,7 @@ class Authenticate extends Middleware
     {
         $this->authenticate($request, $guards);
 
-        if (Route::current()->uri === 'api/auth/dashboard') {
+        if (Route::current()->uri === 'api/auth') {
             Route::current()->setParameter('uid', auth()->user()->id);
         }
 

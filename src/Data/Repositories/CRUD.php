@@ -17,11 +17,10 @@ use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Jenssegers\Mongodb\Connection;
+use MongoDB\Laravel\Connection;
 use LumePack\Foundation\Data\Models\InheritanceTrait;
 
 /**
@@ -175,6 +174,7 @@ abstract class CRUD
         $this->table = $this->model->getTable();
         $this->reflect = new \ReflectionClass($this->model_class);
 
+        // $this->query = $this->model->getQuery();
         if ($this->model->getConnection() instanceof Connection) {
             $this->query = $this->model_class::select();
         } else {
@@ -183,7 +183,7 @@ abstract class CRUD
             );
         }
 
-        // $this->_setRelations();
+        $this->_setRelations();
     }
 
     /**
@@ -195,6 +195,7 @@ abstract class CRUD
     {
         $this->setQuery();
         $this->setQueryLimiters();
+        // dd($this->query->toMql());
 
         if (config('paginator.limit') !== 0) {
             $this->paginator = $this->query->paginate(
@@ -315,7 +316,7 @@ abstract class CRUD
         $this->setQueryRelations();
         $this->model = (clone $this->query)->find($uid);
 
-        return $this->model->delete() === true;
+        return is_null($this->model)? false: $this->model->delete() === true;
     }
 
     /**
@@ -453,6 +454,7 @@ abstract class CRUD
         $this->_setQueryOrders();
         $this->setQueryRelations();
         // $this->query->dd();
+        // dd($this->query->toMql());
 
         // if (
         //     Schema::hasColumn($this->getTable(), 'deleted_at') && Auth::check()

@@ -30,6 +30,13 @@ use Illuminate\Support\Facades\Route;;
 Route::prefix('auth')->namespace('Auth')->middleware(
     'lpfauth:sanctum'
 )->group(function () {
+    Route::prefix('/')->controller('UserController')->middleware(
+        'dataValidation:auth.user,lume_pack.foundation'
+    )->group(function () {
+        Route::get('/', 'show');
+        Route::put('/', 'edit');
+    });
+
     Route::controller('AuthController')->middleware(
         'dataValidation:auth.auth,lume_pack.foundation'
     )->group(function () {
@@ -46,13 +53,6 @@ Route::prefix('auth')->namespace('Auth')->middleware(
         'dataValidation:auth.login,lume_pack.foundation'
     )->group(function () {
         Route::withoutMiddleware('lpfauth:sanctum')->post('/', 'forgot');
-    });
-
-    Route::prefix('dashboard')->controller('UserController')->middleware(
-        'dataValidation:auth.user,lume_pack.foundation'
-    )->group(function () {
-        Route::get('/', 'show');
-        Route::put('/', 'edit');
     });
 
     Route::prefix('pwd')->controller('PasswordController')->group(function () {
