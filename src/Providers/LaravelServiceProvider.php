@@ -65,10 +65,6 @@ class LaravelServiceProvider extends ServiceProvider
         //     realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
         // );
 
-        app('router')->pushMiddlewareToGroup('api', QueryStringToConfig::class);
-        app('router')->aliasMiddleware('dataValidation', DataValidate::class);
-        app('router')->aliasMiddleware('lpfauth', Authenticate::class);
-
         $this->loadMigrationsFrom(
             realpath(__DIR__.'/../../database/migrations')
         );
@@ -87,6 +83,10 @@ class LaravelServiceProvider extends ServiceProvider
         // $this->loadRoutesFrom(
         //     realpath(__DIR__.'/../../routes/api.php')
         // );
+        Route::pushMiddlewareToGroup('api', QueryStringToConfig::class);
+        Route::aliasMiddleware('dataValidation', DataValidate::class);
+        Route::aliasMiddleware('lpfauth', Authenticate::class);
+
         Route::middleware('api')->namespace(
             'LumePack\\Foundation\\Http\\Controllers'
         )->prefix('api')->group(
