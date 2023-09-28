@@ -14,7 +14,6 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use LumePack\Foundation\Data\Models\Auth\User;
 use LumePack\Foundation\Http\Controllers\BaseController;
 
 /**
@@ -38,7 +37,8 @@ class UserController extends BaseController
      */
     public function validate(string $token, Request $request): JsonResponse
     {
-        $user = User::firstWhere('email_token', $token);
+        $user_model = config('crud.user_model');
+        $user = $user_model::firstWhere('email_token', $token);
 
         $this->setResponse(trans('foundation::user.unverified'), 500);
 

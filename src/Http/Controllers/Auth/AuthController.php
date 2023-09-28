@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\NewAccessToken;
-use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Data\Models\Auth\User;
 
 /**
@@ -40,7 +39,8 @@ class AuthController extends BaseController
      */
     public function login(Request $request): JsonResponse
     {
-        $user = User::where('login', $request->login)->with('roles')->first();
+        $user_model = config('crud.user_model');
+        $user = $user_model::where('login', $request->login)->with('roles')->first();
 
         if (
             !$user || !is_null($user->deleted_at) ||

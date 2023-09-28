@@ -76,7 +76,7 @@ class Role extends BaseModel
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            User::class, 'user_role'
+            config('crud.user_model'), 'user_role'
         )->without('roles');
     }
 

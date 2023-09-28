@@ -15,7 +15,6 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use LumePack\Foundation\Data\Models\Auth\User;
 use LumePack\Foundation\Http\Controllers\BaseController;
 use LumePack\Foundation\Mail\BaseMail;
 
@@ -39,8 +38,9 @@ class LoginController extends BaseController
      */
     public function forgot(Request $request): JsonResponse
     {
+        $user_model = config('crud.user_model');
         Mail::send(new BaseMail('foundation::emails.user.logins', [
-            'logins' => User::where(
+            'logins' => $user_model::where(
                 'email', $request->email
             )->get()->pluck('login')->toArray(),
             'subject' => trans('foundation::mail.subject_user_logins')

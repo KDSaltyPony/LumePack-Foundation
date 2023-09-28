@@ -14,11 +14,7 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use LumePack\Foundation\Data\Models\Auth\User;
 use LumePack\Foundation\Http\Controllers\BaseController;
-use Illuminate\Support\Str;
-use LumePack\Foundation\Mail\BaseMail;
 
 /**
  * PasswordController
@@ -40,11 +36,12 @@ class PasswordController extends BaseController
      */
     public function forgot(Request $request): JsonResponse
     {
-        $user = User::firstWhere('login', $request->get('login'));
+        $user_model = config('crud.user_model');
+        $user = $user_model::firstWhere('login', $request->get('login'));
         $this->setResponse(trans('foundation::pwd.error'), 500);
 
         if (!is_null($user)) {
-            $user->pwd_token = User::pwdTokenize();
+            $user->pwd_token = $user_model::pwdTokenize();
             $user->save();
 
             $this->setResponse(trans('foundation::pwd.email'));
@@ -63,7 +60,8 @@ class PasswordController extends BaseController
      */
     public function mailRenew(string $token, Request $request): JsonResponse
     {
-        $user = User::firstWhere('pwd_token', $token);
+        $user_model = config('crud.user_model');
+        $user = $user_model::firstWhere('pwd_token', $token);
 
         if (is_null($user)) {
             $duration_min = env('PWD_TOKEN_VALIDITY') + 1;

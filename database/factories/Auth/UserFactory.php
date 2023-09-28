@@ -14,7 +14,6 @@ namespace LumePack\Foundation\Database\Factories\Auth;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use LumePack\Foundation\Data\Models\Auth\User;
 
 /**
  * User
@@ -27,7 +26,7 @@ use LumePack\Foundation\Data\Models\Auth\User;
  */
 class UserFactory extends Factory
 {
-    protected $model = User::class;
+    protected $model = config('crud.user_model');
 
     /**
      * Define the model's default state.

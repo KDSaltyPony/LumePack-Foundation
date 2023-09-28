@@ -62,7 +62,9 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => LumePack\Foundation\Data\Models\Auth\User::class
+            'model' => env(
+                'USER_MODEL', LumePack\Foundation\Data\Models\Auth\User::class
+            ),
         ]
 
         // 'users' => [

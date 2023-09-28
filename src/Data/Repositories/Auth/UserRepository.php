@@ -26,6 +26,14 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class UserRepository extends CRUD
 {
     /**
+     * Set parent CRUD.
+     */
+    public function __construct()
+    {
+        parent::__construct(config('crud.user_model'));
+    }
+
+    /**
      * Call parent abstract register method.
      *
      * @inheritdoc

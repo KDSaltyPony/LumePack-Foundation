@@ -58,12 +58,12 @@ class LaravelServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/sendmail.php'), 'sendmail'
         );
-        // $this->mergeConfigFrom(
-        //     realpath(__DIR__.'/../../config/auth.php'), 'auth'
-        // );
-        // $this->mergeConfigFrom(
-        //     realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
-        // );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/auth.php'), 'auth'
+        );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
+        );
 
         $this->loadMigrationsFrom(
             realpath(__DIR__.'/../../database/migrations')
