@@ -62,6 +62,10 @@ if (!function_exists('ns_search')) {
             $namespace = Str::replaceLast($target, '', $namespace);
         }
 
+        if (!class_exists($namespace)) {
+            $namespace .= $target;
+        }
+
         return class_exists($namespace)? $namespace: null;
     }
 }
