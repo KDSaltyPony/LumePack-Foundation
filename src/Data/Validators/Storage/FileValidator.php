@@ -39,10 +39,10 @@ class FileValidator extends Validator
         'meta.name'      => [ 'string', 'required' ],
         'meta.size'      => [ 'integer', 'required' ],
         'meta.extension' => [ 'string', 'required' ],
-        'meta.legnth'    => [ 'integer', 'required' ],
+        'meta.length'    => [ 'integer', 'required' ],
         'chunk'          => [ 'file', 'required' ],
         'order'          => [
-            'integer', 'required', 'min:1', 'lte:meta.legnth'
+            'integer', 'required', 'min:1', 'lte:meta.length'
         ],
         'meta.media_uid' => [ 'string', 'required', 'exists:media,uid' ]
     ];
@@ -70,12 +70,12 @@ class FileValidator extends Validator
 
             if (array_key_exists('size', $meta)) {
                 $length = ceil($meta['size'] / $chunk_size);
-                $this->rules['meta.legnth'][] = "size:{$length}";
+                $this->rules['meta.length'][] = "size:{$length}";
             }
 
-            if (array_key_exists('legnth', $meta) && !is_null($order)) {
+            if (array_key_exists('length', $meta) && !is_null($order)) {
                 $this->rules['chunk'][] = (
-                    ($meta['legnth'] === $order)?
+                    ($meta['length'] === $order)?
                         "max:{$chunk_size}": "size:{$chunk_size}"
                 );
             }
