@@ -54,6 +54,8 @@ class FileController extends BaseController
                 $meta['name'], $meta['length']
             );
             $file['media_uid'] = $meta['media_uid'];
+            // TODO: get from builded file + do another check for validation
+            $file['extension'] = $meta['extension'];
 
             $this->setResponse(
                 $this->repo->create($file), 201
