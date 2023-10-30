@@ -55,7 +55,7 @@ class FileValidator extends Validator
      * @param bool  $is_mass Is this a mass validation ?
      */
     public function __construct(
-        array $fields, ?int $uid = null, bool $is_mass = false
+        array $fields, ?int $uid = null
     ) {
         $chunk_size = config('storage.chunk_size');
         $meta = Request::get('meta');
@@ -97,6 +97,6 @@ class FileValidator extends Validator
             $this->rules['meta.size'][] = "max:{$media->max_chunk}";
         }
 
-        parent::__construct($fields, $uid, $is_mass);
+        parent::__construct($fields, $uid);
     }
 }

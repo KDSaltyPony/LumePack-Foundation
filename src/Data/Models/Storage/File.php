@@ -390,13 +390,14 @@ class File extends BaseModel
     {
         $sname = self::systemFriendly($name);
         $dir = config('storage.dir') . "/tmp/{$sname}/";
-        $file = config('storage.dir') . "/{$token}";
 
         if (is_null($token)) {
             do {
                 $token = self::systemFriendly(uniqid());
             } while (!is_null(File::firstWhere('token', $token)));
         }
+
+        $file = config('storage.dir') . "/{$token}";
 
         for ($i = 1; $i <= $length; $i++) {
             $content = Storage::disk(config('storage.disk'))->get("{$dir}chunk-{$i}.tmp");
