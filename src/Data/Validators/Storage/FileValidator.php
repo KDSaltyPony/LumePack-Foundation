@@ -37,7 +37,7 @@ class FileValidator extends Validator
      */
     protected $rules = [
         'meta.name'      => [ 'string', 'required' ],
-        'meta.size'      => [ 'integer', 'required' ],
+        'meta.size'      => [ 'numeric', 'required' ],
         'meta.extension' => [ 'string', 'required' ],
         'meta.length'    => [ 'integer', 'required' ],
         'chunk'          => [ 'file', 'required' ],

@@ -130,8 +130,7 @@ class File extends BaseModel
     {
         $path = $this->original_absolute_path;
         $mimetypes = [];
-        $width = getimagesize($path)[0];
-        $height = getimagesize($path)[1];
+        list($width, $height) = getimagesize($path)?: [null, null];
 
         // TODO: put that in validation shit
         if (extension_loaded('imagick')) {

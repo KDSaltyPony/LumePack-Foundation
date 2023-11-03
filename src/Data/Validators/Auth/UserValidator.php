@@ -30,8 +30,9 @@ class UserValidator extends Validator
      *
      * @var array
      */
+    // TODO: add rules in conf depending on User overide
     protected $rules = [
-        'login'       => [ 'required', 'string', 'unique:users,login' ],
+        'login'       => [ 'required', 'string', 'unique:users,login,:AUTH_ID:' ],
         'email'       => [ 'required', 'email' ],
         'roles'       => [ 'array' ],
         'roles.*'     => [ 'array' ],

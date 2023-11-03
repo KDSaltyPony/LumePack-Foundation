@@ -26,6 +26,17 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class MediaRepository extends CRUD
 {
     /**
+     * The rows available as filters in the query
+     *
+     * @var array
+     */
+    protected $filters = [
+        'uid'      => 'uid',
+        'name'     => 'name',
+        'mimetype' => 'mimetype'
+    ];
+
+    /**
      * Call parent abstract register method.
      *
      * @inheritdoc

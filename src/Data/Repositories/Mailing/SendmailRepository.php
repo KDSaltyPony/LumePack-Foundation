@@ -26,6 +26,19 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class SendmailRepository extends CRUD
 {
     /**
+     * The rows available as filters in the query
+     *
+     * @var array
+     */
+    protected $filters = [
+        'from'       => 'from',
+        'to'         => 'to',
+        'subject'    => 'subject',
+        'sent_at'    => 'sent_at',
+        'is_success' => 'is_success'
+    ];
+
+    /**
      * Modify an existing database item.
      *
      * @param array              $fields  The fields to register

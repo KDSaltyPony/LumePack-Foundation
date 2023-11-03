@@ -26,6 +26,18 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class UserRepository extends CRUD
 {
     /**
+     * The rows available as filters in the query
+     *
+     * @var array
+     */
+    protected $filters = [
+        'login'     => 'login',
+        'email'     => 'email',
+        'role'      => 'relation.roles',
+        'is_active' => 'is_active'
+    ];
+
+    /**
      * Set parent CRUD.
      */
     public function __construct()

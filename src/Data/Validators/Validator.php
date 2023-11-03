@@ -78,11 +78,18 @@ class Validator extends ValidatorService
     private function _processValues(?int $uid = null): void
     {
         $uid = $uid?: 'NULL';
+        $user_id = auth()->user()? auth()->user()->id: 'NULL';
 
         foreach ($this->rules as $key => $rule) {
             $this->rules[$key] = preg_replace(
                 ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
             );
+        }
+
+        foreach ($this->rules as $key => $rule) {
+            $this->rules[$key] = preg_replace((
+                $user_id === 'NULL'? '/\"?\:AUTH_ID\:\"?/': '/\:AUTH_ID\:/'
+            ), $user_id, $rule);
         }
     }
 }

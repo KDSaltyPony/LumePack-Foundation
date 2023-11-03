@@ -31,6 +31,8 @@ class TaxonomyValueRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'uid'      => 'uid',
+        'value'    => 'value',
         'taxonomy' => 'relation.taxonomy'
     ];
 

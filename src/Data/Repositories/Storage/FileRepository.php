@@ -31,7 +31,10 @@ class FileRepository extends CRUD
      * @var array
      */
     protected $filters = [
-        'media' => 'relation.media'
+        'name'      => 'name',
+        'extension' => 'extension',
+        'size'      => 'size',
+        'media'     => 'relation.media'
     ];
 
     /**

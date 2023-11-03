@@ -26,6 +26,16 @@ use LumePack\Foundation\Data\Repositories\CRUD;
 class TaxonomyRepository extends CRUD
 {
     /**
+     * The rows available as filters in the query
+     *
+     * @var array
+     */
+    protected $filters = [
+        'uid'  => 'uid',
+        'name' => 'name'
+    ];
+
+    /**
      * Call parent abstract register method.
      *
      * @inheritdoc
