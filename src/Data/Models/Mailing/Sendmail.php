@@ -53,7 +53,8 @@ class Sendmail extends BaseModel
      * @var array
      */
     protected $casts = [
-        'sent_at' => 'datetime'
+        'sent_at'    => 'datetime',
+        'is_ordered' => 'boolean'
     ];
 
     // /**

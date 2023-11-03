@@ -31,6 +31,7 @@ class MediaRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'id'       => 'id',
         'uid'      => 'uid',
         'name'     => 'name',
         'mimetype' => 'mimetype'

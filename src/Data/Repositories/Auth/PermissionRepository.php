@@ -31,6 +31,7 @@ class PermissionRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'id'   => 'id',
         'uid'  => 'uid',
         'name' => 'name',
         'type' => 'relation.permissionType',

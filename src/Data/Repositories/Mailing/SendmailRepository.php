@@ -31,6 +31,7 @@ class SendmailRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'id'         => 'id',
         'from'       => 'from',
         'to'         => 'to',
         'subject'    => 'subject',

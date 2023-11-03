@@ -53,6 +53,15 @@ class Taxonomy extends BaseModel
     protected $hidden = [ 'deleted_at' ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_ordered' => 'boolean'
+    ];
+
+    /**
      * Create a new factory instance for the model.
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory

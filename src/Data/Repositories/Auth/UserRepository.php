@@ -31,6 +31,7 @@ class UserRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'id'        => 'id',
         'login'     => 'login',
         'email'     => 'email',
         'role'      => 'relation.roles',

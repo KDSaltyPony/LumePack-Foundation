@@ -31,6 +31,7 @@ class FileRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'id'        => 'id',
         'name'      => 'name',
         'extension' => 'extension',
         'size'      => 'size',

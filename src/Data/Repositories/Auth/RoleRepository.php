@@ -31,6 +31,7 @@ class RoleRepository extends CRUD
      * @var array
      */
     protected $filters = [
+        'id'   => 'id',
         'uid'  => 'uid',
         'name' => 'name',
         'user' => 'relation.users'

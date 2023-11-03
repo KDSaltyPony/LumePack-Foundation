@@ -77,7 +77,9 @@ class User extends BaseAuthModel
      * @var array
      */
     protected $casts = [
-        'pwd_token_created_at' => 'datetime', 'email_verified_at' => 'datetime'
+        'pwd_token_created_at' => 'datetime',
+        'email_verified_at'    => 'datetime',
+        'is_active'            => 'boolean'
     ];
 
     /**
