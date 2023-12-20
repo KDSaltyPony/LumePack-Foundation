@@ -13,6 +13,7 @@
 namespace LumePack\Foundation\Data\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * OrderTrait
@@ -34,48 +35,67 @@ trait OrderTrait
     {
         static::creating(function (Model $model) {
             if (
-                is_null($model->order) &&
                 $model->is_ordered &&
-                $model->order_grouped_by
+                Schema::hasColumn($model->getTable(), 'order') &&
+                is_null($model->order)
             ) {
-                // dump("creating start");
                 $class = get_class($model);
-                $group = $model->order_grouped_by;
-                // dump("class: {$class}");
-                // dump("group: {$group}");
+                $query = $class::query();
 
-                $model->order = $class::where(
-                    $group, $model->$group
-                )->where('deleted_at', null)->count() + 1;
-                // dump("creating {$model->order}");
+                if (
+                    property_exists($model, 'order_grouped_by') &&
+                    !is_null($model->order_grouped_by)
+                ) {
+                    $group = $model->order_grouped_by;
+                    $query = $query->where($group, $model->$group);
+                }
+
+                if (Schema::hasColumn($model->getTable(), 'deleted_at')) {
+                    $query = $query->where('deleted_at', null);
+                }
+
+                $model->order = $query->count() + 1;
             }
         });
 
         static::created(function (Model $model) {
-            if ($model->is_ordered && $model->order_grouped_by) {
-                // dump("created start");
+            if (
+                $model->is_ordered &&
+                Schema::hasColumn($model->getTable(), 'order')
+            ) {
                 $class = get_class($model);
-                $group = $model->order_grouped_by;
-                // dump("created: {$class}");
-                // dump("created: {$group}");
-                $others = $class::where($group, $model->$group)->where(
+                $query = $class::where(
                     'order', '>=', $model->order
                 )->where(
                     'id', '<>', $model->id
-                )->where('deleted_at', null)->get();
+                );
+
+                if (
+                    property_exists($model, 'order_grouped_by') &&
+                    !is_null($model->order_grouped_by)
+                ) {
+                    $group = $model->order_grouped_by;
+                    $query = $query->where($group, $model->$group);
+                }
+
+                if (Schema::hasColumn($model->getTable(), 'deleted_at')) {
+                    $query = $query->where('deleted_at', null);
+                }
+
+                $others = $query->get();
 
                 foreach ($others as $other) {
                     $other->order += 1;
                     $other->saveQuietly();
                 }
-                // dump("created {$model->order}");
-                // dump($model->toArray());
             }
         });
 
         static::updating(function (Model $model) {
-            if ($model->is_ordered && $model->order_grouped_by) {
-                // dump("updating start");
+            if (
+                $model->is_ordered &&
+                Schema::hasColumn($model->getTable(), 'order')
+            ) {
                 $old_order = $model->getOriginal('order');
 
                 // if (!is_null($model->deleted_at)) {
@@ -85,15 +105,25 @@ trait OrderTrait
                 if (!is_null($model->order) && $model->order !== $old_order) {
                     $is_asc = $model->order > $old_order;
                     $class = get_class($model);
-                    $group = $model->order_grouped_by;
-
-                    $others = $class::where($group, $model->$group)->where(
+                    $query = $class::where(
                         'order', ($is_asc? '>': '<'), $old_order
                     )->where(
                         'order', ($is_asc? '<=': '>='), $model->order
-                    )->where(
-                        'id', '<>', $model->id
-                    )->where('deleted_at', null)->get();
+                    )->where('id', '<>', $model->id);
+
+                    if (
+                        property_exists($model, 'order_grouped_by') &&
+                        !is_null($model->order_grouped_by)
+                    ) {
+                        $group = $model->order_grouped_by;
+                        $query = $query->where($group, $model->$group);
+                    }
+    
+                    if (Schema::hasColumn($model->getTable(), 'deleted_at')) {
+                        $query = $query->where('deleted_at', null);
+                    }
+    
+                    $others = $query->get();
 
                     foreach ($others as $other) {
                         $other->order += ($is_asc? -1: 1);
@@ -102,24 +132,37 @@ trait OrderTrait
                 } else {
                     $model->order = $old_order;
                 }
-                // dump("updating {$model->order}");
             }
         });
 
         static::deleted(function (Model $model) {
-            if ($model->is_ordered && $model->order_grouped_by) {
-                // dump("deleted start");
+            if (
+                $model->is_ordered &&
+                Schema::hasColumn($model->getTable(), 'order')
+            ) {
                 $class = get_class($model);
-                $group = $model->order_grouped_by;
-                $others = $class::where($group, $model->$group)->where(
+                $query = $class::where(
                     'order', '>=', $model->order
-                )->where('deleted_at', null)->get();
+                );
+
+                if (
+                    property_exists($model, 'order_grouped_by') &&
+                    !is_null($model->order_grouped_by)
+                ) {
+                    $group = $model->order_grouped_by;
+                    $query = $query->where($group, $model->$group);
+                }
+
+                if (Schema::hasColumn($model->getTable(), 'deleted_at')) {
+                    $query = $query->where('deleted_at', null);
+                }
+
+                $others = $query->get();
 
                 foreach ($others as $other) {
                     $other->order -= 1;
                     $other->saveQuietly();
                 }
-                // dump("deleted {$model->order}");
             }
         });
     }
