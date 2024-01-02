@@ -12,6 +12,7 @@
  */
 namespace LumePack\Foundation\Data\Validators;
 
+use Illuminate\Support\Facades\Request;
 use LumePack\Foundation\Services\ValidatorService;
 
 /**
@@ -63,7 +64,10 @@ class Validator extends ValidatorService
      */
     private function _setRules(?int $uid = null): void
     {
-        if (!is_null($uid) && !empty($this->edit_rules)) {
+        if (
+            in_array(Request::getMethod(), [ 'PUT', 'PATCH' ]) &&
+            !empty($this->edit_rules)
+        ) {
             $this->rules = $this->edit_rules;
         }
     }
