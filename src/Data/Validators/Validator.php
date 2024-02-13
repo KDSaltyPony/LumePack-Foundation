@@ -85,15 +85,19 @@ class Validator extends ValidatorService
         $user_id = auth()->user()? auth()->user()->id: 'NULL';
 
         foreach ($this->rules as $key => $rule) {
-            $this->rules[$key] = preg_replace(
-                ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
-            );
+            if (is_string($rule)) {
+                $this->rules[$key] = preg_replace(
+                    ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
+                );
+            }
         }
 
         foreach ($this->rules as $key => $rule) {
-            $this->rules[$key] = preg_replace((
-                $user_id === 'NULL'? '/\"?\:AUTH_ID\:\"?/': '/\:AUTH_ID\:/'
-            ), $user_id, $rule);
+            if (is_string($rule)) {
+                $this->rules[$key] = preg_replace((
+                    $user_id === 'NULL'? '/\"?\:AUTH_ID\:\"?/': '/\:AUTH_ID\:/'
+                ), $user_id, $rule);
+            }
         }
     }
 }
