@@ -57,7 +57,7 @@ class FileValidator extends Validator
     public function __construct(
         array $fields, ?int $uid = null
     ) {
-        $chunk_size = config('storage.chunk_size');
+        $chunk_size = config('storage.chunk_size') * 1024;
         $meta = Request::get('meta');
         $order = Request::get('order');
         $media = null;
