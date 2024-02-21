@@ -37,7 +37,7 @@ class FileValidator extends Validator
      */
     protected $rules = [
         'meta.name'      => [ 'string', 'required' ],
-        'meta.size'      => [ 'numeric', 'required' ],
+        'meta.size'      => [ 'integer', 'required' ],
         'meta.extension' => [ 'string', 'required' ],
         'meta.length'    => [ 'integer', 'required' ],
         'chunk'          => [ 'file', 'required' ],
@@ -94,7 +94,9 @@ class FileValidator extends Validator
         }
 
         if (!is_null($media) && !is_null($media->max_chunk)) {
-            $this->rules['meta.size'][] = "max:{$media->max_chunk}";
+            $max_size = $chunk_size * $media->max_chunk;
+
+            $this->rules['meta.size'][] = "max:{$max_size}";
         }
 
         parent::__construct($fields, $uid);
