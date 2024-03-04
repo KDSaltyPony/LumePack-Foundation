@@ -37,9 +37,8 @@ trait LogTrait
         // retrieved, creating, created, updating, updated, saving, saved, deleting, deleted, trashed, forceDeleted, restoring, restored, and replicating.
         // TODO: log on login / logout / refresh / user actions ???
         // TODO: log on request input / output
-
         static::created(function (Model $model) {
-            if (!is_null($model->log_uid)) {
+            if (config('is_logged') && !is_null($model->log_uid)) {
                 $log = new Log();
 
                 $log->code = 'DB-CREATED';
@@ -49,7 +48,7 @@ trait LogTrait
         });
 
         static::updated(function (Model $model) {
-            if (!is_null($model->log_uid)) {
+            if (config('is_logged') && !is_null($model->log_uid)) {
                 $log = new Log();
 
                 $log->code = 'DB-UPDATED';
@@ -59,7 +58,7 @@ trait LogTrait
         });
 
         static::deleted(function (Model $model) {
-            if (!is_null($model->log_uid)) {
+            if (config('is_logged') && !is_null($model->log_uid)) {
                 $log = new Log();
 
                 $log->code = 'DB-DELETED';

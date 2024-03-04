@@ -44,7 +44,13 @@ class LaravelServiceProvider extends ServiceProvider
         DB::enableQueryLog();
 
         $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/auth.php'), 'auth'
+        );
+        $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/crud.php'), 'crud'
+        );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/logs.php'), 'logs'
         );
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/paginator.php'), 'paginator'
@@ -53,16 +59,13 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../config/query.php'), 'query'
         );
         $this->mergeConfigFrom(
-            realpath(__DIR__.'/../../config/storage.php'), 'storage'
+            realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
         );
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/sendmail.php'), 'sendmail'
         );
         $this->mergeConfigFrom(
-            realpath(__DIR__.'/../../config/auth.php'), 'auth'
-        );
-        $this->mergeConfigFrom(
-            realpath(__DIR__.'/../../config/sanctum.php'), 'sanctum'
+            realpath(__DIR__.'/../../config/storage.php'), 'storage'
         );
 
         $this->loadMigrationsFrom(

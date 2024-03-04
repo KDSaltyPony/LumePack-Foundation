@@ -35,10 +35,12 @@ class RequestSendingListner
      */
     public function handle(RequestSending $event)
     {
-        $keyed = spl_object_id($event->request->toPsrRequest());
-        $log = new Log();
-        $log->code = "REQUEST-{$keyed}-SENDING";
-        $log->data = $event->request;
-        $log->save();
+        if (config('is_logged')) {
+            $keyed = spl_object_id($event->request->toPsrRequest());
+            $log = new Log();
+            $log->code = "REQUEST-{$keyed}-SENDING";
+            $log->data = $event->request;
+            $log->save();
+        }
     }
 }
