@@ -57,7 +57,8 @@ class FileValidator extends Validator
     public function __construct(
         array $fields, ?int $uid = null
     ) {
-        $chunk_size = config('storage.chunk_size') * 1024;
+        $chunk_size = $kb_size = config('storage.chunk_size');
+        $chunk_size *= 1024;
         $meta = Request::get('meta');
         $order = Request::get('order');
         $media = null;
@@ -76,7 +77,7 @@ class FileValidator extends Validator
             if (array_key_exists('length', $meta) && !is_null($order)) {
                 $this->rules['chunk'][] = (
                     ($meta['length'] === $order)?
-                        "max:{$chunk_size}": "size:{$chunk_size}"
+                        "max:{$kb_size}": "size:{$kb_size}"
                 );
             }
         }
