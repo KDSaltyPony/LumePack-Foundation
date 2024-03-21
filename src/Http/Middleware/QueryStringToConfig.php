@@ -227,7 +227,7 @@ class QueryStringToConfig
     private function _conditionsParser(string $qstring): array
     {
         $filters = explode(
-            ' ', preg_replace('/\|(u|n|\\\)\|/', ' $1:', $qstring)
+            '|separator|', preg_replace('/\|(u|n|\\\)\|/', '|separator|$1:', $qstring)
         );
 
         if ($filters[0] === '') {
@@ -235,18 +235,23 @@ class QueryStringToConfig
         }
 
         foreach ($filters as $key => $filter) {
-            $filters[$key] = explode(':', $filter);
-
-            $k = (count($filters[$key]) < 3)? 1: 0;
-            $filters[$key][2 - $k] = explode(
-                '(', $filters[$key][2 - $k], 2
+            $filter = explode(
+                '|separator|',
+                preg_replace(
+                    '/(^(u)\:|^(n)\:|^)(.*?)\:(.*?)\((.*?)\)$/',
+                    '$2$3|separator|$4|separator|$5($6)',
+                    $filter
+                )
+            );
+            $filter[2] = explode(
+                '(', $filter[2], 2
             );
 
             $filters[$key] = [
-                'bitwise'  => ($k === 0)? $filters[$key][0]: 'n',
-                'target'   => $filters[$key][1 - $k],
-                'operator' => $filters[$key][2 - $k][0],
-                'value'    => substr($filters[$key][2 - $k][1], 0, -1)
+                'bitwise'  => ($filter[0] === '')? 'n': $filter[0],
+                'target'   => $filter[1],
+                'operator' => $filter[2][0],
+                'value'    => substr($filter[2][1], 0, -1)
             ];
         }
 
