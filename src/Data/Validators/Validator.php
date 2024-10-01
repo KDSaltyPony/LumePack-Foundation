@@ -89,7 +89,7 @@ class Validator extends ValidatorService
                 $this->rules[$key] = preg_replace(
                     ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
                 );
-            } elseif (is_array($r)) {
+            } elseif (is_array($rule)) {
                 foreach ($rule as $k => $r) {
                     if (is_string($rule)) {
                         $this->rules[$key][$k] = preg_replace(
