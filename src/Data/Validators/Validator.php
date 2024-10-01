@@ -89,6 +89,14 @@ class Validator extends ValidatorService
                 $this->rules[$key] = preg_replace(
                     ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $rule
                 );
+            } elseif (is_array($r)) {
+                foreach ($rule as $k => $r) {
+                    if (is_string($rule)) {
+                        $this->rules[$key][$k] = preg_replace(
+                            ($uid === 'NULL'? '/\"?\:ID\:\"?/': '/\:ID\:/'), $uid, $r
+                        );
+                    }
+                }
             }
         }
 
@@ -97,6 +105,14 @@ class Validator extends ValidatorService
                 $this->rules[$key] = preg_replace((
                     $user_id === 'NULL'? '/\"?\:AUTH_ID\:\"?/': '/\:AUTH_ID\:/'
                 ), $user_id, $rule);
+            } elseif (is_array($rule)) {
+                foreach ($rule as $k => $r) {
+                    if (is_string($r)) {
+                        $this->rules[$key][$k] = preg_replace((
+                            $user_id === 'NULL'? '/\"?\:AUTH_ID\:\"?/': '/\:AUTH_ID\:/'
+                        ), $user_id, $r);
+                    }
+                }
             }
         }
     }
