@@ -159,6 +159,13 @@ abstract class CRUD
     protected $reflect = null;
 
     /**
+     * The joins alias
+     *
+     * @var array
+     */
+    protected $alias = null;
+
+    /**
      * Set the Model we need for CRUD methods.
      *
      * @param string $model_class The Model full namespace
@@ -178,9 +185,7 @@ abstract class CRUD
         if ($this->model->getConnection() instanceof Connection) {
             $this->query = $this->model_class::select();
         } else {
-            $this->query = $this->model_class::selectRaw(
-                "{$this->table}.*"
-            );
+            $this->query = $this->model_class::selectRaw("{$this->table}.*");
         }
 
         $this->_setRelations();
@@ -196,6 +201,7 @@ abstract class CRUD
         $this->setQuery();
         $this->setQueryLimiters();
         // dd($this->query->toMql());
+        // $this->query->ddRawSql();
 
         if (config('paginator.limit') !== 0) {
             $this->paginator = $this->query->paginate(
@@ -431,6 +437,26 @@ abstract class CRUD
     }
 
     /**
+     * Set Alias.
+     *
+     * @return string
+     */
+    protected function setAlias(string $alias): string
+    {
+        return $this->alias = $alias;
+    }
+
+    /**
+     * Get Alias.
+     *
+     * @return string|null
+     */
+    protected function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    /**
      * Format Query.
      *
      * @return Builder
@@ -444,9 +470,7 @@ abstract class CRUD
         if (config('query.conditions')) {
             $this->query->where(
                 function ($q) {
-                    $this->_setQueryConditions(
-                        $q, config('query.conditions')
-                    );
+                    $this->_setQueryConditions($q, config('query.conditions'));
                 }
             );
         }
@@ -556,14 +580,9 @@ abstract class CRUD
                 $type = explode('\\', $method->getReturnType()->getName());
                 $type = $type[count($type) - 1];
 
-                if (in_array(Str::lower($type), [
-                    'belongsto', 'hasmany', 'belongstomany'
-                ])) {
-                    $method_r = (
-                        $this->reflect->newInstance()
-                    )->$name();
+                if (in_array(Str::lower($type), [ 'belongsto', 'hasmany', 'belongstomany' ])) {
+                    $method_r = ($this->reflect->newInstance())->$name();
                     $name = Str::kebab($name);
-                    // dump("{$name} - {$type}");
 
                     switch (Str::lower($type)) {
                         case 'belongsto':
@@ -599,14 +618,12 @@ abstract class CRUD
     /**
      * Format Query conditions recursively.
      *
-     * @param Builder &$query     The query to edit (by reference)
+     * @param Builder $query      The query to edit (by reference)
      * @param array   $conditions An nested array of conditions
      *
      * @return void
      */
-    private function _setQueryConditions(
-        Builder &$query, array $conditions
-    ): void
+    private function _setQueryConditions(Builder &$query, array $conditions): void
     {
         foreach ($conditions as $cond) {
             if (!array_key_exists($cond['bitwise'], self::PREFIXES)) {
@@ -616,11 +633,9 @@ abstract class CRUD
             $method = self::PREFIXES[$cond['bitwise']];
 
             if (array_key_exists('conditions', $cond)) {
-                $query->$method(
-                    function ($q) use ($cond) {
-                        $this->_setQueryConditions($q, $cond['conditions']);
-                    }
-                );
+                $query->$method(function ($q) use ($cond) {
+                    $this->_setQueryConditions($q, $cond['conditions']);
+                });
             } else {
                 $this->_setQueryCondition(
                     $query,
@@ -636,12 +651,13 @@ abstract class CRUD
     /**
      * Format Query condition.
      *
-     * @param Builder &$query   The query to edit (by reference)
-     * @param string  $bitwise  The bitwise operator
-     * @param string  $target   The targeted field
-     * @param string  $operator The condition operator
-     * @param string  $value    The value to compare
-     * @param CRUD    $repo     The repo (default this)
+     * @param Builder     $query    The query to edit (by reference)
+     * @param string      $bitwise  The bitwise operator
+     * @param string      $target   The targeted field
+     * @param string      $operator The condition operator
+     * @param string      $value    The value to compare
+     * @param CRUD|null   $repo     The repo (default this)
+     * @param string|null $alias    The table alias (used recursively)
      *
      * @return void
      */
@@ -651,7 +667,8 @@ abstract class CRUD
         string $target,
         string $operator,
         string $value,
-        CRUD  $repo = null
+        CRUD  $repo = null,
+        string $alias = null
     ): void
     {
         $repo = (is_null($repo))? $this: $repo;
@@ -662,27 +679,25 @@ abstract class CRUD
         );
 
         if (is_array($params)) {
+            $alias = $target[0];
             array_shift($target);
 
-            $repo = $this->_setQueryJoin($params, $table);
+            $repo = $this->_setQueryJoin($params, $repo, $alias);
 
             $this->_setQueryCondition(
-                $query, $bitwise, join('.', $target),
-                $operator, $value, $repo
+                $query, $bitwise, join('.', $target), $operator, $value, $repo, $repo->getAlias()
             );
         } else {
+            $alias = $alias?? $table;
             $params = (
                 $this->model->getConnection() instanceof Connection xor
                 !Schema::hasColumn($table, $params)
-            )? $params: "{$table}.{$params}";
+            )? $params: "{$alias}.{$params}";
             $params = [ $params ];
 
-            call_user_func_array(
-                [
-                    $query,
-                    $this->_getMethod($bitwise, $operator, $value, $params)
-                ], $params
-            );
+            call_user_func_array([
+                $query, $this->_getMethod($bitwise, $operator, $value, $params)
+            ], $params);
         }
     }
 
@@ -698,19 +713,18 @@ abstract class CRUD
         $orders = empty($orders)? config('query.order_by', []): $orders;
 
         foreach ($orders as $order) {
-            $this->_setQueryOrder(
-                $this->query, $order['attribute'], $order['order']
-            );
+            $this->_setQueryOrder($this->query, $order['attribute'], $order['order']);
         }
     }
 
     /**
      * Format Query Order.
      *
-     * @param Builder &$query The query to edit (by reference)
-     * @param array   $target The targeted field
-     * @param string  $order  The order (asc|desc)
-     * @param CRUD    $repo   The repo (default this)
+     * @param Builder     $query  The query to edit (by reference)
+     * @param array       $target The targeted field
+     * @param string      $order  The order (asc|desc)
+     * @param CRUD|null   $repo   The repo (default this)
+     * @param string|null $alias  The table alias (used recursively)
      *
      * @return void
      */
@@ -718,7 +732,8 @@ abstract class CRUD
         Builder &$query,
         array $target,
         string $order,
-        CRUD  $repo = null
+        CRUD  $repo = null,
+        string $alias = null
     ): void
     {
         $repo = (is_null($repo))? $this: $repo;
@@ -727,16 +742,17 @@ abstract class CRUD
         if (count($target) > 1) {
             $repo = $this->_setQueryJoin($this->_getRelation(
                 Str::camel(array_shift($target))
-            ), $table);
+            ), $repo);
 
-            $this->_setQueryOrder($query, $target, $order, $repo);
+            $this->_setQueryOrder($query, $target, $order, $repo, $repo->getAlias());
         } else {
+            $alias = $alias?? $table;
+
             if ($this->model->getConnection() instanceof Connection) {
                 $query->orderBy($target[0], $order);
             } else {
                 $query->orderBy((
-                    Schema::hasColumn($table, $target[0])?
-                        "{$table}.{$target[0]}": $target[0]
+                    Schema::hasColumn($table, $target[0])? "{$alias}.{$target[0]}": $target[0]
                 ), $order);
             }
         }
@@ -745,17 +761,26 @@ abstract class CRUD
     /**
      * Format Query join.
      *
-     * @param array  $join  The join details (repo, pk, fk, pivot)
-     * @param string $table The table table join
+     * @param array       $join  The join details (repo, pk, fk, pivot)
+     * @param CRUD|null   $repo   The repo (default this)
+     * @param string|null $alias The target table's alias
      *
      * @return CRUD
      */
-    private function _setQueryJoin(array $join, string $table): CRUD
+    private function _setQueryJoin(array $join, CRUD $repo = null, string $target_alias = null): CRUD
     {
-        $repo = new $join['repo']();
-        $target = $repo->getTable();
+        $repo = (is_null($repo))? $this: $repo;
+        $target_repo = new $join['repo']();
+        $target = $target_repo->getTable();
+        $table = $repo->getAlias()?? $repo->getTable();
 
-        if (!in_array($join['repo'], $this->joins)) {
+        if (is_null($target_alias)) {
+            $target_alias = in_array($join, $this->joins)? array_search($join, $this->joins): "{$target}_order";
+        }
+
+        $target_repo->setAlias($target_alias);
+
+        if (!in_array($join, $this->joins)) {
             if (array_key_exists('pivot', $join) && !is_null($join['pivot'])) {
                 $this->query->join(
                     $join['pivot']['table'],
@@ -766,25 +791,30 @@ abstract class CRUD
                 $table = $join['pivot']['table'];
             }
 
-            $this->joins[] = $join['repo'];
+            $this->joins[$target_alias] = $join;
             $this->query->leftJoin(
-                $target, "{$target}.{$join['owner_key']}",
-                "{$table}.{$join['target_key']}"
+                "{$target} AS {$target_alias}", "{$target_alias}.{$join['owner_key']}", "{$table}.{$join['target_key']}"
             );
         }
 
-        return $repo;
+        return $target_repo;
     }
 
     /**
      * Transform an operator into a query method.
      *
-     * @param string $bitwise The join details (repo, owner_key, target_key)
+     * @param string $bitwise  The join details (repo, owner_key, target_key)
+     * @param string $operator The serach operator (lk, eq, btw...)
+     * @param string $value    The serached value
+     * @param string $params   The serach parameters (by reference)
      *
      * @return string
      */
     private function _getMethod(
-        string $bitwise, string $operator, string $value, array &$params
+        string $bitwise,
+        string $operator,
+        string $value,
+        array &$params
     ): string
     {
         $method = self::PREFIXES[$bitwise];
@@ -797,7 +827,7 @@ abstract class CRUD
     /**
      * Transform an operator and extract a suffix if negate (whereNot).
      *
-     * @param string $operator The join details (repo, pk, fk)
+     * @param string $operator The serach operator (lk, eq, btw...) (by reference)
      *
      * @return string
      */
@@ -816,7 +846,9 @@ abstract class CRUD
     /**
      * Transform an operator into a query method suffix.
      *
-     * @param string $operator The join details (repo, pk, fk)
+     * @param string $operator The serach operator (lk, eq, btw...)
+     * @param string $value    The serached value
+     * @param string $params   The serach parameters (by reference)
      *
      * @return string
      */
@@ -878,7 +910,7 @@ abstract class CRUD
      * Check a filter validity. Return the corresponding column.
      *
      * @param string $key      The filter key in filters array
-     * @param string $operator The operator
+     * @param string $operator The serach operator (lk, eq, btw...)
      * @param array  $filters  The filters
      *
      * @return mixed
