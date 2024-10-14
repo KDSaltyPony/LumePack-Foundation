@@ -44,6 +44,12 @@ class LaravelServiceProvider extends ServiceProvider
         DB::enableQueryLog();
 
         $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/app.php'), 'app'
+        );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/mail.php'), 'mail'
+        );
+        $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/auth.php'), 'auth'
         );
         $this->mergeConfigFrom(

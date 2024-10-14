@@ -26,5 +26,7 @@ return [
     '415' => 'Unsupported Media Type',
     '416' => 'Requested range unsatisfiable - wrong "Range" Header',
     '417' => 'Expectation failed - couldn\'t meet the "Expect" requirements',
-    '421' => 'Bad mapping / Misdirected Request - no answer from service'
+    '421' => 'Bad mapping / Misdirected Request - no answer from the service',
+    '500' => 'Internal Server Error',
+    '501' => 'Not Implemented - Function doesn\'t exists'
 ];

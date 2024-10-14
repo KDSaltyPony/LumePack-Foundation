@@ -41,6 +41,10 @@ trait UserTrait
                 is_null($model->pwd_token)? null: new \DateTime()
             );
 
+            if (is_null($model->email_verified_at) && !config('app.is_mail_checked')) {
+                $model->email_verified_at = new \DateTime();
+            }
+
             if ($model->getOriginal(
                 'email_verified_at'
             ) !== $model->email_verified_at) {
@@ -79,7 +83,8 @@ trait UserTrait
             // Send email validation success on email verification
             if (
                 !is_null($model->email_verified_at) &&
-                $model->email_verified_at->ne($model->getOriginal('email_verified_at'))
+                $model->email_verified_at->ne($model->getOriginal('email_verified_at')) &&
+                !config('mail.is_mail_checked')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.email', [
                     'user' => $model,
@@ -94,7 +99,8 @@ trait UserTrait
                 is_null($model->password) &&
                 is_null($model->pwd_token) &&
                 is_null($model->deleted_at) &&
-                $model->is_active
+                $model->is_active &&
+                !config('mail.is_forcing_password_creation')
             ) {
                 $model->pwd_token = User::pwdTokenize();
                 $model->saveQuietly();
@@ -119,7 +125,8 @@ trait UserTrait
             // Send password creation success on password change
             if (
                 Request::has('password') &&
-                Hash::check(Request::get('password'), $model->password)
+                Hash::check(Request::get('password'), $model->password) &&
+                !config('mail.is_confirming_password')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.password', [
                     'user' => $model,
