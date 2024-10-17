@@ -12,7 +12,7 @@ class RequestSentListner
     /**
      * Handle the event.
      *
-     * @param MessageSending $event
+     * @param ResponseReceived $event
      *
      * @return void
      */

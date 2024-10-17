@@ -148,12 +148,23 @@ class Permission extends BaseModel
                         'uid', 'LIKE', "{$uid}%"
                     )->where(
                         'id', '<>', $attrs['id']
+                    )->where(
+                        PermissionType::firstWhere('uid', 'ENDPOINT')
                     )->count() === 0) {
                         $routes->add([
-                            'uid' => $uid,
-                            'uri' => $route->uri
+                            'uid'    => $uid,
+                            'uri'    => $route->uri,
+                            'method' => $route->methods
                         ]);
                     }
+                }
+            } else {
+                if (Str::startsWith($route->uri, 'api')) {
+                    $routes->add([
+                        'uid'    => null,
+                        'uri'    => $route->uri,
+                        'method' => $route->methods
+                    ]);
                 }
             }
         }

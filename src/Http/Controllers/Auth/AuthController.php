@@ -40,7 +40,15 @@ class AuthController extends BaseController
     public function login(Request $request): JsonResponse
     {
         $user_model = config('crud.user_model');
-        $user = $user_model::where('login', $request->login)->with('roles')->first();
+        $user = $user_model::where('login', $request->login);
+
+        $relations = empty($relations)? config('query.relations', []): $relations;
+
+        foreach ($relations as $relation) {
+            $user->with($relation);
+        }
+
+        $user = $user->first();
 
         if (
             !$user || !is_null($user->deleted_at) ||

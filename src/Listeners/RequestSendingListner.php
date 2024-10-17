@@ -29,7 +29,7 @@ class RequestSendingListner
     /**
      * Handle the event.
      *
-     * @param MessageSending $event
+     * @param RequestSending $event
      *
      * @return void
      */
