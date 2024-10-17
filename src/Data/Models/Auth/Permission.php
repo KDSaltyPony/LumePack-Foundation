@@ -149,7 +149,7 @@ class Permission extends BaseModel
                     )->where(
                         'id', '<>', $attrs['id']
                     )->where(
-                        PermissionType::firstWhere('uid', 'ENDPOINT')
+                        'permission_type_id', PermissionType::firstWhere('uid', 'ENDPOINT')->id
                     )->count() === 0) {
                         $routes->add([
                             'uid'    => $uid,
