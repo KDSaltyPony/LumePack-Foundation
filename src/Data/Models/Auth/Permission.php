@@ -139,7 +139,7 @@ class Permission extends BaseModel
                 $uid = ra_to_uid($route);
 
                 // TODO: filter permission request on permission type uid ENDPOINT
-                if (Str::startsWith($uid, $controller)) {
+                if (Str::startsWith($uid, "{$controller}_")) {
                     $has_method = !$has_method? Str::contains(
                         $attrs['uid'], Str::after($uid, "{$controller}_")
                     ): $has_method;
