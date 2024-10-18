@@ -63,8 +63,9 @@ trait UserTrait
         static::saved(function (User $model) {
             // Send email validation when a new mail token is generated
             if (
-                $model->getOriginal('email_token') !== $model->email_token &&
-                !is_null($model->email_token)
+                !is_null($model->email) &&
+                !is_null($model->email_token) &&
+                $model->getOriginal('email_token') !== $model->email_token
             ) {
                 $model->email_verified_at = (
                     config('auth.is_mail_relocked')? null: $model->email_verified_at
@@ -74,28 +75,26 @@ trait UserTrait
                 Mail::send(new BaseMail('foundation::emails.user.validate', [
                     'user' => $model,
                     'token' => $model->email_token,
-                    'subject' => trans(
-                        'foundation::mail.subject_user_validate'
-                    )
+                    'subject' => trans('foundation::mail.subject_user_validate')
                 ]));
             }
 
             // Send email validation success on email verification
             if (
+                !is_null($model->email) &&
                 !is_null($model->email_verified_at) &&
                 $model->email_verified_at->ne($model->getOriginal('email_verified_at')) &&
                 !config('mail.is_mail_checked')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.email', [
                     'user' => $model,
-                    'subject' => trans(
-                        'foundation::mail.subject_user_validates'
-                    )
+                    'subject' => trans('foundation::mail.subject_user_validates')
                 ]));
             }
 
             // Send password creation link when password and pwd_token empty
             if (
+                !is_null($model->email) &&
                 is_null($model->password) &&
                 is_null($model->pwd_token) &&
                 is_null($model->deleted_at) &&
@@ -113,8 +112,9 @@ trait UserTrait
 
             // Send forgot password when new pwd token is generated
             if (
-                $model->getOriginal('pwd_token') !== $model->pwd_token &&
-                !is_null($model->pwd_token)
+                !is_null($model->email) &&
+                !is_null($model->pwd_token) &&
+                $model->getOriginal('pwd_token') !== $model->pwd_token
             ) {
                 Mail::send(new BaseMail('foundation::emails.auth.forgot', [
                     'subject' => trans('foundation::mail.subject_auth_forgot'),
@@ -124,6 +124,7 @@ trait UserTrait
 
             // Send password creation success on password change
             if (
+                !is_null($model->email) &&
                 Request::has('password') &&
                 Hash::check(Request::get('password'), $model->password) &&
                 !config('mail.is_confirming_password')
