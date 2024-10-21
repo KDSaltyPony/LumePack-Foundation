@@ -39,8 +39,13 @@ if (!function_exists('ns_search')) {
      *
      * @return string|null
      */
-    function ns_search(string $namespace, string $target, $replaces = []) {
+    function ns_search(string $namespace, string $target, ?array $replaces = [], ?string $namespace_prefix = null) {
+        $prefixes = [ 'App\\', 'LumePack\\Foundation\\' ];
         $target = Str::studly($target);
+
+        if (!is_null($namespace_prefix)) {
+            $prefixes[] = $namespace_prefix;
+        }
 
         foreach ($replaces as $origin => $value) {
             $namespace = Str::replace($origin, $value, $namespace);
@@ -49,7 +54,8 @@ if (!function_exists('ns_search')) {
         preg_match('/(?:[A-Z][a-z]*?)$/', $namespace, $origin);
         $origin = $origin[0];
 
-        if (!Str::contains($namespace, Str::plural($origin))) {
+        // if (!Str::contains($namespace, Str::plural($origin))) {
+        if (!Str::startsWith(Str::after(Str::remove($prefixes, $namespace), '\\'), Str::plural($origin))) {
             $origin = 'Model';
         }
 
