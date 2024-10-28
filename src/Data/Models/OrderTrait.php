@@ -163,6 +163,9 @@ trait OrderTrait
                     $other->order -= 1;
                     $other->saveQuietly();
                 }
+
+                $model->order = 0;
+                $model->saveQuietly();
             }
         });
     }
