@@ -158,21 +158,21 @@ class Permission extends BaseModel
                         ]);
                     }
                 }
-            } else {
-                if (Str::startsWith($route->uri, 'api')) {
-                    $routes->add([
-                        'uid'    => null,
-                        'uri'    => $route->uri,
-                        'method' => $route->methods
-                    ]);
-                }
+            // } else {
+            //     if (Str::startsWith($route->uri, 'api')) {
+            //         $routes->add([
+            //             'uid'    => null,
+            //             'uri'    => $route->uri,
+            //             'method' => $route->methods
+            //         ]);
+            //     }
             }
         }
 
         if ($has_method) {
             $routes = $routes->filter(function ($route) use ($attrs) {
                 return Str::startsWith($attrs['uid'], $route['uid']);
-            });
+            })->values();
         }
 
         return $routes;
