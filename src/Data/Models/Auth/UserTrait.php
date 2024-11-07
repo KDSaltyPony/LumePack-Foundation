@@ -84,7 +84,7 @@ trait UserTrait
                 !is_null($model->email) &&
                 !is_null($model->email_verified_at) &&
                 $model->email_verified_at->ne($model->getOriginal('email_verified_at')) &&
-                !config('mail.is_mail_checked')
+                config('mail.is_mail_checked')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.email', [
                     'user' => $model,
@@ -99,7 +99,7 @@ trait UserTrait
                 is_null($model->pwd_token) &&
                 is_null($model->deleted_at) &&
                 $model->is_active &&
-                !config('mail.is_forcing_password_creation')
+                config('mail.is_forcing_password_creation')
             ) {
                 $model->pwd_token = User::pwdTokenize();
                 $model->saveQuietly();
@@ -127,7 +127,7 @@ trait UserTrait
                 !is_null($model->email) &&
                 Request::has('password') &&
                 Hash::check(Request::get('password'), $model->password) &&
-                !config('mail.is_confirming_password')
+                config('mail.is_confirming_password')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.password', [
                     'user' => $model,
