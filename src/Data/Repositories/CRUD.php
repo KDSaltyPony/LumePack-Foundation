@@ -690,7 +690,7 @@ abstract class CRUD
         } else {
             $alias = $alias?? $table;
             $params = (
-                $this->model->getConnection() instanceof Connection xor
+                $this->model->getConnection() instanceof Connection ||
                 !Schema::hasColumn($table, $params)
             )? $params: "{$alias}.{$params}";
             $params = [ $params ];
