@@ -63,9 +63,7 @@ class Authenticate extends Middleware
 
             if ($permission->isEmpty()) {
                 $method = Str::beforeLast($method, '_');
-                $permission = Permission::where(
-                    'uid', 'LIKE', "{$method}%"
-                )->get();
+                $permission = Permission::where('uid', 'LIKE', "{$method}%")->get();
             }
 
             if ($permission->isNotEmpty()) {

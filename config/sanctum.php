@@ -50,6 +50,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Expiration Minutes Override
+    |--------------------------------------------------------------------------
+    |
+    | This value controls the number of minutes until an issued token will be
+    | considered expired. If this value is null, personal access tokens do
+    | not expire. This won't tweak the lifetime of first-party sessions.
+    | This parameter is taken to populate the expires_at field in BDD. It is
+    | taken before the "expiration" parameter. If null, "expiration" is taken.
+    |
+    */
+
+    'expiration_override' => env('SANCTUM_TOKEN_EXPIRATION_OVERRIDE', null),
+
+    /*
+    |--------------------------------------------------------------------------
     | Sanctum Middleware
     |--------------------------------------------------------------------------
     |

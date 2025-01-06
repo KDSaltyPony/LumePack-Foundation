@@ -69,9 +69,7 @@ class AuthController extends BaseController
                         $access_token->name
                     ) || (
                         !is_null($access_token->expires_at) &&
-                        new \DateTime(
-                            $access_token->expires_at
-                        ) < new \DateTime()
+                        new \DateTime($access_token->expires_at) < new \DateTime()
                     )
                 ) {
                     $access_token->delete();
@@ -82,9 +80,13 @@ class AuthController extends BaseController
                 $this->setTokenBody($user->createToken(
                     Hash::make($request->server('HTTP_USER_AGENT')), [ '*' ],
                     (
-                        is_null(config('sanctum.expiration'))?
-                            null:
-                            now()->addMinutes(config('sanctum.expiration'))
+                        is_null(config('sanctum.expiration_override'))?
+                            (
+                                is_null(config('sanctum.expiration'))?
+                                    null:
+                                    now()->addMinutes(config('sanctum.expiration'))
+                            ):
+                            now()->addMinutes(config('sanctum.expiration_override'))
                     )
                 ), $user)
             );
