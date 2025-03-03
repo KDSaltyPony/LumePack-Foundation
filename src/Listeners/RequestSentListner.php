@@ -18,7 +18,7 @@ class RequestSentListner
      */
     public function handle(ResponseReceived $event)
     {
-        if (config('is_logged')) {
+        if (config('logs.is_logged')) {
             $keyed = spl_object_id($event->request->toPsrRequest());
             $log = new Log();
             $log->code = "REQUEST-{$keyed}-SENT";
