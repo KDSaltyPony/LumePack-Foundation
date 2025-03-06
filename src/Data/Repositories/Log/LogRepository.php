@@ -34,7 +34,31 @@ class LogRepository extends CRUD
         'id'      => '_id',
         'process' => 'process',
         'source'  => 'source',
-        'code'    => 'code'
+        'code'    => 'code',
+        'data'    => 'data'
+        // 'data-is_authenticated' => 'data.is_authenticated',
+        // 'data-user_id'          => 'data.user_id',
+        // // Model
+        // 'data-uid'              => 'data.uid',
+        // 'data-table'            => 'data.table',
+        // 'data-model'            => 'data.model',
+        // 'data-original'         => 'data.original',
+        // 'data-original-id'      => 'data.original',
+        // 'data-attributes-id     => 'data.attributes',
+        // // Request
+        // 'data-method'           => 'data.method',
+        // 'data-protocol'         => 'data.protocol',
+        // 'data-host'             => 'data.host',
+        // 'data-port'             => 'data.port',
+        // 'data-path'             => 'data.path',
+        // 'data-query_string'     => 'data.query_string',
+        // 'data-anchor'           => 'data.anchor',
+        // // Response
+        // 'data-status'           => 'data.status',
+        // 'data-reason'           => 'data.reason',
+        // // Request & Response
+        // 'data-headers'          => 'data.headers',
+        // 'data-body'             => 'data.body'
     ];
 
     /**

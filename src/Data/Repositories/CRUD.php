@@ -678,6 +678,7 @@ abstract class CRUD
             $target[0], $operator, $repo->getFilters()
         );
 
+
         if (is_array($params)) {
             $alias = $target[0];
             array_shift($target);
@@ -892,6 +893,13 @@ abstract class CRUD
                     // TODO => uknown code ! => throw error
                 }
 
+                if (
+                    $this->model->getConnection() instanceof Connection &&
+                    $value == intval($value)
+                ) {
+                    $value = intval($value);
+                }
+
                 $params[1] = self::OPERATORS[$operator];
                 $params[2] = $value; // TODO => Value controls ?
 
@@ -921,6 +929,14 @@ abstract class CRUD
         $filters = is_null($filters)? $this->filters: $filters;
         $filter = null;
 
+        if (
+            $this->model->getConnection() instanceof Connection &&
+            Str::contains($key, '-')
+        ) {
+            $tmp_exploded_key = explode('-', $key);
+            $key = $tmp_exploded_key[0];
+        }
+
         if (!array_key_exists($key, $filters)) {
             # TODO throw error
         }
@@ -943,6 +959,14 @@ abstract class CRUD
                     explode('.', $filters[$key])[1]
                 ));
             }
+        }
+
+        if (
+            $this->model->getConnection() instanceof Connection &&
+            isset($tmp_exploded_key) &&
+            is_array($tmp_exploded_key)
+        ) {
+            $filter = implode('.', $tmp_exploded_key);
         }
 
         return $filter;
