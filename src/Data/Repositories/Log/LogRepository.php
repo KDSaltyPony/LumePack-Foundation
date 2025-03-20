@@ -31,11 +31,12 @@ class LogRepository extends CRUD
      * @var array
      */
     protected $filters = [
-        'id'      => '_id',
-        'process' => 'process',
-        'source'  => 'source',
-        'code'    => 'code',
-        'data'    => 'data'
+        'id'         => '_id',
+        'process'    => 'process',
+        'source'     => 'source',
+        'code'       => 'code',
+        'data'       => 'data',
+        'created_at' => 'created_at'
         // 'data-is_authenticated' => 'data.is_authenticated',
         // 'data-user_id'          => 'data.user_id',
         // // Model
