@@ -637,12 +637,23 @@ abstract class CRUD
                     $this->_setQueryConditions($q, $cond['conditions']);
                 });
             } else {
+                if (
+                    $this->model->getConnection() instanceof Connection &&
+                    Str::endsWith($cond['target'], '_at')
+                ) {
+                    // TODO: accept full datetime + better regex...
+                    if (
+                        preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $cond['value']) &&
+                        ($cond['operator'] === 'lte' || $cond['operator'] === 'gt')
+                    ) {
+                        $cond['value'] .= ' 23:59:59';
+                    }
+
+                    $cond['value'] = new \Carbon\Carbon($cond['value']);
+                }
+
                 $this->_setQueryCondition(
-                    $query,
-                    $cond['bitwise'],
-                    $cond['target'],
-                    $cond['operator'],
-                    $cond['value']
+                    $query, $cond['bitwise'], $cond['target'], $cond['operator'], $cond['value']
                 );
             }
         }
@@ -655,7 +666,7 @@ abstract class CRUD
      * @param string      $bitwise  The bitwise operator
      * @param string      $target   The targeted field
      * @param string      $operator The condition operator
-     * @param string      $value    The value to compare
+     * @param mixed       $value    The value to compare
      * @param CRUD|null   $repo     The repo (default this)
      * @param string|null $alias    The table alias (used recursively)
      *
@@ -666,7 +677,7 @@ abstract class CRUD
         string $bitwise,
         string $target,
         string $operator,
-        string $value,
+        mixed $value,
         CRUD  $repo = null,
         string $alias = null
     ): void
@@ -674,9 +685,7 @@ abstract class CRUD
         $repo = (is_null($repo))? $this: $repo;
         $table = $repo->getTable();
         $target = explode('.', $target);
-        $params = $repo->_getFilterRaw(
-            $target[0], $operator, $repo->getFilters()
-        );
+        $params = $repo->_getFilterRaw($target[0], $operator, $repo->getFilters());
 
 
         if (is_array($params)) {
@@ -696,9 +705,7 @@ abstract class CRUD
             )? $params: "{$alias}.{$params}";
             $params = [ $params ];
 
-            call_user_func_array([
-                $query, $this->_getMethod($bitwise, $operator, $value, $params)
-            ], $params);
+            call_user_func_array([ $query, $this->_getMethod($bitwise, $operator, $value, $params) ], $params);
         }
     }
 
@@ -806,16 +813,13 @@ abstract class CRUD
      *
      * @param string $bitwise  The join details (repo, owner_key, target_key)
      * @param string $operator The serach operator (lk, eq, btw...)
-     * @param string $value    The serached value
+     * @param mixed  $value    The serached value
      * @param string $params   The serach parameters (by reference)
      *
      * @return string
      */
     private function _getMethod(
-        string $bitwise,
-        string $operator,
-        string $value,
-        array &$params
+        string $bitwise, string $operator, mixed $value, array &$params
     ): string
     {
         $method = self::PREFIXES[$bitwise];
@@ -848,13 +852,13 @@ abstract class CRUD
      * Transform an operator into a query method suffix.
      *
      * @param string $operator The serach operator (lk, eq, btw...)
-     * @param string $value    The serached value
+     * @param mixed  $value    The serached value
      * @param string $params   The serach parameters (by reference)
      *
      * @return string
      */
     private function _methodSuffix(
-        string $operator, string $value, array &$params
+        string $operator, mixed $value, array &$params
     ): string
     {
         $suffix = '';
@@ -895,6 +899,7 @@ abstract class CRUD
 
                 if (
                     $this->model->getConnection() instanceof Connection &&
+                    is_string($value) &&
                     $value == intval($value)
                 ) {
                     $value = intval($value);
