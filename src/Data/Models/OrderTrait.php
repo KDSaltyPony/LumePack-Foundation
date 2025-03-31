@@ -66,9 +66,7 @@ trait OrderTrait
                 $class = get_class($model);
                 $query = $class::where(
                     'order', '>=', $model->order
-                )->where(
-                    'id', '<>', $model->id
-                );
+                )->where('id', '<>', $model->id);
 
                 if (
                     property_exists($model, 'order_grouped_by') &&
@@ -141,9 +139,7 @@ trait OrderTrait
                 Schema::hasColumn($model->getTable(), 'order')
             ) {
                 $class = get_class($model);
-                $query = $class::where(
-                    'order', '>=', $model->order
-                );
+                $query = $class::where('order', '>=', $model->order);
 
                 if (
                     property_exists($model, 'order_grouped_by') &&
@@ -155,17 +151,17 @@ trait OrderTrait
 
                 if (Schema::hasColumn($model->getTable(), 'deleted_at')) {
                     $query = $query->where('deleted_at', null);
+
+                    $model->order = 0;
+                    $model->saveQuietly();
                 }
 
                 $others = $query->get();
 
                 foreach ($others as $other) {
-                    $other->order -= 1;
+                    $other->order--;
                     $other->saveQuietly();
                 }
-
-                $model->order = 0;
-                $model->saveQuietly();
             }
         });
     }

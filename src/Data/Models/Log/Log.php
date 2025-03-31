@@ -42,7 +42,7 @@ class Log extends MongoModel
      *
      * @var bool
      */
-    public $timestamps = [ "created_at" ];
+    public $timestamps = [ 'created_at' ];
 
     /**
      * The attributes that are mass assignable.
@@ -99,7 +99,9 @@ class Log extends MongoModel
      *
      * @return void
      */
-    public function setDataAttribute(Model|Request|Response|array|string $value): void
+    public function setDataAttribute(
+        Model|Request|Response|array|string $value
+    ): void
     {
         if ($value instanceof Model) {
             $value = [
@@ -132,7 +134,9 @@ class Log extends MongoModel
                 ];
             } else {
                 // TODO
-                $value = [ 'error' => 'Can\'t log that kind of request (yet?).' ];
+                $value = [
+                    'error' => 'Can\'t log that kind of request (yet?).'
+                ];
             }
         }
 
@@ -152,7 +156,9 @@ class Log extends MongoModel
                 ];
             } else {
                 // TODO
-                $value = [ 'error' => 'Can\'t log that kind of response (yet?).' ];
+                $value = [
+                    'error' => 'Can\'t log that kind of response (yet?).'
+                ];
             }
         }
 

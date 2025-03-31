@@ -73,9 +73,7 @@ trait LogTrait
                     // )->get()->toArray());
                     $logs = Log::where(
                         'data.uid', 'LIKE', '%User%'
-                    )->where(
-                        'data.attributes.id', $model->id
-                    )->get();
+                    )->where('data.attributes.id', $model->id)->get();
 
                     foreach ($logs as $log) {
                         $data = $log->data;
