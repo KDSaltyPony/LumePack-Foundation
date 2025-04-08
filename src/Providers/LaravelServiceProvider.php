@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Http\Middleware\Authenticate;
+use LumePack\Foundation\Commands\Permissions;
+use LumePack\Foundation\Commands\DefaultRole;
 
 /**
  * LaravelServiceProvider
@@ -73,6 +75,9 @@ class LaravelServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/storage.php'), 'storage'
         );
+        $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/permissions.php'), 'permissions'
+        );
 
         $this->loadMigrationsFrom(
             realpath(__DIR__.'/../../database/migrations')
@@ -85,6 +90,11 @@ class LaravelServiceProvider extends ServiceProvider
         $this->loadViewsFrom(
             realpath(__DIR__.'/../../resources/views/'), 'foundation'
         );
+
+        $this->commands([
+            Permissions::class,
+            DefaultRole::class
+        ]);
 
         // $this->publishes([
         //     __DIR__.'/../lang' => $this->app->langPath('vendor/courier'),

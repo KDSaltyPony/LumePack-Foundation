@@ -131,6 +131,10 @@ class FileController extends BaseController
             $file->setIsCroped(boolval($request->all()['croped']));
         }
 
+        if (array_key_exists('quality', $request->all())) {
+            $file->setQuality(intval($request->all()['quality']));
+        }
+
         if (!$is_errored) {
             $this->setResponse($file->variation_absolute_path, 200);
 

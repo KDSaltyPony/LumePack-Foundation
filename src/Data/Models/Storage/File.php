@@ -1,4 +1,5 @@
 <?php
+
 /**
  * File class file
  *
@@ -77,6 +78,13 @@ class File extends BaseModel
      */
     protected $is_croped = true;
 
+     /**
+     * Quality of the image
+     *
+     * @var bool
+     */
+    protected $quality = 95;
+
     /**
      * Create a new factory instance for the model.
      *
@@ -130,7 +138,7 @@ class File extends BaseModel
     {
         $path = $this->original_absolute_path;
         $mimetypes = [];
-        list($width, $height) = getimagesize($path)?: [null, null];
+        list($width, $height) = getimagesize($path)?: [ null, null ];
 
         // TODO: put that in validation shit
         if (extension_loaded('imagick')) {
@@ -140,15 +148,18 @@ class File extends BaseModel
                 return Str::startsWith($mimetype, 'image');
             }, ARRAY_FILTER_USE_BOTH);
         } elseif (extension_loaded('gd')) {
-            // foreach (gd_info() as $type => $is_supported) {
-            //     if ($is_supported) {
-            //         if (!Str::contains($type, 'Create')) {
-            //             $mimetypes[] = Str::before($type, ' ');
-            //         }
-            //     }
-            // }
+            foreach (gd_info() as $type => $is_supported) {
+                if (
+                    $is_supported &&
+                    !Str::contains($type, 'Create') &&
+                    Str::lower(Str::afterLast($type, ' ')) === 'support' &&
+                    !in_array(Str::lower(Str::before($type, ' ')), $mimetypes)
+                ) {
+                    $mimetypes[] = Str::lower(Str::before($type, ' '));
+                }
+            }
 
-            // $mimetypes = File::apacheMimeTypes($mimetypes);
+            $mimetypes = File::apacheMimeTypes($mimetypes);
         }
 
         if (in_array(
@@ -193,9 +204,64 @@ class File extends BaseModel
 
                     $imagick->scaleImage($this->width, $this->height);
                     $imagick->writeImage($path);
-                }  elseif (extension_loaded('gd')) {
-                    // TODO: GD images
-                    // IMG_AVIF imageavif | IMG_BMP imagebmp | IMG_GIF imagegif | IMG_JPG imagejpeg | IMG_PNG imagepng | IMG_WBMP imagewbmp | IMG_XPM | IMG_WEBP imagewebp
+                } elseif (extension_loaded('gd')) {
+                    $source = imagecreatefromstring(
+                        file_get_contents($old_path)
+                    );
+                    $mime_type = exif_imagetype($old_path);
+                    $old_width = imagesx($source);
+                    $old_height = imagesy($source);
+
+                    if ($old_width > $old_height) {
+                        $new_width =  $this->width;
+                        $new_height = ($this->width / $old_width) * $old_height;
+                    } else {
+                        $new_height = $this->height;
+                        $new_width = ($this->height / $old_height) * $old_width;
+                    }
+
+                    $image = imagecreatetruecolor($new_width, $new_height);
+
+                    if ($this->is_croped) {
+                        $crop_size = min($old_width, $old_height);
+						$x = ($old_width - $crop_size) / 2;
+						$y = ($old_height - $crop_size) / 2;
+						$cropped = imagecreatetruecolor($crop_size, $crop_size);
+
+                        imagecopyresampled(
+                            $cropped, $source, 0, 0, $x, $y,
+                            $crop_size, $crop_size, $crop_size, $crop_size
+                        );
+
+						$image = imagecreatetruecolor($this->width, $this->height);
+						imagecopyresampled(
+                            $image, $cropped, 0, 0, 0, 0,
+                            $this->width, $this->height, $crop_size, $crop_size
+                        );
+                    } else {
+                        imagecopyresampled(
+                            $image, $source, 0, 0, 0, 0,
+                            $new_width, $new_height, $old_width, $old_height
+                        );
+                    }
+
+                    switch ($mime_type) {
+                        case IMAGETYPE_JPEG:
+                            $image = imagejpeg($image, $path, $this->quality);
+                            break;
+                        case IMAGETYPE_PNG:
+                            $image = imagepng($image, $path, $this->quality);
+                            break;
+                        case IMAGETYPE_GIF:
+                            $image = imagegif($image, $path);
+                            break;
+                        case IMAGETYPE_WEBP:
+                            $image = imagewebp($image, $path, $this->quality);
+                            break;
+                    }
+
+                    imagedestroy($source);
+                    imagedestroy($image);
                 }
             }
         }
@@ -225,6 +291,18 @@ class File extends BaseModel
     public function setHeight(int $height): void
     {
         $this->height = $height;
+    }
+
+    /**
+     * Set the image quality.
+     *
+     * @param int $quality The image quality
+     *
+     * @return void
+     */
+    public function setQuality(int $quality): void
+    {
+        $this->quality = $quality;
     }
 
     /**
@@ -399,14 +477,16 @@ class File extends BaseModel
         $file = config('storage.dir') . "/{$token}";
 
         for ($i = 1; $i <= $length; $i++) {
-            $content = Storage::disk(config('storage.disk'))->get("{$dir}chunk-{$i}.tmp");
-            // if ($i === 1) {
-            //     Storage::disk(config('storage.disk'))->put($file, $content);
-            // } else {
-                // file_put_contents(Storage::disk(config('storage.disk'))->path($file), $content);
-            Storage::disk(config('storage.disk'))->append($file, $content);
-            // Storage::disk(config('storage.disk'))->append($file, $content);
-            // }
+            $chunk = Storage::disk(config('storage.disk'))->get("{$dir}chunk-{$i}.tmp");
+
+            if ($i === 1) {
+                Storage::disk(config('storage.disk'))->put($file, $chunk);
+            } else {
+                $content = Storage::disk(config('storage.disk'))->get($file);
+                $content .= $chunk;
+
+                Storage::disk(config('storage.disk'))->put($file, $content);
+            }
         }
 
         Storage::disk(config('storage.disk'))->deleteDirectory($dir);

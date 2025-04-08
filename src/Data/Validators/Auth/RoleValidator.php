@@ -37,4 +37,11 @@ class RoleValidator extends Validator
         'permissions.*'     => [ 'array' ],
         'permissions.*.uid' => [ 'required', 'exists:permissions,uid', 'distinct' ]
     ];
+
+    protected $edit_rules = [
+        'name'              => [ 'required', 'string' ],
+        'permissions'       => [ 'array' ],
+        'permissions.*'     => [ 'array' ],
+        'permissions.*.uid' => [ 'exists:permissions,uid', 'distinct' ]
+    ];
 }

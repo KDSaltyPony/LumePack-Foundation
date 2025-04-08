@@ -83,6 +83,13 @@ class User extends BaseAuthModel
     ];
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [ 'login', 'email', 'email_verified_at', 'password' ];
+
+    /**
      * Create a new factory instance for the model.
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory
