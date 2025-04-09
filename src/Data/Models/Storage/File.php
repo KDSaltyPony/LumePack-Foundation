@@ -211,32 +211,35 @@ class File extends BaseModel
                     $mime_type = exif_imagetype($old_path);
                     $old_width = imagesx($source);
                     $old_height = imagesy($source);
+                    $new_ratio = $this->width / $this->height;
+                    $old_ratio = $width / $height;
 
-                    if ($old_width > $old_height) {
+                    if ($old_ratio > $new_ratio) {
                         $new_width =  $this->width;
-                        $new_height = ($this->width / $old_width) * $old_height;
+                        $new_height = $this->width / $old_ratio;
                     } else {
                         $new_height = $this->height;
-                        $new_width = ($this->height / $old_height) * $old_width;
+                        $new_width = $this->height * $old_ratio;
                     }
 
                     $image = imagecreatetruecolor($new_width, $new_height);
 
                     if ($this->is_croped) {
-                        $crop_size = min($old_width, $old_height);
-						$x = ($old_width - $crop_size) / 2;
-						$y = ($old_height - $crop_size) / 2;
-						$cropped = imagecreatetruecolor($crop_size, $crop_size);
+                        if ($old_ratio > $new_ratio) {
+                            $cropes_width = $old_height * $new_ratio;
+                            $croped_height = $old_height;
+                            $x = ($old_width - $cropes_width) / 2;
+                            $y = 0;
+                        } else {
+                            $cropes_width = $old_width;
+                            $croped_height = $old_width / $new_ratio;
+                            $x = 0;
+                            $y = ($old_height - $croped_height) / 2;
+                        }
 
                         imagecopyresampled(
-                            $cropped, $source, 0, 0, $x, $y,
-                            $crop_size, $crop_size, $crop_size, $crop_size
-                        );
-
-						$image = imagecreatetruecolor($this->width, $this->height);
-						imagecopyresampled(
-                            $image, $cropped, 0, 0, 0, 0,
-                            $this->width, $this->height, $crop_size, $crop_size
+                            $image, $source, 0, 0, $x, $y,
+                            $this->width, $this->height, $cropes_width, $croped_height
                         );
                     } else {
                         imagecopyresampled(
