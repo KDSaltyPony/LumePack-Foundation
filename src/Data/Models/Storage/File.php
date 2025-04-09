@@ -212,7 +212,7 @@ class File extends BaseModel
                     $old_width = imagesx($source);
                     $old_height = imagesy($source);
                     $new_ratio = $this->width / $this->height;
-                    $old_ratio = $width / $height;
+                    $old_ratio = $old_width / $old_width;
 
                     if ($old_ratio > $new_ratio) {
                         $new_width =  $this->width;
