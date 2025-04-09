@@ -226,12 +226,12 @@ class File extends BaseModel
 
                     if ($this->is_croped) {
                         if ($old_ratio > $new_ratio) {
-                            $cropes_width = $old_height * $new_ratio;
+                            $croped_width = $old_height * $new_ratio;
                             $croped_height = $old_height;
-                            $x = ($old_width - $cropes_width) / 2;
+                            $x = ($old_width - $croped_width) / 2;
                             $y = 0;
                         } else {
-                            $cropes_width = $old_width;
+                            $croped_width = $old_width;
                             $croped_height = $old_width / $new_ratio;
                             $x = 0;
                             $y = ($old_height - $croped_height) / 2;
@@ -239,7 +239,7 @@ class File extends BaseModel
 
                         imagecopyresampled(
                             $image, $source, 0, 0, $x, $y,
-                            $this->width, $this->height, $cropes_width, $croped_height
+                            $this->width, $this->height, $croped_width, $croped_height
                         );
                     } else {
                         imagecopyresampled(
