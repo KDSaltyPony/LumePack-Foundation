@@ -60,7 +60,7 @@ class DefaultRole extends Command
             'LPFAR_AUTHROLE_DELETE',
             'LPFAP_AUTHPERMISSION'
         ];
-        $role_uid = $this->option('role_uid');
+        $role_uid = $this->option('roleuid');
         $role_name = $this->option('rolename');
         $name = $this->option('name');
         $email = $this->option('email');
@@ -83,7 +83,7 @@ class DefaultRole extends Command
         $repo->update([
             'permissions' => Permission::whereIn(
                 'uid', $permissions
-            )->get()->pluck('id')->toArray()
+            )->get()->map->only([ 'id' ])->toArray()
         ], $role->id);
 
         $this->info('Role updated with permissions');

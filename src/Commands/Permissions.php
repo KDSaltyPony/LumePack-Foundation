@@ -138,7 +138,7 @@ class Permissions extends Command
 
             $repo->create([
                 'uid'                => $permission['uid'],
-                'name'               => $route['uri'], 
+                'name'               => $permission['uid'], 
                 'permission_type_id' => 1
             ]);
         }
