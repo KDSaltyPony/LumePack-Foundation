@@ -8,6 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use LumePack\Foundation\Data\Models\Mailing\Sendmail;
 use LumePack\Foundation\Data\Repositories\Mailing\SendmailRepository;
+use Symfony\Component\Mime\Part\Multipart\MixedPart;
+use Symfony\Component\Mime\Part\TextPart;
 
 class MessageSendingListener
 {
@@ -41,12 +43,22 @@ class MessageSendingListener
             'x-metadata-sendmail-token'
         );
 
+        $body = $event->message->getBody();
+
+        if ($body instanceof MixedPart) {
+            foreach ($body->getParts() as $part) {
+                if ($part instanceof TextPart) {
+                    $body = $part;
+                }
+            }
+        }
+
         if (!is_null($token)) {
             if (Sendmail::firstWhere('token', $token)) {
                 $this->repo->updateWhereToken(
                     [
                         'sent_at' => new \DateTime(),
-                        'content' => $event->message->getBody()->getBody()
+                        'content' => $body->getBody()
                     ], $token
                 );
             } else {
@@ -54,7 +66,7 @@ class MessageSendingListener
                     'from'       => $event->message->getFrom(),
                     'to'         => $event->message->getTo(),
                     'subject'    => $event->message->getSubject(),
-                    'content'    => $event->message->getBody()->getBody(),
+                    'content'    => $body->getBody(),
                     'sent_at'    => new \DateTime(),
                     'token'      => $token,
                     'is_success' => null

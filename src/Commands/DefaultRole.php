@@ -30,7 +30,7 @@ use LumePack\Foundation\Data\Models\Auth\Permission;
 class DefaultRole extends Command
 {
     /*
-    In order to call the cmd : php artisan defaultrole:create --roleuid=admin --rolename="Admin (Default role)" --name=Utilisateur --email=admin@example.com --password=password
+    In order to call the cmd : php artisan defaultrole:create --roleuid=admin --rolename="Admin (Default role)" --email=admin@example.com --password=password
     */
 
     /**
@@ -38,7 +38,7 @@ class DefaultRole extends Command
      *
      * @var string
      */
-    protected $signature = 'defaultrole:create {--roleuid=admin : The UID of the role} {--rolename="Admin (Default role)" : The name of the role} {--name="Utilisateur" : The name of the user} {--email= : The email for the user} {--password= : The password for the user}';
+    protected $signature = 'defaultrole:create {--roleuid=admin : The UID of the role} {--rolename="Admin (Default role)" : The name of the role} {--email= : The email for the user} {--password= : The password for the user}';
 
     /**
      * The console command description.
@@ -62,11 +62,10 @@ class DefaultRole extends Command
         ];
         $role_uid = $this->option('roleuid');
         $role_name = $this->option('rolename');
-        $name = $this->option('name');
         $email = $this->option('email');
         $password = $this->option('password');
 
-        if (empty($email) || empty($password) || empty($name) || empty($role_uid) || empty($role_name)) {
+        if (empty($email) || empty($password) || empty($role_uid) || empty($role_name)) {
             $this->error('Arguments email, password, name, roleuid and rolename are required');
 
             return self::FAILURE;
