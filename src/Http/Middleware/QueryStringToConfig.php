@@ -82,11 +82,11 @@ class QueryStringToConfig
 
         foreach ($orders as $key => $order) {
             if ($order !== '') {
-                $order = explode('.', strtolower($order));
+                $order = explode('.', $order);
                 $suffix = 'asc';
 
-                if (in_array($order[count($order) - 1], [ 'asc', 'desc' ])) {
-                    $suffix = $order[count($order) - 1];
+                if (in_array(strtolower($order[count($order) - 1]), [ 'asc', 'desc' ])) {
+                    $suffix = strtolower($order[count($order) - 1]);
                     unset($order[count($order) - 1]);
                 }
 
