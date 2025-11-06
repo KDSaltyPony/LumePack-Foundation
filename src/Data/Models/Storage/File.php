@@ -51,6 +51,13 @@ class File extends BaseModel
     protected $with = [ /*'media'*/ ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [ 'mimetype' ];
+
+    /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
@@ -78,7 +85,7 @@ class File extends BaseModel
      */
     protected $is_croped = true;
 
-     /**
+    /**
      * Quality of the image
      *
      * @var bool
@@ -116,6 +123,16 @@ class File extends BaseModel
      * Mutators
      * -------------------------------------------------------------------------
      */
+
+    /**
+     * Get the mimetype.
+     *
+     * @return string
+     */
+    public function getMimetypeAttribute(): string
+    {
+        return FacadesFile::mimeType($this->original_absolute_path);
+    }
 
     /**
      * Get the absolute path.
