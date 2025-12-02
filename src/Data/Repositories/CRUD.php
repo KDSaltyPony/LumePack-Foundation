@@ -611,7 +611,7 @@ abstract class CRUD
         $table = $repo->getTable();
 
         if (count($target) > 1) {
-            $repo = $this->_setQueryJoin($this->_getRelation(
+            $repo = $this->_setQueryJoin($repo->_getRelation(
                 Str::camel(array_shift($target))
             ), $table);
 
