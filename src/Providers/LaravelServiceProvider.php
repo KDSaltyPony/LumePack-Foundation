@@ -24,6 +24,7 @@ use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Http\Middleware\Authenticate;
 use LumePack\Foundation\Commands\Permissions;
 use LumePack\Foundation\Commands\DefaultRole;
+use LumePack\Foundation\Commands\RightsManagement;
 
 /**
  * LaravelServiceProvider
@@ -92,8 +93,9 @@ class LaravelServiceProvider extends ServiceProvider
         );
 
         $this->commands([
-            Permissions::class,
-            DefaultRole::class
+            // Permissions::class,
+            // DefaultRole::class,
+            RightsManagement::class
         ]);
 
         // $this->publishes([
