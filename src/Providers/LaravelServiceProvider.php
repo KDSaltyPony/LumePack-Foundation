@@ -19,6 +19,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Http\Middleware\Authenticate;
@@ -114,7 +115,10 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../routes/api.php')
         );
 
-        Sanctum::ignoreMigrations();
+        if (intval(Str::before(app()->version(), '.')) < 12) {
+            Sanctum::ignoreMigrations();
+        }
+
         Sanctum::usePersonalAccessTokenModel(AccessToken::class);
 
         config([ 'logs.process' => (
