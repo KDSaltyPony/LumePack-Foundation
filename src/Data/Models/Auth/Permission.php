@@ -135,7 +135,10 @@ class Permission extends BaseModel
         $has_method = false;
 
         foreach (Route::getRoutes() as $route) {
-            if (in_array('lpfauth:sanctum', $route->action['middleware'])) {
+            if (
+                isset($route->action['middleware']) &&
+                in_array('lpfauth:sanctum', $route->action['middleware'])
+            ) {
                 $uid = ra_to_uid($route);
 
                 // TODO: filter permission request on permission type uid ENDPOINT
