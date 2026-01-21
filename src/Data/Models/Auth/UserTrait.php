@@ -55,9 +55,9 @@ trait UserTrait
                 $model->email_token = User::emailTokenize();
             }
 
-            if (!is_null($model->password) && Hash::needsRehash($model->password)) {
-                $model->password = Hash::make($model->password);
-            }
+            // if (!is_null($model->password) && Hash::needsRehash($model->password)) {
+            //     $model->password = Hash::make($model->password);
+            // }
         });
 
         static::saved(function (User $model) {
