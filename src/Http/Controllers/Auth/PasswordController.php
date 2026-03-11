@@ -14,6 +14,8 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use LumePack\Foundation\Http\Controllers\BaseController;
 
 /**
@@ -37,7 +39,13 @@ class PasswordController extends BaseController
     public function forgot(Request $request): JsonResponse
     {
         $user_model = config('crud.user_model');
-        $user = $user_model::firstWhere('login', $request->get('login'));
+
+        if (env('IS_LOGIN_KS', false)) {
+            $user = $user_model::firstWhere('login', $request->login);
+        } else {
+            $user = $user_model::firstWhere(DB::raw('LOWER(login)'), Str::lower($request->get('login')));
+        }
+
         $this->setResponse(trans('foundation::pwd.error'), 500);
 
         if (!is_null($user)) {

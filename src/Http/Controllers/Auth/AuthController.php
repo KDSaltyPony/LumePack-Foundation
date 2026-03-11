@@ -15,7 +15,9 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 use LumePack\Foundation\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\NewAccessToken;
 use LumePack\Foundation\Data\Models\Auth\User;
 
@@ -40,7 +42,12 @@ class AuthController extends BaseController
     public function login(Request $request): JsonResponse
     {
         $user_model = config('crud.user_model');
-        $user = $user_model::where('login', $request->login);
+
+        if (env('IS_LOGIN_KS', false)) {
+            $user = $user_model::where('login', $request->login);
+        } else {
+            $user = $user_model::where(DB::raw('LOWER(login)'), Str::lower($request->login));
+        }
 
         $relations = empty($relations)? config('query.relations', []): $relations;
 
