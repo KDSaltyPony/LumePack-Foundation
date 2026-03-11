@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use LumePack\Foundation\Data\Models\Auth\User;
 use LumePack\Foundation\Http\Controllers\BaseController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use LumePack\Foundation\Mail\BaseMail;
 
@@ -40,7 +41,12 @@ class PasswordController extends BaseController
      */
     public function forgot(Request $request): JsonResponse
     {
-        $user = User::firstWhere('login', $request->get('login'));
+        if (env('IS_LOGIN_KS', false)) {
+            $user = User::where('login', $request->login)->first();
+        } else {
+            $user = User::where(DB::raw('LOWER(login)'), Str::lower($request->login))->first();
+        }
+
         $this->setResponse(trans('foundation::pwd.error'), 500);
 
         if (!is_null($user)) {

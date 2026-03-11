@@ -14,7 +14,9 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\Auth\User;
 use LumePack\Foundation\Http\Controllers\BaseController;
 use LumePack\Foundation\Mail\BaseMail;
@@ -41,7 +43,7 @@ class LoginController extends BaseController
     {
         Mail::send(new BaseMail('foundation::emails.user.logins', [
             'logins' => User::where(
-                'email', $request->email
+                DB::raw('LOWER(email)'), Str::lower($request->email)
             )->get()->pluck('login')->toArray(),
             'subject' => trans('foundation::mail.subject_user_logins')
         ]));

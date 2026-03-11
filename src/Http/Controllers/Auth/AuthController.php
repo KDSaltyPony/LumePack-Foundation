@@ -15,7 +15,9 @@ namespace LumePack\Foundation\Http\Controllers\Auth;
 use LumePack\Foundation\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\NewAccessToken;
 use LumePack\Foundation\Data\Models\Auth\AccessToken;
 use LumePack\Foundation\Data\Models\Auth\User;
@@ -40,7 +42,11 @@ class AuthController extends BaseController
      */
     public function login(Request $request): JsonResponse
     {
-        $user = User::where('login', $request->login)->first();
+        if (env('IS_LOGIN_KS', false)) {
+            $user = User::where('login', $request->login)->first();
+        } else {
+            $user = User::where(DB::raw('LOWER(login)'), Str::lower($request->login))->first();
+        }
 
         if (
             !$user || !is_null($user->deleted_at) ||
