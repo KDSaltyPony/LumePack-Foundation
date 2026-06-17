@@ -83,7 +83,10 @@ trait UserTrait
             if (
                 !is_null($model->email) &&
                 !is_null($model->email_verified_at) &&
-                $model->email_verified_at->ne($model->getOriginal('email_verified_at')) &&
+                (
+                    is_null($model->getOriginal('email_verified_at')) ||
+                    $model->email_verified_at->ne($model->getOriginal('email_verified_at'))
+                ) &&
                 config('mail.is_mail_checked')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.email', [
