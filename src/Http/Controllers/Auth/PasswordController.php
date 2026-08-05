@@ -12,11 +12,15 @@
  */
 namespace LumePack\Foundation\Http\Controllers\Auth;
 
+use DateTime;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use LumePack\Foundation\Data\Models\Token;
 use LumePack\Foundation\Http\Controllers\BaseController;
+use LumePack\Foundation\Mail\BaseMail;
 
 /**
  * PasswordController
@@ -48,9 +52,24 @@ class PasswordController extends BaseController
 
         $this->setResponse(trans('foundation::pwd.error'), 500);
 
-        if (!is_null($user)) {
-            $user->pwd_token = $user_model::pwdTokenize();
-            $user->save();
+        if (!is_null($user) && !is_null($user->email)) {
+            $token_string = Token::generateTokenString();
+            $duration_min = env('PWD_TOKEN_VALIDITY');
+            $creation_date = new DateTime();
+
+            $user->pwdTokens()->create([
+                'purpose'    => 'pwd_forgot',
+                'name'       => "pwd_forgot-{$creation_date->getTimestamp()}",
+                'token'      => $token_string,
+                'expires_at' => $creation_date->modify("+{$duration_min} minutes")
+            ]);
+
+            Mail::send(new BaseMail('foundation::emails.auth.forgot', [
+                'user'             => $user,
+                'token'            => $token_string,
+                'token_expires_at' => $creation_date,
+                'subject'          => trans('foundation::mail.subject_auth_forgot')
+            ]));
 
             $this->setResponse(trans('foundation::pwd.email'));
         }
@@ -68,25 +87,19 @@ class PasswordController extends BaseController
      */
     public function mailRenew(string $token, Request $request): JsonResponse
     {
-        $user_model = config('crud.user_model');
-        $user = $user_model::firstWhere('pwd_token', $token);
-
-        if (is_null($user)) {
-            $duration_min = env('PWD_TOKEN_VALIDITY') + 1;
-        } else {
-            $duration = (new \DateTime($user->pwd_token_created_at))->diff(new \DateTime);
-            $duration_min = $duration->days * 24 * 60;
-            $duration_min += $duration->h * 60;
-            $duration_min += $duration->i;
-        }
+        $token = Token::firstWhere('token', hash('sha256', $token));
+        $duration = (new \DateTime())->diff($token->expires_at);
 
         $this->setResponse(trans('foundation::pwd.token'), 500);
 
-        if ($duration_min <= env('PWD_TOKEN_VALIDITY')) {
-            $user->password = $request->get('password');
-            $user->pwd_token = null;
+        if (
+            !is_null($token) &&
+            intval($duration->format('%R%i')) >= 0 &&
+            $token->tokenable::class === config('crud.user_model')
+        ) {
+            $token->tokenable->password = $request->get('password');
 
-            if ($user->save()) {
+            if ($token->tokenable->save()) {
                 $this->setResponse(trans('foundation::pwd.renew'), 200);
             }
         }
@@ -97,7 +110,6 @@ class PasswordController extends BaseController
     /**
      * Method called by the /api/auth/pwd/renew URL in POST.
      *
-     * @param string  $jeton   The valid token
      * @param Request $request The request
      *
      * @return JsonResponse

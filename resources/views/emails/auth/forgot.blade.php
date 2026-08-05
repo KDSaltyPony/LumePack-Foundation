@@ -7,6 +7,7 @@
     </head>
 
     <body>
-        Create a new password: /api/auth/pwd/{{ $user->pwd_token }}?lproc={{ $lproc }}
+        Create a new password: /api/auth/pwd/{{ $token }}?lproc={{ $lproc }}<br>
+        Expires at {{ $token_expires_at->format('Y-m-d H:i') }}
     </body>
 </html>

@@ -14,10 +14,12 @@ namespace LumePack\Foundation\Data\Models\Auth;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use LumePack\Foundation\Data\Models\BaseAuthModel;
+use LumePack\Foundation\Data\Models\Token;
 use LumePack\Foundation\Database\Factories\Auth\UserFactory;
 
 /**
@@ -67,8 +69,7 @@ class User extends BaseAuthModel
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'pivot', 'deleted_at',
-        'pwd_token', 'pwd_token_created_at', 'email_token'
+        'password', 'remember_token', 'pivot', 'deleted_at', 'email_token'
     ];
 
     /**
@@ -77,7 +78,6 @@ class User extends BaseAuthModel
      * @var array
      */
     protected $casts = [
-        'pwd_token_created_at' => 'datetime',
         'email_verified_at'    => 'datetime',
         'is_active'            => 'boolean'
     ];
@@ -118,6 +118,16 @@ class User extends BaseAuthModel
     }
 
     /**
+     * Get the access tokens that belong to model.
+     *
+     * @return MorphMany
+     */
+    public function pwdTokens()
+    {
+        return $this->morphMany(Token::class, 'tokenable');
+    }
+
+    /**
      * -------------------------------------------------------------------------
      * Mutators
      * -------------------------------------------------------------------------
@@ -145,20 +155,6 @@ class User extends BaseAuthModel
     public function setPasswordAttribute(?string $value): void
     {
         $this->attributes['password'] = is_null($value)? null: Hash::make($value);
-    }
-
-    /**
-     * Create a token.
-     *
-     * @return string
-     */
-    public static function pwdTokenize(): string
-    {
-        do {
-            $token = Str::random(32);
-        } while (!is_null(User::firstWhere('pwd_token', $token)));
-
-        return $token;
     }
 
     /**

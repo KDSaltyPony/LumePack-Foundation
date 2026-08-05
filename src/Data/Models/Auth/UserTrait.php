@@ -12,10 +12,12 @@
  */
 namespace LumePack\Foundation\Data\Models\Auth;
 
+use DateTime;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
 use LumePack\Foundation\Data\Models\Mailing\Sendmail;
+use LumePack\Foundation\Data\Models\Token;
 use LumePack\Foundation\Mail\BaseMail;
 
 /**
@@ -37,10 +39,6 @@ trait UserTrait
     protected static function bootUserTrait()
     {
         static::saving(function (User $model) {
-            $model->pwd_token_created_at = (
-                is_null($model->pwd_token)? null: new \DateTime()
-            );
-
             if (is_null($model->email_verified_at) && !config('app.is_mail_checked')) {
                 $model->email_verified_at = new \DateTime();
             }
@@ -81,13 +79,13 @@ trait UserTrait
 
             // Send email validation success on email verification
             if (
+                config('mail.is_mail_checked') &&
                 !is_null($model->email) &&
                 !is_null($model->email_verified_at) &&
                 (
                     is_null($model->getOriginal('email_verified_at')) ||
                     $model->email_verified_at->ne($model->getOriginal('email_verified_at'))
-                ) &&
-                config('mail.is_mail_checked')
+                )
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.email', [
                     'user' => $model,
@@ -95,42 +93,50 @@ trait UserTrait
                 ]));
             }
 
-            // Send password creation link when password and pwd_token empty
+            // Send password creation link when password is empty
             if (
+                config('mail.is_forcing_password_creation') &&
                 !is_null($model->email) &&
+                // is_null($model->getOriginal('password')) &&
                 is_null($model->password) &&
-                is_null($model->pwd_token) &&
                 is_null($model->deleted_at) &&
-                $model->is_active &&
-                config('mail.is_forcing_password_creation')
+                $model->is_active
+                // $model->pwdTokens()->where(
+                //     'purpose', 'pwd_email'
+                // )->where(
+                //     'expires_at', '>', (new DateTime())->format('Y-m-d H:i:s')
+                // )->count() === 0 &&
+                // $model->pwdTokens()->where(
+                //     'purpose', 'pwd_create'
+                // )->where(
+                //     'expires_at', '>', (new DateTime())->format('Y-m-d H:i:s')
+                // )->count() === 0
             ) {
-                $model->pwd_token = User::pwdTokenize();
-                $model->saveQuietly();
+                $token_string = Token::generateTokenString();
+                $duration_min = env('PWD_TOKEN_VALIDITY');
+                $creation_date = new DateTime();
+
+                $model->pwdTokens()->create([
+                    'purpose'    => 'pwd_create',
+                    'name'       => "pwd_create-{$creation_date->getTimestamp()}",
+                    'token'      => $token_string,
+                    'expires_at' => $creation_date->modify("+{$duration_min} minutes")
+                ]);
 
                 Mail::send(new BaseMail('foundation::emails.auth.password', [
-                    'user' => $model,
-                    'subject' => trans('foundation::mail.subject_auth_password')
-                ]));
-            }
-
-            // Send forgot password when new pwd token is generated
-            if (
-                !is_null($model->email) &&
-                !is_null($model->pwd_token) &&
-                $model->getOriginal('pwd_token') !== $model->pwd_token
-            ) {
-                Mail::send(new BaseMail('foundation::emails.auth.forgot', [
-                    'subject' => trans('foundation::mail.subject_auth_forgot'),
-                    'user' => $model
+                    'user'             => $model,
+                    'token'            => $token_string,
+                    'token_expires_at' => $creation_date,
+                    'subject'          => trans('foundation::mail.subject_auth_password')
                 ]));
             }
 
             // Send password creation success on password change
             if (
+                config('mail.is_confirming_password') &&
                 !is_null($model->email) &&
                 Request::has('password') &&
-                Hash::check(Request::get('password'), $model->password) &&
-                config('mail.is_confirming_password')
+                Hash::check(Request::get('password'), $model->password)
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.password', [
                     'user' => $model,
