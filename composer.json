@@ -12,7 +12,8 @@
     "require": {
         "php": ">=8.1",
         "laravel/framework": ">=10",
-        "laravel/sanctum": ">=3"
+        "laravel/sanctum": ">=3",
+        "pragmarx/google2fa": ">=9"
     },
     "autoload": {
         "psr-4": {

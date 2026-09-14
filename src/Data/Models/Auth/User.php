@@ -78,8 +78,7 @@ class User extends BaseAuthModel
      * @var array
      */
     protected $casts = [
-        'email_verified_at'    => 'datetime',
-        'is_active'            => 'boolean'
+        'email_verified_at' => 'datetime', 'is_active' => 'boolean'
     ];
 
     /**
@@ -124,7 +123,9 @@ class User extends BaseAuthModel
      */
     public function pwdTokens()
     {
-        return $this->morphMany(Token::class, 'tokenable');
+        return $this->morphMany(Token::class, 'tokenable')->without(
+            'users'
+        );
     }
 
     /**

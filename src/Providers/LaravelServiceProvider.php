@@ -57,6 +57,9 @@ class LaravelServiceProvider extends ServiceProvider
             realpath(__DIR__.'/../../config/auth.php'), 'auth'
         );
         $this->mergeConfigFrom(
+            realpath(__DIR__.'/../../config/mfa.php'), 'mfa'
+        );
+        $this->mergeConfigFrom(
             realpath(__DIR__.'/../../config/crud.php'), 'crud'
         );
         $this->mergeConfigFrom(

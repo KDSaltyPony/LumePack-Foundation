@@ -28,7 +28,7 @@ trait FileTrait
      *
      * @return void
      */
-    protected static function bootEssaiFichesModel()
+    protected static function bootFileTraitModel()
     {
         static::deleting(function (File $model) {
             $model->remove();

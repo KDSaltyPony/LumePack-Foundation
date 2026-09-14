@@ -32,15 +32,6 @@ class AccessToken extends SanctumPersonalAccessToken
      */
     protected $table = 'user_access_tokens';
 
-    // /**
-    //  * The attributes that should be cast.
-    //  *
-    //  * @var array
-    //  */
-    // protected $casts = [
-    //     'last_used_at' => 'datetime', 'expires_at' => 'datetime'
-    // ];
-
     /**
      * -------------------------------------------------------------------------
      * Relations

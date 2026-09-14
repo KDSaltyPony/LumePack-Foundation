@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Route;;
 Route::prefix('auth')->namespace('Auth')->middleware(
     'lpfauth:sanctum'
 )->group(function () {
+    // routes relative to the current user
     Route::prefix('/')->controller('UserController')->middleware(
         'dataValidation:auth.user,lume_pack.foundation'
     )->group(function () {
@@ -37,6 +38,7 @@ Route::prefix('auth')->namespace('Auth')->middleware(
         Route::put('/', 'edit');
     });
 
+    // routes relative to standard login
     Route::controller('AuthController')->middleware(
         'dataValidation:auth.auth,lume_pack.foundation'
     )->group(function () {
@@ -45,16 +47,42 @@ Route::prefix('auth')->namespace('Auth')->middleware(
         Route::get('logout', 'logout');
     });
 
+    // routes relative to mfa mangment for users logging in
+    Route::prefix('login')->controller('MfaController')->middleware(
+        'dataValidation:auth.mfa_login,lume_pack.foundation'
+    )->group(function () {
+        Route::withoutMiddleware('lpfauth:sanctum')->post('mfa', 'establish');
+    });
+
+    // routes relative to mfa mangment for users logging in
+    Route::prefix('login')->controller('AuthController')->middleware(
+        'dataValidation:auth.mfa_login,lume_pack.foundation'
+    )->group(function () {
+        Route::withoutMiddleware('lpfauth:sanctum')->put('mfa', 'mfa');
+    });
+
+    // routes relative to mfa mangment for logged users
+    Route::prefix('mfa')->controller('MfaController')->middleware(
+        'dataValidation:auth.mfa,lume_pack.foundation'
+    )->group(function () {
+        Route::post('/', 'establish');
+        Route::put('/', 'enable');
+        Route::delete('/', 'disable');
+    });
+
+    // Route used to validate the email
     Route::prefix('user/email')->controller('UserController')->group(function () {
         Route::withoutMiddleware('lpfauth:sanctum')->get('{token}', 'validate');
     });
 
+    // Route used to ask for a forgoten login
     Route::prefix('user/login')->controller('LoginController')->middleware(
         'dataValidation:auth.login,lume_pack.foundation'
     )->group(function () {
         Route::withoutMiddleware('lpfauth:sanctum')->post('/', 'forgot');
     });
 
+    // Routes used for a forgoten password or to renew it
     Route::prefix('pwd')->controller('PasswordController')->group(function () {
         Route::withoutMiddleware('lpfauth:sanctum')->middleware(
             'dataValidation:auth.passwordForgot,lume_pack.foundation'
@@ -98,6 +126,7 @@ Route::prefix('auth')->namespace('Auth')->middleware(
     // });
 });
 
+// Routes for logs
 Route::prefix('log')->namespace('Log')->middleware(
     'lpfauth:sanctum'
 )->group(function () {

@@ -29,7 +29,7 @@ use LumePack\Foundation\Data\Models\Auth\Permission;
  */
 class BaseAuthModel extends Authenticatable
 {
-    use HasApiTokens, Notifiable, BaseModelTrait, LogTrait;
+    use HasApiTokens, HasMfa, Notifiable, BaseModelTrait, LogTrait;
 
     /**
      * The uid associated with the model log (default: null). \

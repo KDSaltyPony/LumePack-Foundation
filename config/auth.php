@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard'     => 'web',
+        'guard'     => 'api',
         'passwords' => 'users'
     ],
 
@@ -36,10 +36,15 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver'   => 'session',
+        'api' => [
+            'driver'   => 'sanctum',
             'provider' => 'users'
-        ]
+        ],
+
+        // 'pending' => [
+        //     'driver'   => 'cache',
+        //     'provider' => 'pending'
+        // ]
     ],
 
     /*
@@ -65,7 +70,14 @@ return [
             'model' => env(
                 'USER_MODEL', LumePack\Foundation\Data\Models\Auth\User::class
             ),
-        ]
+        ],
+
+        // 'pending' => [
+        //     'driver' => 'cache',
+        //     'model' => env(
+        //         'USER_MODEL', LumePack\Foundation\Data\Models\Auth\User::class
+        //     ),
+        // ]
 
         // 'users' => [
         //     'driver' => 'database',
@@ -121,7 +133,7 @@ return [
     /*
     |--------------------------------------------------------------------------
     | If the user email validation is mendatory to login
-    | after email modification
+    | after an email modification
     |--------------------------------------------------------------------------
     */
 

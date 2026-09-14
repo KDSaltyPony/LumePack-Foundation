@@ -79,13 +79,13 @@ trait UserTrait
 
             // Send email validation success on email verification
             if (
-                config('mail.is_mail_checked') &&
                 !is_null($model->email) &&
                 !is_null($model->email_verified_at) &&
                 (
                     is_null($model->getOriginal('email_verified_at')) ||
                     $model->email_verified_at->ne($model->getOriginal('email_verified_at'))
-                )
+                ) &&
+                config('mail.is_mail_checked')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.email', [
                     'user' => $model,
@@ -133,10 +133,10 @@ trait UserTrait
 
             // Send password creation success on password change
             if (
-                config('mail.is_confirming_password') &&
                 !is_null($model->email) &&
                 Request::has('password') &&
-                Hash::check(Request::get('password'), $model->password)
+                Hash::check(Request::get('password'), $model->password) &&
+                config('mail.is_confirming_password')
             ) {
                 Mail::send(new BaseMail('foundation::emails.user.password', [
                     'user' => $model,
