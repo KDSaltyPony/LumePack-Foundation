@@ -85,12 +85,12 @@ class AuthController extends BaseController
         $token = $request->input('mfa_pending_token');
         $user = HasMfa::pendingTokenRetriveUser($token);
 
-        $this->setResponse(trans('foundation::mfa.method_unknown'), 422);
+        $this->setResponse(trans('foundation::mfa.user_not_found'), 401);
 
-        if (in_array($method, config('mfa.methods'), true)) {
-            $this->setResponse(trans('foundation::mfa.user_not_found'), 401);
+        if (!is_null($user)) {
+            $this->setResponse(trans('foundation::mfa.method_unknown'), 422);
 
-            if (!is_null($user)) {
+            if (in_array($method, config('mfa.methods'), true)) {
                 $record = $user->mfaMethod($method);
 
                 if (!is_null($record)) {

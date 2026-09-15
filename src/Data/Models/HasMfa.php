@@ -70,7 +70,7 @@ trait HasMfa
     //  * @return void
     //  */
     // protected static function bootHasMfaTrait(Google2FA $engine)
-    public function __construct()
+    public function initializeHasMfa()
     {
         $this->exempted_roles = config('mfa.exempted_roles', []);
 
@@ -104,9 +104,9 @@ trait HasMfa
      *
      * @param string $method The method to get
      *
-     * @return MfaMethod
+     * @return MfaMethod|null
      */
-    public function mfaMethod(string $method): MfaMethod
+    public function mfaMethod(string $method): ?MfaMethod
     {
         return $this->mfaMethods()->where('method', $method)->first();
     }
@@ -225,10 +225,22 @@ trait HasMfa
     public static function pendingTokenRetriveUser(string $token): ?User
     {
         $payload = Cache::store()->get(self::sKey('pending', 'token', $token));
+        $user = null;
 
         $user_model = config('crud.user_model');
 
-        return is_null($payload)? null: $user_model::find($payload['user_id']);
+        if (!is_null($payload)) {
+            $user = $user_model::where('id', $payload['user_id']);
+            $relations = empty($relations)? config('query.relations', []): $relations;
+
+            foreach ($relations as $relation) {
+                $user->with($relation);
+            }
+
+            $user = $user->first();
+        }
+
+        return $user;
     }
 
     /**

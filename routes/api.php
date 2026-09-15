@@ -48,7 +48,7 @@ Route::prefix('auth')->namespace('Auth')->middleware(
     });
 
     // routes relative to mfa mangment for users logging in
-    Route::prefix('login')->controller('MfaController')->middleware(
+    Route::prefix('login')->controller('MfaMethodController')->middleware(
         'dataValidation:auth.mfa_login,lume_pack.foundation'
     )->group(function () {
         Route::withoutMiddleware('lpfauth:sanctum')->post('mfa', 'establish');
@@ -62,9 +62,10 @@ Route::prefix('auth')->namespace('Auth')->middleware(
     });
 
     // routes relative to mfa mangment for logged users
-    Route::prefix('mfa')->controller('MfaController')->middleware(
+    Route::prefix('mfa')->controller('MfaMethodController')->middleware(
         'dataValidation:auth.mfa,lume_pack.foundation'
     )->group(function () {
+        Route::get('/', 'list');
         Route::post('/', 'establish');
         Route::put('/', 'enable');
         Route::delete('/', 'disable');

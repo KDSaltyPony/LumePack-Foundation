@@ -103,7 +103,7 @@ return [
     |
     */
 
-    'exempted_roles' => explode(',', env('MFA_EXEMPTED_ROLES', NULL)),
+    'exempted_roles' => explode(',', env('MFA_EXEMPTED_ROLES', '')),
 
     /*
     |--------------------------------------------------------------------------
@@ -114,6 +114,6 @@ return [
     |
     */
 
-    'exempted_permissions' => explode(',', env('MFA_EXEMPTED_PERMISSIONS', NULL)),
+    'exempted_permissions' => explode(',', env('MFA_EXEMPTED_PERMISSIONS', '')),
 
 ];

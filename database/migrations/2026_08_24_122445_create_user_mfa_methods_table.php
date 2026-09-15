@@ -17,7 +17,6 @@ return new class extends Migration
                 'users'
             )->onDelete('cascade');
             $table->string('method', 10); // totp | email | sms | fido | etc.
-            // $table->string('type', 20); // knowledge | possession | inherence
             $table->text('secret')->nullable();
             $table->boolean('enabled')->default(false);
             $table->timestamp('confirmed_at')->nullable();

@@ -1,6 +1,6 @@
 <?php
 /**
- * MfaController class file
+ * MfaMethodController class file
  *
  * PHP Version 7.2.19
  *
@@ -24,7 +24,7 @@ use Laravel\Sanctum\NewAccessToken;
 use LumePack\Foundation\Data\Models\Auth\User;
 
 /**
- * MfaController
+ * MfaMethodController
  *
  * @category Controller
  * @package  LumePack\Foundation\Http\Controllers\Auth
@@ -32,7 +32,7 @@ use LumePack\Foundation\Data\Models\Auth\User;
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
-class MfaController extends BaseController
+class MfaMethodController extends BaseController
 {
     /**
      * The retrived user (auth or via the pending token).
@@ -154,24 +154,25 @@ class MfaController extends BaseController
         if (!is_null($this->user)) {
             $this->setResponse(trans('foundation::mfa.method_unknown'), 422);
 
-            if (
-                in_array($method, config('mfa.methods'), true) &&
-                $this->user->canDisableMfa()
-            ) {
-                $record = $this->user->mfaMethod($method);
+            if (in_array($method, config('mfa.methods'), true)) {
+                $this->setResponse(trans('foundation::mfa.mendatory'), 422);
 
-                $this->setResponse(
-                    trans('foundation::mfa.method_inactive'), 409
-                );
-
-                if (!is_null($record) && $record->enabled) {
-                    $record->enabled = false;
-                    $record->confirmed_at = null;
-                    $record->save();
+                if ($this->user->canDisableMfa()) {
+                    $record = $this->user->mfaMethod($method);
 
                     $this->setResponse(
-                        trans('foundation::mfa.method_disabled')
+                        trans('foundation::mfa.method_inactive'), 409
                     );
+
+                    if (!is_null($record) && $record->enabled) {
+                        $record->enabled = false;
+                        $record->confirmed_at = null;
+                        $record->save();
+
+                        $this->setResponse(
+                            trans('foundation::mfa.method_disabled')
+                        );
+                    }
                 }
             }
         }
