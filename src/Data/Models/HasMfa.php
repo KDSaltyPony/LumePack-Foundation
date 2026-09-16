@@ -6,7 +6,7 @@
  *
  * @category Model
  * @package  LumePack\Foundation\Data\Models
- * @author   Franz Vetter <fvetter@diatem.net>
+ * @author   KDSaltyPony <kallofdragon@gmail.com>, Franz Vetter <fvetter@diatem.net> <fvetter@diatem.net>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
@@ -30,7 +30,7 @@ use PragmaRX\Google2FA\Google2FA;
  *
  * @category Model
  * @package  LumePack\Foundation\Data\Models
- * @author   Franz Vetter <fvetter@diatem.net>
+ * @author   KDSaltyPony <kallofdragon@gmail.com>, Franz Vetter <fvetter@diatem.net> <fvetter@diatem.net>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */

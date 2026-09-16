@@ -6,7 +6,7 @@
  *
  * @category Controller
  * @package  LumePack\Foundation\Http\Controllers\Auth
- * @author   Franz Vetter <fvetter@diatem.net>
+ * @author   KDSaltyPony <kallofdragon@gmail.com>, Franz Vetter <fvetter@diatem.net> <fvetter@diatem.net>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
@@ -28,7 +28,7 @@ use LumePack\Foundation\Data\Models\Auth\User;
  *
  * @category Controller
  * @package  LumePack\Foundation\Http\Controllers\Auth
- * @author   Franz Vetter <fvetter@diatem.net>
+ * @author   KDSaltyPony <kallofdragon@gmail.com>, Franz Vetter <fvetter@diatem.net> <fvetter@diatem.net>
  * @license  https://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link     none
  */
@@ -40,6 +40,41 @@ class MfaMethodController extends BaseController
      * @var User $user
      */
     protected $user = null;
+
+    /**
+     * Call parent abstract register method.
+     *
+     * @inheritdoc
+     * @see   parent::list()
+     */
+    public function list(Request $request): JsonResponse
+    {
+        $this->repo->all();
+
+        $items = $this->repo->getCollection();
+
+        // collect()->map(function ($method) {
+        //     return new MfaMethod([
+        //         'method'       => $method,
+        //         'enabled'      => false,
+        //         'confirmed_at' => null
+        //     ]);
+        // });
+        foreach (config('mfa.methods') as $method) {
+            if (!$items->contains('method', $method)) {
+                $items->push(new MfaMethod([
+                    'method'       => $method,
+                    'enabled'      => false,
+                    'confirmed_at' => null
+                ]));
+            }
+        }
+        // $this->setResponse();
+
+        $this->setResponse($items);
+
+        return $this->response->format();
+    }
 
     /**
      * Method called by the /api/auth/mfa or api/auth/login/mfa URL in POST.
