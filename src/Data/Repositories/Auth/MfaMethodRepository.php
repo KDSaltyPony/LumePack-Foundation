@@ -31,9 +31,9 @@ class MfaMethodRepository extends CRUD
      * @var array
      */
     protected $filters = [
-        'id'      => 'id',
-        'method'  => 'method',
-        'enabled' => 'enabled'
+        'id'         => 'id',
+        'method'     => 'method',
+        'is_enabled' => 'is_enabled'
     ];
 
     /**

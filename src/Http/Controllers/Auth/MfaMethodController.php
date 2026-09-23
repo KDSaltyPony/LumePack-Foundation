@@ -56,7 +56,7 @@ class MfaMethodController extends BaseController
         // collect()->map(function ($method) {
         //     return new MfaMethod([
         //         'method'       => $method,
-        //         'enabled'      => false,
+        //         'is_enabled'   => false,
         //         'confirmed_at' => null
         //     ]);
         // });
@@ -64,7 +64,7 @@ class MfaMethodController extends BaseController
             if (!$items->contains('method', $method)) {
                 $items->push(new MfaMethod([
                     'method'       => $method,
-                    'enabled'      => false,
+                    'is_enabled'   => false,
                     'confirmed_at' => null
                 ]));
             }
@@ -100,17 +100,17 @@ class MfaMethodController extends BaseController
                     trans('foundation::mfa.method_active'), 409
                 );
 
-                if (is_null($record) || !$record->enabled) {
+                if (is_null($record) || !$record->is_enabled) {
                     $this->user->mfaMethods()->createOrFirst([ 'method' => $method ], [
                         'secret'       => ($method === 'totp')? $this->user->totpSecret(): null,
-                        'enabled'      => false,
+                        'is_enabled'   => false,
                         'confirmed_at' => null
                     ]);
 
                     $this->setTotp($method);
                 } elseif (
                     !is_null($record) &&
-                    $record->enabled &&
+                    $record->is_enabled &&
                     $request->has('mfa_pending_token')
                 ) {
                     $this->setTotp($method);
@@ -157,7 +157,7 @@ class MfaMethodController extends BaseController
                     if ($this->user->verify(
                         $method, $request->get('code'), $record->secret
                     )) {
-                        $record->enabled = true;
+                        $record->is_enabled = true;
                         $record->confirmed_at = now();
                         $record->save();
 
@@ -199,8 +199,8 @@ class MfaMethodController extends BaseController
                         trans('foundation::mfa.method_inactive'), 409
                     );
 
-                    if (!is_null($record) && $record->enabled) {
-                        $record->enabled = false;
+                    if (!is_null($record) && $record->is_enabled) {
+                        $record->is_enabled = false;
                         $record->confirmed_at = null;
                         $record->save();
 

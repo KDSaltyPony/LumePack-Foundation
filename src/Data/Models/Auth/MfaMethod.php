@@ -37,7 +37,7 @@ class MfaMethod extends Model
      */
     protected $casts = [
         'secret'       => 'encrypted',
-        'enabled'      => 'boolean',
+        'is_enabled'   => 'boolean',
         'confirmed_at' => 'datetime'
     ];
 
@@ -50,7 +50,7 @@ class MfaMethod extends Model
         'user_id',
         'method',
         'secret',
-        'enabled',
+        'is_enabled',
         'confirmed_at'
     ];
 

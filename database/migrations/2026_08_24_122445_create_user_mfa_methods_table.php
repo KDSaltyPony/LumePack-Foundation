@@ -18,7 +18,7 @@ return new class extends Migration
             )->onDelete('cascade');
             $table->string('method', 10); // totp | email | sms | fido | etc.
             $table->text('secret')->nullable();
-            $table->boolean('enabled')->default(false);
+            $table->boolean('is_enabled')->default(false);
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamps();
 

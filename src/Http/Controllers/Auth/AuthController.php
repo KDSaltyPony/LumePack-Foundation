@@ -101,8 +101,8 @@ class AuthController extends BaseController
                     if ($user->verify(
                         $method, $request->get('code'), $record->secret
                     )) {
-                        if (!$record->enabled) {
-                            $record->enabled = true;
+                        if (!$record->is_enabled) {
+                            $record->is_enabled = true;
                             $record->confirmed_at = now();
                             $record->save();
                         }

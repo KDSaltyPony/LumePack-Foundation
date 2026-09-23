@@ -116,9 +116,9 @@ trait HasMfa
      *
      * @return array
      */
-    public function enabledMfaMethods(): array
+    public function isEnabledMfaMethods(): array
     {
-        return $this->mfaMethods()->where('enabled', true)->pluck('method')->all();
+        return $this->mfaMethods()->where('is_enabled', true)->pluck('method')->all();
     }
 
     /**
@@ -145,7 +145,7 @@ trait HasMfa
      */
     public function isMfaSet(): bool
     {
-        return !empty($this->enabledMfaMethods());
+        return !empty($this->isEnabledMfaMethods());
     }
 
     /**
@@ -167,7 +167,7 @@ trait HasMfa
     {
         return (
             !$this->isMfaSetupMendatory() ||
-            $this->mfaMethods()->where('enabled', true)->count() > 1
+            $this->mfaMethods()->where('is_enabled', true)->count() > 1
         );
     }
 
