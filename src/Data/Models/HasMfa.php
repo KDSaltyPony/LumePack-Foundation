@@ -179,7 +179,7 @@ trait HasMfa
     public function pendingTokenCreate(): string
     {
         $token = Str::random(64);
-        $ttl = config('user-totp.pending_ttl');
+        $ttl = config('mfa.pending_ttl');
 
         Cache::store()->put($this->key('pending', 'token', $token), [
             'user_id' => $this->id, 'label' => $this->email
@@ -206,7 +206,7 @@ trait HasMfa
      */
     public function pendingTokenFail(string $token): void
     {
-        $ttl = config('user-totp.pending_ttl');
+        $ttl = config('mfa.pending_ttl');
         $key_attempts = $this->key('pending', 'attempts', $token);
         $attempts = Cache::store()->get($key_attempts);
 
