@@ -60,7 +60,7 @@ class AuthController extends BaseController
             if ($user->isMfaSetupMendatory() || $user->isMfaSet()) {
                 $this->setResponse([
                     'is_mfa_set'        => $user->isMfaSet(),
-                    'mfa_methods'       => $user->isMfaSet()? $user->enabledMfaMethods(): config('mfa.methods'),
+                    'mfa_methods'       => $user->isMfaSet()? $user->isEnabledMfaMethods(): config('mfa.methods'),
                     'mfa_pending_token' => $user->pendingTokenCreate()
                 ]);
             } else {
